@@ -1,0 +1,326 @@
+{
+  "DATA": [
+    {
+      "id": "1",
+      "title": "servicios",
+      "image": "https://i.pinimg.com/236x/00/9a/b9/009ab99f8cb5838605ded510dcd965f6.jpg",
+      "category": [
+        {
+          "title": "restaurantes",
+          "query": "restaurantes",
+          "categoryMap": "amenity",
+          "valueCategoryMap": "restaurant",
+          "color": "#4DA1A9"
+        },
+        {
+          "title": "cafeterias",
+          "query": "cafeterias",
+          "categoryMap": "amenity",
+          "valueCategoryMap": "cafe",
+          "color": "#DEAA79"
+        },
+        {
+          "title": "bares",
+          "query": "noquery",
+          "categoryMap": "amenity",
+          "valueCategoryMap": "bar",
+          "color": "#78B7D0"
+        },
+        {
+          "title": "comidas rapidas",
+          "query": "comidas+rapidas",
+          "categoryMap": "amenity",
+          "valueCategoryMap": "fast_food",
+          "color": "#F2E5BF"
+        },
+        {
+          "title": "bancos",
+          "query": "bancos",
+          "categoryMap": "amenity",
+          "valueCategoryMap": "bank",
+          "color": "#7E5CAD"
+        },
+        {
+          "title": "baños publicos",
+          "query": "noquery",
+          "categoryMap": "amenity",
+          "valueCategoryMap": "toilets",
+          "color": "#C96868"
+        },
+        {
+          "title": "estacionamientos",
+          "query": "noquery",
+          "categoryMap": "amenity",
+          "valueCategoryMap": "parking",
+          "color": "#79D7BE"
+        },
+        {
+          "title": "gasolineras",
+          "query": "gasolineras",
+          "categoryMap": "amenity",
+          "valueCategoryMap": "fuel",
+          "color": "#F2E5BF"
+        },
+        {
+          "title": "oficinas de correos",
+          "query": "oficinas+de+correos",
+          "categoryMap": "amenity",
+          "valueCategoryMap": "post_office",
+          "color": "#FFF4EA"
+        }
+      ]
+    },
+    {
+      "id": "2",
+      "title": "turismo",
+      "image": "https://i.pinimg.com/236x/22/5e/be/225ebe6849b5714561c783f995167008.jpg",
+      "category": [
+        {
+          "title": "hoteles",
+          "query": "hoteles",
+          "categoryMap": "tourism",
+          "valueCategoryMap": "hotel",
+          "color": "#F2E5BF"
+        },
+        {
+          "title": "albergues",
+          "query": "albergues",
+          "categoryMap": "tourism",
+          "valueCategoryMap": "hostel",
+          "color": "#7E5CAD"
+        },
+        {
+          "title": "casa de huespedes",
+          "query": "noquery",
+          "categoryMap": "tourism",
+          "valueCategoryMap": "guest_house",
+          "color": "#79D7BE"
+        },
+        {
+          "title": "campo de campamento",
+          "query": "noquery",
+          "categoryMap": "tourism",
+          "valueCategoryMap": "camp_site",
+          "color": "#FFF4EA"
+        },
+        {
+          "title": "oficinas turisticas",
+          "query": "noquery",
+          "categoryMap": "tourism",
+          "valueCategoryMap": "information",
+          "color": "#C96868"
+        },
+        {
+          "title": "atractivos turisticos",
+          "query": "noquery",
+          "categoryMap": "tourism",
+          "valueCategoryMap": "attraction",
+          "color": "#4DA1A9"
+        },
+        {
+          "title": "museos",
+          "query": "museos",
+          "categoryMap": "tourism",
+          "valueCategoryMap": "museum",
+          "color": "#F2E5BF"
+        },
+        {
+          "title": "obras de arte",
+          "query": "obra+de+arte",
+          "categoryMap": "tourism",
+          "valueCategoryMap": "artwork",
+          "color": "#7E5CAD"
+        },
+        {
+          "title": "galerias de arte",
+          "query": "noquery",
+          "categoryMap": "tourism",
+          "valueCategoryMap": "art_gallery",
+          "color": "#79D7BE"
+        }
+      ]
+    },
+    {
+      "id": "3",
+      "title": "tiendas",
+      "image": "https://i.pinimg.com/236x/7f/26/80/7f26801a123d91c003cb9ff561fe3fda.jpg",
+      "category": [
+        {
+          "title": "centros comerciales",
+          "query": "centros+comerciales",
+          "categoryMap": "shop",
+          "valueCategoryMap": "mall",
+          "color": "#79D7BE"
+        },
+        {
+          "title": "supermercados",
+          "query": "supermercados",
+          "categoryMap": "shop",
+          "valueCategoryMap": "supermarket",
+          "color": "#F2E5BF"
+        },
+        {
+          "title": "ropa",
+          "query": "tienda+de+ropa",
+          "categoryMap": "shop",
+          "valueCategoryMap": "clothes",
+          "color": "#FFF4EA"
+        },
+        {
+          "title": "zapatos",
+          "query": "noquery",
+          "categoryMap": "shop",
+          "valueCategoryMap": "shoes",
+          "color": "#C96868"
+        },
+        {
+          "title": "electronica",
+          "query": "tienda+de+electronica",
+          "categoryMap": "shop",
+          "valueCategoryMap": "electronics",
+          "color": "#4DA1A9"
+        },
+        {
+          "title": "librerias",
+          "query": "noquery",
+          "categoryMap": "shop",
+          "valueCategoryMap": "books",
+          "color": "#F2E5BF"
+        }
+      ]
+    },
+    {
+      "id": "4",
+      "title": "ocio",
+      "image": "https://i.pinimg.com/236x/14/25/07/142507e433532f57bb86385db4a8ee9b.jpg",
+      "category": [
+        {
+          "title": "parques",
+          "query": "parques",
+          "categoryMap": "leisure",
+          "valueCategoryMap": "park",
+          "color": "#79D7BE"
+        },
+        {
+          "title": "centro deportivo",
+          "query": "centros+deportivos",
+          "categoryMap": "leisure",
+          "valueCategoryMap": "sports_centre",
+          "color": "#F2E5BF"
+        },
+        {
+          "title": "parques infantiles",
+          "query": "parques+infantiles",
+          "categoryMap": "leisure",
+          "valueCategoryMap": "playground",
+          "color": "#7E5CAD"
+        },
+        {
+          "title": "gimnasios",
+          "query": "gimnasios",
+          "categoryMap": "leisure",
+          "valueCategoryMap": "fitness_centre",
+          "color": "#FFF4EA"
+        }
+      ]
+    },
+    {
+      "id": "5",
+      "title": "educacion",
+      "image": "https://i.pinimg.com/236x/cc/7f/d2/cc7fd2a5256ef555771bd8c82eb1dd9b.jpg",
+      "category": [
+        {
+          "title": "escuelas",
+          "query": "escuelas",
+          "categoryMap": "amenity",
+          "valueCategoryMap": "school",
+          "color": "#79D7BE"
+        },
+        {
+          "title": "universidades",
+          "query": "universidades",
+          "categoryMap": "amenity",
+          "valueCategoryMap": "university",
+          "color": "#F2E5BF"
+        },
+        {
+          "title": "guarderias",
+          "query": "noquery",
+          "categoryMap": "amenity",
+          "valueCategoryMap": "kindergarten",
+          "color": "#7E5CAD"
+        }
+      ]
+    },
+    {
+      "id": "6",
+      "title": "salud",
+      "image": "https://i.pinimg.com/236x/8c/9e/64/8c9e643844b3de7f82c94231a37fea7e.jpg",
+      "category": [
+        {
+          "title": "hospitales",
+          "query": "hospitales",
+          "categoryMap": "amenity",
+          "valueCategoryMap": "hospital",
+          "color": "#F2E5BF"
+        },
+        {
+          "title": "clinicas",
+          "query": "noquery",
+          "categoryMap": "amenity",
+          "valueCategoryMap": "clinic",
+          "color": "#7E5CAD"
+        },
+        {
+          "title": "consultorios medicos",
+          "query": "consultorios+medicos",
+          "categoryMap": "amenity",
+          "valueCategoryMap": "doctor",
+          "color": "#79D7BE"
+        }
+      ]
+    },
+    {
+      "id": "7",
+      "title": "servicios publicos",
+      "image": "https://i.pinimg.com/236x/6d/d4/51/6dd4515675c77b5c4cd75695d7394cd3.jpg",
+      "category": [
+        {
+          "title": "bibliotecas",
+          "query": "bibliotecas",
+          "categoryMap": "amenity",
+          "valueCategoryMap": "library",
+          "color": "#F2E5BF"
+        },
+        {
+          "title": "Comisarias",
+          "query": "policias",
+          "categoryMap": "amenity",
+          "valueCategoryMap": "courthouse",
+          "color": "#7E5CAD"
+        },
+        {
+          "title": "estacion de bomberos",
+          "query": "noquery",
+          "categoryMap": "amenity",
+          "valueCategoryMap": "bomb_site",
+          "color": "#79D7BE"
+        }
+      ]
+    },
+    {
+      "id": "8",
+      "title": "lugar de oracion",
+      "image": "https://i.pinimg.com/236x/d5/cf/ec/d5cfec24ba61ab07a5f232607aa2e11c.jpg",
+      "category": [
+        {
+          "title": "lugar de oracion",
+          "query": "iglesias",
+          "categoryMap": "amenity",
+          "valueCategoryMap": "place_of_worship",
+          "color": "#F2E5BF"
+        }
+      ]
+    }
+  ]
+}
