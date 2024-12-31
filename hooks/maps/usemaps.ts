@@ -75,7 +75,9 @@ export const usePlaceNavigate = () => {
       to[1]
     }?alternatives=true&annotations=distance%2Cduration&geometries=geojson&language=${
       RNLocalize.getLocales()[0].languageCode
-    }&overview=full&steps=true&access_token=pk.eyJ1IjoiczRndSIsImEiOiJjbDhwZHE2NDIxa2k4M3B0b3FsaXZydm02In0.plTbzb5jQBHgNvkiWE4h9w`;
+    }&overview=full&steps=true&access_token=${
+      process.env.EXPO_PUBLIC_MAPBOX_ACCESS_TOKEN
+    }`;
 
     try {
       const response = await fetch(url);
@@ -138,12 +140,18 @@ export const usePlaceNavigate = () => {
 
 export const useHeadingFromRoute = () => {
   const getHeadingFromRoute = (route: number[][], index: number) => {
-    if (index === route.length - 1) return 0;
+    if (index === route.length - 1) return 0; // Si es el último punto, no hay dirección.
     const [lon1, lat1] = route[index];
     const [lon2, lat2] = route[index + 1];
     const deltaLon = lon2 - lon1;
     const deltaLat = lat2 - lat1;
-    const heading = (Math.atan2(deltaLat, deltaLon) * 180) / Math.PI;
+
+    // Calcular el ángulo en radianes.
+    let heading = (Math.atan2(deltaLon, deltaLat) * 180) / Math.PI;
+
+    // Asegurar que el ángulo esté entre 0 y 360 grados.
+    heading = (heading + 360) % 360;
+
     return heading;
   };
 
@@ -164,19 +172,18 @@ export const useHeadingFromRoute = () => {
     [lon1, lat1]: number[],
     [lon2, lat2]: number[]
   ) => {
-    const R = 6371e3; // Earth radius in meters
-    const φ1 = (lat1 * Math.PI) / 180; // Initial latitude in radians
-    const φ2 = (lat2 * Math.PI) / 180; // Final latitude in radians
-    const Δφ = ((lat2 - lat1) * Math.PI) / 180; // Difference in latitude in radians
-    const Δλ = ((lon2 - lon1) * Math.PI) / 180; // Difference in longitude in radians
+    const R = 6371e3; // Radio de la Tierra en metros
+    const φ1 = (lat1 * Math.PI) / 180;
+    const φ2 = (lat2 * Math.PI) / 180;
+    const Δφ = ((lat2 - lat1) * Math.PI) / 180;
+    const Δλ = ((lon2 - lon1) * Math.PI) / 180;
 
     const a =
       Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
       Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
-    const distance = R * c;
-    return distance;
+    return R * c;
   };
 
   return { getHeadingFromRoute, findClosestPointIndex };

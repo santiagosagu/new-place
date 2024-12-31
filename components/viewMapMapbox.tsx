@@ -32,8 +32,7 @@ interface itemMarker {
 }
 
 export default function ViewMapMapbox({ data, latitude, longitude }: any) {
-  const accesstoken =
-    "pk.eyJ1IjoiczRndSIsImEiOiJjbDhwZHE2NDIxa2k4M3B0b3FsaXZydm02In0.plTbzb5jQBHgNvkiWE4h9w";
+  const accesstoken = `${process.env.EXPO_PUBLIC_MAPBOX_ACCESS_TOKEN}`;
   Mapbox.setAccessToken(accesstoken);
 
   const [modalVisible, setModalVisible] = useState(false);
@@ -273,6 +272,7 @@ export default function ViewMapMapbox({ data, latitude, longitude }: any) {
           zoomLevel={isNavigating ? 18 : 12}
           animationDuration={1000}
           heading={heading}
+          followHeading={5}
           // heading={getHeadingFromRoute(route)}
           pitch={50}
           centerCoordinate={
@@ -379,7 +379,7 @@ export default function ViewMapMapbox({ data, latitude, longitude }: any) {
                   bottomSheetRef.current?.close();
                 }}
               >
-                <IconClose />
+                <IconClose color="black" />
               </Pressable>
             </View>
             <Pressable onPress={centerCamera}>

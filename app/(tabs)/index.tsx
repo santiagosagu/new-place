@@ -23,9 +23,12 @@ import {
 } from "react-native";
 import Carousel from "react-native-reanimated-carousel";
 import data from "../../data.json";
+import Rive, { RiveRef } from "rive-react-native";
+import { useEffect, useRef } from "react";
 
 export default function HomeScreen() {
   const width = Dimensions.get("window").width;
+  const riveRefPaisaje = useRef<RiveRef>(null);
 
   const DATA = [
     {
@@ -114,9 +117,34 @@ export default function HomeScreen() {
     },
   ];
 
+  useEffect(() => {
+    if (riveRefPaisaje.current) {
+      handlePlay();
+    }
+  }, []);
+
+  const handlePlay = () => {
+    riveRefPaisaje.current?.play();
+  };
+
+  useEffect(() => {
+    let isToggled = true;
+
+    const interval = setInterval(() => {
+      riveRefPaisaje.current?.setInputState(
+        "State Machine 1",
+        "Theme toggled",
+        isToggled
+      );
+      isToggled = !isToggled;
+    }, 8000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <SafeAreaView style={styles.container}>
-      <View style={{ height: width / 1.5 }}>
+      {/* <View style={{ height: width / 1.5 }}>
         <Carousel
           loop
           width={width}
@@ -131,7 +159,26 @@ export default function HomeScreen() {
             </View>
           )}
         />
+      </View> */}
+      <View
+        style={{
+          width: "100%",
+          height: 100,
+          borderRadius: 20,
+          marginTop: 10,
+          // backgroundColor: "white",
+        }}
+      >
+        <Rive
+          autoplay
+          ref={riveRefPaisaje}
+          url="https://public.rive.app/community/runtime-files/9568-18867-darklight-theme.riv"
+          artboardName="New Artboard"
+          stateMachineName="New Artboard"
+          style={{ width: "100%", borderRadius: 20 }}
+        />
       </View>
+
       <View style={styles.containerSectionIcons}>
         {dataSectionIcon.map((item, index) => (
           <Pressable

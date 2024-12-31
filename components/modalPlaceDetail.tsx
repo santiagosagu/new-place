@@ -9,6 +9,9 @@ import {
   View,
 } from "react-native";
 import { IconClose } from "./ui/iconsList";
+import { Linking, Platform } from "react-native";
+import { useRef } from "react";
+import Rive, { RiveRef } from "rive-react-native";
 
 const imageBackground = require("../assets/images/image.png");
 
@@ -19,6 +22,18 @@ export default function ModalPlaceDetail({
   setSeeInCards,
 }: any) {
   const { setIsNavigating, place } = usePlaceNavigateContext();
+
+  const riveRefModal = useRef<RiveRef>(null);
+
+  const openNativeNavigation = (lat: number, lon: number) => {
+    setModalVisible(false);
+    const mapUrl = Platform.select({
+      ios: `http://maps.apple.com/?q=${lat},${lon}`,
+      android: `geo:0,0?q=${lat},${lon}`,
+    });
+
+    Linking.openURL(mapUrl!);
+  };
 
   return (
     <Modal
@@ -46,9 +61,17 @@ export default function ModalPlaceDetail({
                 setModalVisible(false);
               }}
             >
-              <IconClose />
+              <IconClose color="white" />
             </Pressable>
           </View>
+          <Rive
+            autoplay
+            ref={riveRefModal}
+            url="https://public.rive.app/community/runtime-files/4154-8679-vehicle-loader.riv"
+            artboardName="Car"
+            stateMachineName="State Machine 1"
+            style={{ width: 270, height: 80, borderRadius: 20 }}
+          />
           <View style={styles.containerImage}>
             <Text style={styles.modalText}>{place?.name}</Text>
             {/* {place?.cuisine !== "No disponible" && (
@@ -60,13 +83,28 @@ export default function ModalPlaceDetail({
             <Pressable
               style={[styles.button, styles.buttonClose]}
               onPress={() => {
-                navigatePlace();
-                setModalVisible(!modalVisible);
-                setSeeInCards(false);
-                setIsNavigating(true);
+                riveRefModal.current?.setInputState(
+                  "State Machine 1",
+                  "LoadFinished",
+                  true
+                );
+                setTimeout(() => {
+                  navigatePlace();
+                  setModalVisible(!modalVisible);
+                  setSeeInCards(false);
+                  setIsNavigating(true);
+                }, 700);
               }}
             >
               <Text style={styles.textStyle}>Navegar</Text>
+            </Pressable>
+            <Pressable
+              onPress={() => openNativeNavigation(place.lat, place.lon)}
+              style={{ marginTop: 10 }}
+            >
+              <Text style={{ color: "#2196F3", fontWeight: "bold" }}>
+                Abrir en app external
+              </Text>
             </Pressable>
           </View>
         </View>
@@ -84,14 +122,14 @@ const styles = StyleSheet.create({
   },
   modalView: {
     width: "70%",
-    minHeight: "30%",
-    // justifyContent: "space-around",
+    minHeight: "60%",
     margin: 20,
-    backgroundColor: "white",
+    backgroundColor: "#2C2A29",
     borderRadius: 10,
-    borderBottomLeftRadius: 140,
+    borderWidth: 1,
+    borderColor: "#2196F3",
 
-    shadowColor: "#000",
+    shadowColor: "#2196F3",
     shadowOffset: {
       width: 0,
       height: 2,
@@ -105,13 +143,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 20,
-    backgroundColor: "rgba(255, 255, 255, 0.7)",
-
-    // height: 150,
-    // justifyContent: "flex-end",
-    // alignItems: "flex-end",
-    // padding: 10,
+    // borderRadius: 20,
+    backgroundColor: "#2C2A29",
+    marginBottom: 5,
+    marginTop: -20,
   },
   button: {
     borderRadius: 10,
@@ -134,5 +169,6 @@ const styles = StyleSheet.create({
     fontSize: 30,
     fontWeight: "bold",
     textTransform: "capitalize",
+    color: "white",
   },
 });

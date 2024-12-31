@@ -13,8 +13,8 @@ export const IconLocationPoint = () => {
   return <Ionicons name="location-sharp" size={30} color="white" />;
 };
 
-export const IconClose = () => {
-  return <AntDesign name="closecircle" size={30} color="black" />;
+export const IconClose = ({ color }: any) => {
+  return <AntDesign name="closecircle" size={30} color={color} />;
 };
 
 export const IconNavigation = () => {
