@@ -1,0 +1,474 @@
+[
+  {
+    "name": "Visita a Bogota",
+    "createdAt": "2023-03-01T00:00:00.000Z",
+    "ciudad": "Bogotá",
+    "pais": "Colombia",
+    "hotel": {
+      "name": "Hotel Salamanca Resort",
+      "latitude": "6.1924631",
+      "longitude": "-75.5905477"
+    },
+    "itinerary": [
+      {
+        "day": 1,
+        "breakfast": {
+          "name": "Claudio Express Pollos",
+          "cuisine": "Pollo asado",
+          "latitude": "6.2108162",
+          "longitude": "-75.5952196"
+        },
+        "lunch": {
+          "name": "Restaurante Antojitos",
+          "cuisine": "Tradicional Colombiana",
+          "latitude": "6.2145048",
+          "longitude": "-75.6019784"
+        },
+        "dinner": {
+          "name": "Pizzotas",
+          "cuisine": "pizza",
+          "latitude": "6.2110855",
+          "longitude": "-75.595217"
+        }
+      },
+      {
+        "day": 2,
+        "breakfast": {
+          "name": "Rincón del Pollo",
+          "cuisine": "Pollo asado",
+          "latitude": "6.214658",
+          "longitude": "-75.6014783"
+        },
+        "lunch": {
+          "name": "Perú Fuzion Parrilla Bar",
+          "cuisine": "peruvian",
+          "latitude": "6.2052438",
+          "longitude": "-75.5821856"
+        },
+        "dinner": {
+          "name": "Vegarden",
+          "cuisine": "regional",
+          "latitude": "6.2352813",
+          "longitude": "-75.6027469"
+        }
+      },
+      {
+        "day": 3,
+        "breakfast": {
+          "name": "Presto La Mota",
+          "cuisine": "No disponible",
+          "latitude": "6.2137649",
+          "longitude": "-75.5966718"
+        },
+        "lunch": {
+          "name": "Restaurante la 89",
+          "cuisine": "No disponible",
+          "latitude": "6.2333305",
+          "longitude": "-75.6130317"
+        },
+        "dinner": {
+          "name": "Restaurante Las delicias de Caty",
+          "cuisine": "No disponible",
+          "latitude": "6.2324023",
+          "longitude": "-75.5909907"
+        }
+      },
+      {
+        "day": 4,
+        "breakfast": {
+          "name": "MATI",
+          "cuisine": "No disponible",
+          "latitude": "6.2140458",
+          "longitude": "-75.576774"
+        },
+        "lunch": {
+          "name": "Carpio",
+          "cuisine": "seafood;burger;regional;fish;local;grill",
+          "latitude": "6.1782522",
+          "longitude": "-75.5971928"
+        },
+        "dinner": {
+          "name": "Il carreto - trattoria pizzeria",
+          "cuisine": "italian",
+          "latitude": "6.2070788",
+          "longitude": "-75.5742601"
+        }
+      },
+      {
+        "day": 5,
+        "breakfast": {
+          "name": "Arte Casero",
+          "cuisine": "No disponible",
+          "latitude": "6.2121715",
+          "longitude": "-75.5760605"
+        },
+        "lunch": {
+          "name": "Restaurante la Matriarca, Viva Envigado",
+          "cuisine": "regional",
+          "latitude": "6.1778331",
+          "longitude": "-75.5915607"
+        },
+        "dinner": {
+          "name": "Delimar",
+          "cuisine": "fish;regional;seafood",
+          "latitude": "6.2126178",
+          "longitude": "-75.5741583"
+        }
+      }
+    ]
+  },
+  {
+    "name": "Visita a Cartagena",
+    "createdAt": "2024-03-02T00:00:00.000Z",
+    "ciudad": "Barranquilla",
+    "pais": "Colombia",
+    "hotel": {
+      "name": "Hotel Salamanca Resort",
+      "latitude": "6.1924631",
+      "longitude": "-75.5905477"
+    },
+    "itinerary": [
+      {
+        "day": 1,
+        "breakfast": {
+          "name": "Claudio Express Pollos",
+          "cuisine": "Pollo asado",
+          "latitude": "6.2108162",
+          "longitude": "-75.5952196"
+        },
+        "lunch": {
+          "name": "Restaurante Antojitos",
+          "cuisine": "Tradicional Colombiana",
+          "latitude": "6.2145048",
+          "longitude": "-75.6019784"
+        },
+        "dinner": {
+          "name": "Pizzotas",
+          "cuisine": "pizza",
+          "latitude": "6.2110855",
+          "longitude": "-75.595217"
+        }
+      },
+      {
+        "day": 2,
+        "breakfast": {
+          "name": "Rincón del Pollo",
+          "cuisine": "Pollo asado",
+          "latitude": "6.214658",
+          "longitude": "-75.6014783"
+        },
+        "lunch": {
+          "name": "Perú Fuzion Parrilla Bar",
+          "cuisine": "peruvian",
+          "latitude": "6.2052438",
+          "longitude": "-75.5821856"
+        },
+        "dinner": {
+          "name": "Vegarden",
+          "cuisine": "regional",
+          "latitude": "6.2352813",
+          "longitude": "-75.6027469"
+        }
+      },
+      {
+        "day": 3,
+        "breakfast": {
+          "name": "Presto La Mota",
+          "cuisine": "No disponible",
+          "latitude": "6.2137649",
+          "longitude": "-75.5966718"
+        },
+        "lunch": {
+          "name": "Restaurante la 89",
+          "cuisine": "No disponible",
+          "latitude": "6.2333305",
+          "longitude": "-75.6130317"
+        },
+        "dinner": {
+          "name": "Restaurante Las delicias de Caty",
+          "cuisine": "No disponible",
+          "latitude": "6.2324023",
+          "longitude": "-75.5909907"
+        }
+      },
+      {
+        "day": 4,
+        "breakfast": {
+          "name": "MATI",
+          "cuisine": "No disponible",
+          "latitude": "6.2140458",
+          "longitude": "-75.576774"
+        },
+        "lunch": {
+          "name": "Carpio",
+          "cuisine": "seafood;burger;regional;fish;local;grill",
+          "latitude": "6.1782522",
+          "longitude": "-75.5971928"
+        },
+        "dinner": {
+          "name": "Il carreto - trattoria pizzeria",
+          "cuisine": "italian",
+          "latitude": "6.2070788",
+          "longitude": "-75.5742601"
+        }
+      },
+      {
+        "day": 5,
+        "breakfast": {
+          "name": "Arte Casero",
+          "cuisine": "No disponible",
+          "latitude": "6.2121715",
+          "longitude": "-75.5760605"
+        },
+        "lunch": {
+          "name": "Restaurante la Matriarca, Viva Envigado",
+          "cuisine": "regional",
+          "latitude": "6.1778331",
+          "longitude": "-75.5915607"
+        },
+        "dinner": {
+          "name": "Delimar",
+          "cuisine": "fish;regional;seafood",
+          "latitude": "6.2126178",
+          "longitude": "-75.5741583"
+        }
+      }
+    ]
+  },
+  {
+    "name": "Visita a Cartagena",
+    "createdAt": "2024-03-02T00:00:00.000Z",
+    "ciudad": "Barranquilla",
+    "pais": "Colombia",
+    "hotel": {
+      "name": "Hotel Salamanca Resort",
+      "latitude": "6.1924631",
+      "longitude": "-75.5905477"
+    },
+    "itinerary": [
+      {
+        "day": 1,
+        "breakfast": {
+          "name": "Claudio Express Pollos",
+          "cuisine": "Pollo asado",
+          "latitude": "6.2108162",
+          "longitude": "-75.5952196"
+        },
+        "lunch": {
+          "name": "Restaurante Antojitos",
+          "cuisine": "Tradicional Colombiana",
+          "latitude": "6.2145048",
+          "longitude": "-75.6019784"
+        },
+        "dinner": {
+          "name": "Pizzotas",
+          "cuisine": "pizza",
+          "latitude": "6.2110855",
+          "longitude": "-75.595217"
+        }
+      },
+      {
+        "day": 2,
+        "breakfast": {
+          "name": "Rincón del Pollo",
+          "cuisine": "Pollo asado",
+          "latitude": "6.214658",
+          "longitude": "-75.6014783"
+        },
+        "lunch": {
+          "name": "Perú Fuzion Parrilla Bar",
+          "cuisine": "peruvian",
+          "latitude": "6.2052438",
+          "longitude": "-75.5821856"
+        },
+        "dinner": {
+          "name": "Vegarden",
+          "cuisine": "regional",
+          "latitude": "6.2352813",
+          "longitude": "-75.6027469"
+        }
+      },
+      {
+        "day": 3,
+        "breakfast": {
+          "name": "Presto La Mota",
+          "cuisine": "No disponible",
+          "latitude": "6.2137649",
+          "longitude": "-75.5966718"
+        },
+        "lunch": {
+          "name": "Restaurante la 89",
+          "cuisine": "No disponible",
+          "latitude": "6.2333305",
+          "longitude": "-75.6130317"
+        },
+        "dinner": {
+          "name": "Restaurante Las delicias de Caty",
+          "cuisine": "No disponible",
+          "latitude": "6.2324023",
+          "longitude": "-75.5909907"
+        }
+      },
+      {
+        "day": 4,
+        "breakfast": {
+          "name": "MATI",
+          "cuisine": "No disponible",
+          "latitude": "6.2140458",
+          "longitude": "-75.576774"
+        },
+        "lunch": {
+          "name": "Carpio",
+          "cuisine": "seafood;burger;regional;fish;local;grill",
+          "latitude": "6.1782522",
+          "longitude": "-75.5971928"
+        },
+        "dinner": {
+          "name": "Il carreto - trattoria pizzeria",
+          "cuisine": "italian",
+          "latitude": "6.2070788",
+          "longitude": "-75.5742601"
+        }
+      },
+      {
+        "day": 5,
+        "breakfast": {
+          "name": "Arte Casero",
+          "cuisine": "No disponible",
+          "latitude": "6.2121715",
+          "longitude": "-75.5760605"
+        },
+        "lunch": {
+          "name": "Restaurante la Matriarca, Viva Envigado",
+          "cuisine": "regional",
+          "latitude": "6.1778331",
+          "longitude": "-75.5915607"
+        },
+        "dinner": {
+          "name": "Delimar",
+          "cuisine": "fish;regional;seafood",
+          "latitude": "6.2126178",
+          "longitude": "-75.5741583"
+        }
+      }
+    ]
+  },
+  {
+    "name": "Visita a Cartagena",
+    "createdAt": "2024-03-02T00:00:00.000Z",
+    "ciudad": "Barranquilla",
+    "pais": "Colombia",
+    "hotel": {
+      "name": "Hotel Salamanca Resort",
+      "latitude": "6.1924631",
+      "longitude": "-75.5905477"
+    },
+    "itinerary": [
+      {
+        "day": 1,
+        "breakfast": {
+          "name": "Claudio Express Pollos",
+          "cuisine": "Pollo asado",
+          "latitude": "6.2108162",
+          "longitude": "-75.5952196"
+        },
+        "lunch": {
+          "name": "Restaurante Antojitos",
+          "cuisine": "Tradicional Colombiana",
+          "latitude": "6.2145048",
+          "longitude": "-75.6019784"
+        },
+        "dinner": {
+          "name": "Pizzotas",
+          "cuisine": "pizza",
+          "latitude": "6.2110855",
+          "longitude": "-75.595217"
+        }
+      },
+      {
+        "day": 2,
+        "breakfast": {
+          "name": "Rincón del Pollo",
+          "cuisine": "Pollo asado",
+          "latitude": "6.214658",
+          "longitude": "-75.6014783"
+        },
+        "lunch": {
+          "name": "Perú Fuzion Parrilla Bar",
+          "cuisine": "peruvian",
+          "latitude": "6.2052438",
+          "longitude": "-75.5821856"
+        },
+        "dinner": {
+          "name": "Vegarden",
+          "cuisine": "regional",
+          "latitude": "6.2352813",
+          "longitude": "-75.6027469"
+        }
+      },
+      {
+        "day": 3,
+        "breakfast": {
+          "name": "Presto La Mota",
+          "cuisine": "No disponible",
+          "latitude": "6.2137649",
+          "longitude": "-75.5966718"
+        },
+        "lunch": {
+          "name": "Restaurante la 89",
+          "cuisine": "No disponible",
+          "latitude": "6.2333305",
+          "longitude": "-75.6130317"
+        },
+        "dinner": {
+          "name": "Restaurante Las delicias de Caty",
+          "cuisine": "No disponible",
+          "latitude": "6.2324023",
+          "longitude": "-75.5909907"
+        }
+      },
+      {
+        "day": 4,
+        "breakfast": {
+          "name": "MATI",
+          "cuisine": "No disponible",
+          "latitude": "6.2140458",
+          "longitude": "-75.576774"
+        },
+        "lunch": {
+          "name": "Carpio",
+          "cuisine": "seafood;burger;regional;fish;local;grill",
+          "latitude": "6.1782522",
+          "longitude": "-75.5971928"
+        },
+        "dinner": {
+          "name": "Il carreto - trattoria pizzeria",
+          "cuisine": "italian",
+          "latitude": "6.2070788",
+          "longitude": "-75.5742601"
+        }
+      },
+      {
+        "day": 5,
+        "breakfast": {
+          "name": "Arte Casero",
+          "cuisine": "No disponible",
+          "latitude": "6.2121715",
+          "longitude": "-75.5760605"
+        },
+        "lunch": {
+          "name": "Restaurante la Matriarca, Viva Envigado",
+          "cuisine": "regional",
+          "latitude": "6.1778331",
+          "longitude": "-75.5915607"
+        },
+        "dinner": {
+          "name": "Delimar",
+          "cuisine": "fish;regional;seafood",
+          "latitude": "6.2126178",
+          "longitude": "-75.5741583"
+        }
+      }
+    ]
+  }
+]

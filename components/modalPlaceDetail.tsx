@@ -12,6 +12,7 @@ import { IconClose } from "./ui/iconsList";
 import { Linking, Platform } from "react-native";
 import { useRef } from "react";
 import Rive, { RiveRef } from "rive-react-native";
+import i18n from "@/i18n";
 
 const imageBackground = require("../assets/images/image.png");
 
@@ -20,8 +21,10 @@ export default function ModalPlaceDetail({
   modalVisible,
   navigatePlace,
   setSeeInCards,
+  modalVisibleTraveling,
+  setModalVisibleTraveling,
 }: any) {
-  const { setIsNavigating, place } = usePlaceNavigateContext();
+  const { setIsNavigating, place, setPlace } = usePlaceNavigateContext();
 
   const riveRefModal = useRef<RiveRef>(null);
 
@@ -59,6 +62,7 @@ export default function ModalPlaceDetail({
             <Pressable
               onPress={() => {
                 setModalVisible(false);
+                setPlace(null);
               }}
             >
               <IconClose color="white" />
@@ -96,14 +100,44 @@ export default function ModalPlaceDetail({
                 }, 700);
               }}
             >
-              <Text style={styles.textStyle}>Navegar</Text>
+              <Text style={styles.textStyle}>
+                {i18n.t(`modalNavegar.navegar`, { defaultValue: "Navegar" })}
+              </Text>
             </Pressable>
             <Pressable
-              onPress={() => openNativeNavigation(place.lat, place.lon)}
-              style={{ marginTop: 10 }}
+              onPress={() => {
+                openNativeNavigation(place.lat, place.lon);
+                setPlace(null);
+              }}
+              style={{
+                marginTop: 18,
+                backgroundColor: "white",
+                padding: 10,
+                borderRadius: 10,
+              }}
             >
               <Text style={{ color: "#2196F3", fontWeight: "bold" }}>
-                Abrir en app external
+                {i18n.t(`modalNavegar.navegar con app externa`, {
+                  defaultValue: "Navegar con app externa",
+                })}
+              </Text>
+            </Pressable>
+            <Pressable
+              onPress={() => {
+                setModalVisibleTraveling(true);
+                setModalVisible(false);
+              }}
+              style={{
+                marginVertical: 18,
+                backgroundColor: "white",
+                padding: 10,
+                borderRadius: 10,
+              }}
+            >
+              <Text style={{ color: "#2196F3", fontWeight: "bold" }}>
+                {i18n.t(`modalNavegar.solicitar un transporte`, {
+                  defaultValue: "Solicitar un transporte",
+                })}
               </Text>
             </Pressable>
           </View>
@@ -122,7 +156,7 @@ const styles = StyleSheet.create({
   },
   modalView: {
     width: "70%",
-    minHeight: "60%",
+    minHeight: "68%",
     margin: 20,
     backgroundColor: "#2C2A29",
     borderRadius: 10,

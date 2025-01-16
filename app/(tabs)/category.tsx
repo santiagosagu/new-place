@@ -15,13 +15,17 @@ import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import CardListCategory from "@/components/cardListCategory";
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import data from "../../data.json";
+import Rive, { RiveRef } from "rive-react-native";
+import { IconsAnimatedCategory } from "@/components/iconsAnimatedCategory";
 
 export default function CategoryScreen() {
   return (
     <SafeAreaProvider>
       <SafeAreaView style={styles.container}>
+        {/* <IconsAnimatedCategory /> */}
+
         <FlatList
           data={data.DATA}
           renderItem={({ item }) => (
@@ -43,7 +47,7 @@ const styles = StyleSheet.create({
   container: {
     // flex: 1,
     // marginTop: StatusBar.currentHeight || 0,
-    marginBottom: StatusBar.currentHeight || 0,
+    // marginBottom: StatusBar.currentHeight || 0,
     marginHorizontal: 16,
   },
   containerSection: {

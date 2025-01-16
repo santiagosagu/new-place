@@ -6,6 +6,7 @@ import {
   ImageBackground,
   Pressable,
   Image,
+  StatusBar,
 } from "react-native";
 import LinearGradient from "react-native-linear-gradient";
 
@@ -33,7 +34,10 @@ export default function CardListCategory({
 
   return (
     <Link
-      href={`/${id}`}
+      href={{
+        pathname: "/[id]",
+        params: { id: id },
+      }}
       asChild
       style={[styles.container, { backgroundColor: backgroundColor }]}
     >
@@ -80,6 +84,8 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     height: 150,
     marginVertical: 8,
+    borderColor: "#efefef",
+    borderWidth: 1,
     // borderBottomLeftRadius: 90,
   },
   containerFlex: {
@@ -98,10 +104,10 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 20,
-    backgroundColor: "#efef",
+    backgroundColor: "#049CE4",
   },
   containerText: {
-    backgroundColor: "#000",
+    backgroundColor: "#049CE4",
     borderRadius: 10,
     padding: 10,
     marginVertical: 8,

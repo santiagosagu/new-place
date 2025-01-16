@@ -1,4 +1,11 @@
 {
+  "UI": {
+    "cerrar": "Close",
+    "abrir": "Open",
+    "ver en mapa": "View in map",
+    "ver en tarjetas": "View in cards",
+    "coordenadas copiadas al portapapeles": "Coordinates copied to clipboard"
+  },
   "tabs": {
     "inicio": "Home",
     "categorias": "Categories"
@@ -52,5 +59,17 @@
     "comisarias": "Police Stations",
     "estacion de bomberos": "Fire Stations",
     "lugar de oracion": "Place of worship"
+  },
+  "modalNavegar": {
+    "navegar": "Navigate",
+    "navegar con app externa": "Navigate with app external",
+    "solicitar un transporte": "Request a transport"
+  },
+  "modalUsarAppExternal": {
+    "titulo": "Go to Uber, Indrive, etc.!",
+    "paso1": "Open the app of your preference.",
+    "paso2": "Paste the following location into the destination field.",
+    "paso3": "Select the first result that the app offers.",
+    "botonCopiar": "Copy coordinates"
   }
 }

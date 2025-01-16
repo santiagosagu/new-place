@@ -9,10 +9,13 @@ import { ActivityIndicator, StyleSheet, Text, View, Image } from "react-native";
 import * as Location from "expo-location";
 import Rive, { RiveRef } from "rive-react-native";
 import { Pressable } from "react-native-gesture-handler";
+import { usePlaceNavigateContext } from "@/context/placeNavigateContext";
 
 export default function ViewMapsCategory() {
   const { title, categoryMap, valueCategoryMap, query } =
     useLocalSearchParams();
+
+  console.log(title);
 
   const { location } = useLocation();
   const [latitude, setLatitude] = useState("");
@@ -20,6 +23,8 @@ export default function ViewMapsCategory() {
   const [resultPlaces, setResultPlaces] = useState<any>([]);
 
   const riveRef = useRef<RiveRef>(null);
+
+  const { place, isNavigating } = usePlaceNavigateContext();
 
   useEffect(() => {
     if (location) {
@@ -77,12 +82,14 @@ export default function ViewMapsCategory() {
     <View style={styles.container}>
       <Stack.Screen
         options={{
-          title: i18n.t(`categoriasInternas.${title}`, { defaultValue: title }),
+          title:
+            place && isNavigating
+              ? place.name
+              : i18n.t(`categoriasInternas.${title}`, { defaultValue: title }),
         }}
       />
 
-      {/* <ViewMap data={restaurants} /> */}
-      {location && resultPlaces.length > 0 && latitude && longitude ? (
+      {(location && resultPlaces.length > 0) || (isNavigating && location) ? (
         <ViewMapMapbox
           data={resultPlaces}
           latitude={latitude}
@@ -97,7 +104,6 @@ export default function ViewMapsCategory() {
             backgroundColor: "#313131",
           }}
         >
-          {/* <ActivityIndicator size="large" /> */}
           <View
             style={{
               width: 300,

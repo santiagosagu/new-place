@@ -5,20 +5,32 @@ import Mapbox, {
   MapView,
   MarkerView,
   ShapeSource,
+  CustomLocationProvider,
+  Terrain,
+  Images,
 } from "@rnmapbox/maps";
-import { IconClose, IconLocationPoint, IconNavigation } from "./ui/iconsList";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { IconClose, IconNavigation } from "./ui/iconsList";
+import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import ModalPlaceDetail from "./modalPlaceDetail";
 import { useLocation } from "@/hooks/location/useLocation";
-import { useHeadingFromRoute, usePlaceNavigate } from "../hooks/maps/usemaps";
+import {
+  useHeadingFromRoute,
+  useMapMatching,
+  usePlaceNavigate,
+} from "../hooks/maps/usemaps";
 import { usePlaceNavigateContext } from "@/context/placeNavigateContext";
 import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
+import * as Speech from "expo-speech";
 
-// @ts-ignore
-import CompassHeading from "react-native-compass-heading";
 import ListPlaceCard from "./listPlaceCard";
 import { useThemeColor } from "@/hooks/useThemeColor";
+import TravelingWithExternalApp from "./TravelingWithExternalApp";
+import i18n from "@/i18n";
+import { deactivateKeepAwake, useKeepAwake } from "expo-keep-awake";
+
+// @ts-ignore
+import navigateIMage from "../assets/images/gps.png";
 
 interface itemMarker {
   id: string;
@@ -32,14 +44,27 @@ interface itemMarker {
 }
 
 export default function ViewMapMapbox({ data, latitude, longitude }: any) {
-  const accesstoken = `${process.env.EXPO_PUBLIC_MAPBOX_ACCESS_TOKEN}`;
-  Mapbox.setAccessToken(accesstoken);
+  // const isDevelop = process.env.NODE_ENV === "development";
+
+  // const accesstoken = !isDevelop
+  //   ? process.env.PRIVATE_API_KEY_MAPBOX
+  //   : process.env.EXPO_PUBLIC_MAPBOX_ACCESS_TOKEN;
+
+  const accesstoken =
+    "pk.eyJ1IjoiczRndSIsImEiOiJjbDhwZHE2NDIxa2k4M3B0b3FsaXZydm02In0.plTbzb5jQBHgNvkiWE4h9w";
+
+  // const accesstoken = process.env.PRIVATE_API_KEY_MAPBOX;
+  Mapbox.setAccessToken(accesstoken!);
 
   const [modalVisible, setModalVisible] = useState(false);
+  const [modalVisibleTraveling, setModalVisibleTraveling] = useState(false);
   const [heading, setHeading] = useState(0);
   const [seeInCards, setSeeInCards] = useState(false);
+  const [mapReady, setMapReady] = useState(false);
+
   const bottomSheetRef = useRef<BottomSheet>(null);
   const cameraRef = useRef<Camera>(null);
+  const imagesRef = useRef<Images>(null);
 
   const backgroundTabTop = useThemeColor({}, "background");
   const colorText = useThemeColor({}, "text");
@@ -47,24 +72,41 @@ export default function ViewMapMapbox({ data, latitude, longitude }: any) {
   const { location } = useLocation();
   const { navigatePlace, checkingRoute, cancelNavigation } = usePlaceNavigate();
   const { getHeadingFromRoute, findClosestPointIndex } = useHeadingFromRoute();
-  const { route, instructionStep, isNavigating, setPlace, place } =
-    usePlaceNavigateContext();
+  const { getMapMatchedLocation } = useMapMatching();
+
+  const {
+    route,
+    instructions,
+    instructionStep,
+    isNavigating,
+    setPlace,
+    place,
+    currentInstruction,
+    inOnRoute,
+    matchedData,
+    traficData,
+  } = usePlaceNavigateContext();
+
+  useKeepAwake();
 
   const handleNavigatePlace = async () => {
     if (location) {
       navigatePlace(
         [location.coords.longitude, location.coords.latitude],
-        // [-75.601843, 6.202858],
+        // [-75.606303, 6.203676],
         [place.lon, place.lat]
       );
+      getMapMatchedLocation();
     } else {
       navigatePlace([longitude, latitude], [place.lon, place.lat]);
+      getMapMatchedLocation();
     }
   };
 
   const handleSheetChanges = useCallback((index: number) => {
     if (index === -1) {
       cancelNavigation();
+      setMapReady(false);
       if (cameraRef.current) {
         if (location) {
           cameraRef.current.setCamera({
@@ -73,13 +115,13 @@ export default function ViewMapMapbox({ data, latitude, longitude }: any) {
               location.coords.latitude,
             ],
             animationDuration: 1000,
-            zoomLevel: 12,
+            zoomLevel: 14,
           });
         } else {
           cameraRef.current.setCamera({
             centerCoordinate: [longitude, latitude],
             animationDuration: 1000,
-            zoomLevel: 12,
+            zoomLevel: 14,
           });
         }
       }
@@ -87,27 +129,24 @@ export default function ViewMapMapbox({ data, latitude, longitude }: any) {
   }, []);
 
   useEffect(() => {
-    if (route.length > 0) {
+    if (route.length > 0 && instructions.length > 0) {
       checkingRoute();
     }
-  }, [route, location]);
+  }, [location]);
 
   useEffect(() => {
     if (cameraRef.current && isNavigating) {
       if (location) {
         cameraRef.current.setCamera({
-          centerCoordinate: [
-            location.coords.longitude,
-            location.coords.latitude,
-          ],
+          centerCoordinate: [matchedData.lon, matchedData.lat],
           animationDuration: 1000,
-          zoomLevel: 18,
+          zoomLevel: 19,
         });
       } else {
         cameraRef.current.setCamera({
           centerCoordinate: [longitude, latitude],
           animationDuration: 1000,
-          zoomLevel: 18,
+          zoomLevel: 19,
         });
       }
     }
@@ -117,18 +156,15 @@ export default function ViewMapMapbox({ data, latitude, longitude }: any) {
     if (cameraRef.current && isNavigating) {
       if (location) {
         cameraRef.current.setCamera({
-          centerCoordinate: [
-            location.coords.longitude,
-            location.coords.latitude,
-          ],
+          centerCoordinate: [matchedData.lon, matchedData.lat],
           animationDuration: 1000,
-          zoomLevel: 18,
+          zoomLevel: 19,
         });
       } else {
         cameraRef.current.setCamera({
           centerCoordinate: [longitude, latitude],
           animationDuration: 1000,
-          zoomLevel: 18,
+          zoomLevel: 19,
         });
       }
     }
@@ -145,14 +181,62 @@ export default function ViewMapMapbox({ data, latitude, longitude }: any) {
     }
   }, [route, location]);
 
+  useEffect(() => {
+    if (!inOnRoute && location && isNavigating) {
+      navigatePlace(
+        [location.coords.longitude, location.coords.latitude],
+        // [-75.606303, 6.203676],
+        [place.lon, place.lat]
+      );
+    }
+  }, [inOnRoute, location, isNavigating]);
+
+  const speak = () => {
+    const thingToSay = "Comencemos nuestra ruta";
+    Speech.speak(thingToSay);
+  };
+
+  const speakInstruction = () => {
+    const thingToSay = instructionStep;
+    Speech.speak(thingToSay);
+  };
+  useEffect(() => {
+    Mapbox.locationManager.start();
+    if (isNavigating) {
+      speak();
+    }
+  }, [isNavigating]);
+
+  useEffect(() => {
+    if (isNavigating && instructionStep !== "No disponible") {
+      speakInstruction();
+    }
+  }, [instructionStep]);
+
+  useEffect(() => {
+    if (imagesRef.current) {
+      setTimeout(() => {
+        setMapReady(true);
+      }, 3000);
+    } else {
+      setMapReady(false);
+    }
+  }, [imagesRef.current]);
+
   if (seeInCards) {
     return (
       <>
         <ModalPlaceDetail
           modalVisible={modalVisible}
           setModalVisible={setModalVisible}
+          modalVisibleTraveling={modalVisibleTraveling}
+          setModalVisibleTraveling={setModalVisibleTraveling}
           navigatePlace={handleNavigatePlace}
           setSeeInCards={setSeeInCards}
+        />
+        <TravelingWithExternalApp
+          modalVisibleTraveling={modalVisibleTraveling}
+          setModalVisibleTraveling={setModalVisibleTraveling}
         />
         <View style={styles.containerButtonModeSelect}>
           <Pressable
@@ -173,7 +257,7 @@ export default function ViewMapMapbox({ data, latitude, longitude }: any) {
               <Text
                 style={{ fontSize: 20, color: colorText, textAlign: "center" }}
               >
-                Ver en mapa
+                {i18n.t(`UI.ver en mapa`, { defaultValue: "Ver en mapa" })}
               </Text>
             </View>
           </Pressable>
@@ -195,7 +279,9 @@ export default function ViewMapMapbox({ data, latitude, longitude }: any) {
               <Text
                 style={{ fontSize: 20, color: colorText, textAlign: "center" }}
               >
-                Ver en tarjetas
+                {i18n.t(`UI.ver en tarjetas`, {
+                  defaultValue: "Ver en tarjetas",
+                })}
               </Text>
             </View>
           </Pressable>
@@ -214,8 +300,14 @@ export default function ViewMapMapbox({ data, latitude, longitude }: any) {
       <ModalPlaceDetail
         modalVisible={modalVisible}
         setModalVisible={setModalVisible}
+        modalVisibleTraveling={modalVisibleTraveling}
+        setModalVisibleTraveling={setModalVisibleTraveling}
         navigatePlace={handleNavigatePlace}
         setSeeInCards={setSeeInCards}
+      />
+      <TravelingWithExternalApp
+        modalVisibleTraveling={modalVisibleTraveling}
+        setModalVisibleTraveling={setModalVisibleTraveling}
       />
       {!isNavigating && (
         <View style={styles.containerButtonModeSelect}>
@@ -237,7 +329,7 @@ export default function ViewMapMapbox({ data, latitude, longitude }: any) {
               <Text
                 style={{ fontSize: 20, color: colorText, textAlign: "center" }}
               >
-                Ver en mapa
+                {i18n.t(`UI.ver en mapa`, { defaultValue: "Ver en mapa" })}
               </Text>
             </View>
           </Pressable>
@@ -259,53 +351,93 @@ export default function ViewMapMapbox({ data, latitude, longitude }: any) {
               <Text
                 style={{ fontSize: 20, color: colorText, textAlign: "center" }}
               >
-                Ver en tarjetas
+                {i18n.t(`UI.ver en tarjetas`, {
+                  defaultValue: "Ver en tarjetas",
+                })}
               </Text>
             </View>
           </Pressable>
         </View>
       )}
 
-      <MapView style={{ flex: 1 }} styleURL="mapbox://styles/mapbox/dark-v11">
+      {/* mapbox://styles/mapbox/dark-v11 */}
+      {/* mapbox://styles/mapbox/outdoors-v11 */}
+
+      <MapView
+        id="map"
+        style={{ flex: 1 }}
+        styleURL="mapbox://styles/s4gu/cm5iozsw7003601qpdhq7dkwn"
+        logoEnabled={false}
+      >
         <Camera
           ref={cameraRef}
-          zoomLevel={isNavigating ? 18 : 12}
+          zoomLevel={isNavigating ? 19 : 14}
           animationDuration={1000}
           heading={heading}
           followHeading={5}
           // heading={getHeadingFromRoute(route)}
-          pitch={50}
+          pitch={isNavigating ? 50 : 50}
           centerCoordinate={
-            location && isNavigating
-              ? [location.coords.longitude, location.coords.latitude]
+            location && isNavigating && matchedData
+              ? [matchedData.lon, matchedData.lat]
               : [longitude, latitude]
           }
+          // centerCoordinate={[2.2932, 48.86069]}
           animationMode="flyTo"
         />
-        {/* {location && (
-          <MarkerView
-            coordinate={[location!.coords.longitude, location!.coords.latitude]}
-            allowOverlap={true}
-            allowOverlapWithPuck={true}
-          >
-            <IconNavigation />
-          </MarkerView>
-        )} */}
-        {/* <UserLocation
-          visible={true}
-          showsUserHeadingIndicator={true}
-          minDisplacement={0.1}
-          androidRenderMode="gps"
-          onUpdate={(location) => {
-            console.log("mapbox location", location);
+
+        <Images
+          ref={imagesRef}
+          images={{
+            "puck-image": navigateIMage,
           }}
-        /> */}
-        <LocationPuck
-          pulsing={{ isEnabled: true }}
-          puckBearingEnabled
-          puckBearing="course"
-          androidRenderMode="gps"
         />
+
+        {location && (
+          <>
+            <CustomLocationProvider
+              // coordinate={[location!.coords.longitude, location!.coords.latitude]}
+              coordinate={
+                matchedData.lon
+                  ? [matchedData.lon, matchedData.lat]
+                  : [location!.coords.longitude, location!.coords.latitude]
+              }
+              heading={location!.coords.heading || 0}
+            />
+          </>
+        )}
+
+        {/* {mapReady && ( */}
+        <LocationPuck
+          pulsing={{
+            isEnabled: true,
+            color: "#000",
+            radius: "accuracy",
+          }}
+          visible
+          puckBearingEnabled
+          scale={["interpolate", ["linear"], ["zoom"], 14, 0.2, 20, 0.3]}
+          puckBearing="course"
+          topImage={mapReady ? "puck-image" : ""}
+          // bearingImage={mapReady && isNavigating ? "puck-image-2" : ""}
+        />
+        {/* )} */}
+        {/* {!isNavigating && (
+          <LocationPuck
+            pulsing={{
+              isEnabled: true,
+              color: "#2196F3",
+              radius: "accuracy",
+            }}
+            visible
+            puckBearingEnabled
+            scale={["interpolate", ["linear"], ["zoom"], 14, 1, 20, 1]}
+            puckBearing="heading"
+            androidRenderMode="gps"
+            // topImage={"puck-image"}
+            // bearingImage={mapReady && isNavigating ? "puck-image-2" : ""}
+          />
+        )} */}
 
         {!isNavigating ? (
           data.map(
@@ -325,7 +457,11 @@ export default function ViewMapMapbox({ data, latitude, longitude }: any) {
                       setPlace(item);
                     }}
                   >
-                    <IconLocationPoint />
+                    {/* <IconLocationPoint /> */}
+                    <Image
+                      source={require("../assets/images/pin-map.png")}
+                      style={{ width: 40, height: 40 }}
+                    />
                   </Pressable>
                 </MarkerView>
               )
@@ -337,8 +473,36 @@ export default function ViewMapMapbox({ data, latitude, longitude }: any) {
               allowOverlap={true}
               allowOverlapWithPuck={true}
             >
-              <IconLocationPoint />
+              {/* <IconLocationPoint /> */}
+              <Image
+                source={require("../assets/images/location.png")}
+                style={{ width: 50, height: 50 }}
+              />
             </MarkerView>
+
+            <ShapeSource
+              id="routeIntructionSource"
+              lineMetrics
+              shape={{
+                properties: {},
+                type: "Feature",
+                geometry: {
+                  type: "LineString",
+                  coordinates: currentInstruction,
+                },
+              }}
+            >
+              <LineLayer
+                id="lineIntructionLayer"
+                style={{
+                  lineColor: "rgba(154, 230, 166, 0.9)",
+                  // lineColor: "green",
+                  lineCap: "round",
+                  lineJoin: "round",
+                  lineWidth: 15,
+                }}
+              />
+            </ShapeSource>
 
             <ShapeSource
               id="routeSource"
@@ -355,14 +519,39 @@ export default function ViewMapMapbox({ data, latitude, longitude }: any) {
               <LineLayer
                 id="exampleLineLayer"
                 style={{
-                  lineColor: "rgba(255, 255, 255, 0.6)",
+                  lineColor: "rgba(0, 0, 0, 0.5)",
+                  // lineColor: "yellow",
                   lineCap: "round",
                   lineJoin: "round",
-                  lineWidth: 7,
+                  lineWidth: 5,
                 }}
               />
             </ShapeSource>
           </>
+        )}
+        {traficData.length > 0 && (
+          <ShapeSource
+            id="trafic"
+            lineMetrics
+            shape={{
+              properties: {},
+              type: "Feature",
+              geometry: {
+                type: "LineString",
+                coordinates: route,
+              },
+            }}
+          >
+            <LineLayer
+              id="traficLineLayer"
+              style={{
+                lineColor: "red",
+                lineCap: "round",
+                lineJoin: "round",
+                lineWidth: 7,
+              }}
+            />
+          </ShapeSource>
         )}
       </MapView>
       {isNavigating && (

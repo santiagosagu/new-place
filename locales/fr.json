@@ -1,4 +1,11 @@
 {
+  "UI": {
+    "cerrar": "Fermer",
+    "abrir": "Ouvrir",
+    "ver en mapa": "Voir sur la carte",
+    "ver en tarjetas": "Voir sur les cartes",
+    "coordenadas copiadas al portapapeles": "Coordonnées copiées dans le presse-papier"
+  },
   "tabs": {
     "inicio": "Accueil",
     "categorias": "Catégories"
@@ -52,5 +59,17 @@
     "comisarias": "Commissariats",
     "estacion de bomberos": "Caserne de pompiers",
     "lugar de oracion": "Lieu de prière"
+  },
+  "modalNavegar": {
+    "navegar": "Naviguer",
+    "navegar con app externa": "Naviguer avec app externe",
+    "solicitar un transporte": "Demander un transport"
+  },
+  "modalUsarAppExternal": {
+    "titulo": "Allez sur Uber, Indrive, etc.!",
+    "paso1": "Ouvrez l'application de votre préférence.",
+    "paso2": "Collez la localisation suivante dans le champ de destination.",
+    "paso3": "Sélectionnez le premier résultat que l'application propose.",
+    "botonCopiar": "Copier les coordonnées"
   }
 }

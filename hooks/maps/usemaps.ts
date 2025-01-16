@@ -53,6 +53,104 @@ export const useFetchData = async (
   }
 };
 
+// export const usePlaceNavigate = () => {
+//   const { location } = useLocation();
+
+//   const {
+//     route,
+//     instructions,
+//     setRoute,
+//     setInstructions,
+//     setInstructionStep,
+//     setCurrentInstruction,
+//     setCurrentStep,
+//     setIsNavigating,
+//     setPlace,
+//     setInOnRoute,
+//   } = usePlaceNavigateContext();
+
+//   const navigatePlace = async (from: number[], to: number[]) => {
+//     const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${
+//       from[0]
+//     }%2C${from[1]}%3B${to[0]}%2C${
+//       to[1]
+//     }?alternatives=true&annotations=distance%2Cduration&geometries=geojson&language=${
+//       RNLocalize.getLocales()[0].languageCode
+//     }&overview=full&steps=true&access_token=pk.eyJ1IjoiczRndSIsImEiOiJjbDhwZHE2NDIxa2k4M3B0b3FsaXZydm02In0.plTbzb5jQBHgNvkiWE4h9w`;
+
+//     try {
+//       const response = await fetch(url);
+//       const data = await response.json();
+
+//       if (data) {
+//         setInstructions(data.routes[0].legs[0].steps);
+//         setRoute(data.routes[0].geometry.coordinates);
+//       }
+//     } catch (error) {
+//       console.error("Error fetching data:", error);
+//     }
+//   };
+
+//   const checkingRoute = () => {
+//     if (location && route.length > 0 && instructions) {
+//       // const userLocation = turf.point([
+//       //   location.coords.longitude,
+//       //   location.coords.latitude,
+//       // ]);
+
+//       // const userLocation = turf.point([-75.601843, 6.202858]);
+//       // const userLocation = turf.point([-75.598214, 6.20328]);
+//       // const userLocation = turf.point([-75.599137, 6.204616]);
+//       // const userLocation = turf.point([-75.601476, 6.210273]);
+
+//       const userLocation = turf.point([-75.599083, 6.204571]);
+
+//       let minDistance = Infinity;
+//       let closestStep = 0;
+
+//       instructions.forEach((step: any, index: number) => {
+//         const stepLocation = turf.point(step.geometry.coordinates[0]);
+//         const distance = turf.distance(userLocation, stepLocation);
+
+//         if (distance < minDistance) {
+//           // console.log(instructions[index]);
+//           // console.log("array", instructions);
+//           minDistance = distance;
+//           closestStep = index;
+//           if (distance < 50) {
+//             console.log(distance);
+//             // you can adjust this value according to your needs
+//             setInOnRoute(true);
+//           } else {
+//             setInOnRoute(false);
+//           }
+//         }
+//       });
+
+//       const closestInstruction = instructions[closestStep];
+//       const instructionText = closestInstruction
+//         ? closestInstruction.maneuver.instruction
+//         : "No hay una instrucción disponible en este momento";
+
+//       const currentInstruction = closestInstruction
+//         ? closestInstruction.geometry.coordinates
+//         : [];
+
+//       setCurrentStep(closestStep);
+//       setCurrentInstruction(currentInstruction);
+//       setInstructionStep(instructionText);
+//     }
+//   };
+
+//   const cancelNavigation = () => {
+//     setIsNavigating(false);
+//     setPlace(null);
+//     setRoute([]);
+//   };
+
+//   return { navigatePlace, checkingRoute, cancelNavigation };
+// };
+
 export const usePlaceNavigate = () => {
   const { location } = useLocation();
 
@@ -62,22 +160,27 @@ export const usePlaceNavigate = () => {
     setRoute,
     setInstructions,
     setInstructionStep,
-    currentStep,
+    setCurrentInstruction,
     setCurrentStep,
     setIsNavigating,
     setPlace,
+    setInOnRoute,
+    matchedData,
+    setTraficData,
   } = usePlaceNavigateContext();
 
+  const THRESHOLD_DISTANCE = 5; // Distancia en metros para considerar al usuario "en la ruta"
+
   const navigatePlace = async (from: number[], to: number[]) => {
-    const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${
+    console.log("me ejecute");
+
+    const url = `https://api.mapbox.com/directions/v5/mapbox/driving-traffic/${
       from[0]
     }%2C${from[1]}%3B${to[0]}%2C${
       to[1]
     }?alternatives=true&annotations=distance%2Cduration&geometries=geojson&language=${
       RNLocalize.getLocales()[0].languageCode
-    }&overview=full&steps=true&access_token=${
-      process.env.EXPO_PUBLIC_MAPBOX_ACCESS_TOKEN
-    }`;
+    }&overview=full&steps=true&access_token=pk.eyJ1IjoiczRndSIsImEiOiJjbDhwZHE2NDIxa2k4M3B0b3FsaXZydm02In0.plTbzb5jQBHgNvkiWE4h9w`;
 
     try {
       const response = await fetch(url);
@@ -86,6 +189,22 @@ export const usePlaceNavigate = () => {
       if (data) {
         setInstructions(data.routes[0].legs[0].steps);
         setRoute(data.routes[0].geometry.coordinates);
+        getTraficData(from[0], from[1]);
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
+  const getTraficData = async (longitude: number, latitude: number) => {
+    const url = `https://api.mapbox.com/v4/mapbox.mapbox-traffic-v1/tilequery/${longitude},${latitude}.json?access_token=pk.eyJ1IjoiczRndSIsImEiOiJjbDhwZHE2NDIxa2k4M3B0b3FsaXZydm02In0.plTbzb5jQBHgNvkiWE4h9w`;
+
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+
+      if (data) {
+        setTraficData(data);
       }
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -93,27 +212,64 @@ export const usePlaceNavigate = () => {
   };
 
   const checkingRoute = () => {
-    if (location && route.length > 0 && instructions) {
+    if (location && route.length > 0 && instructions.length > 0) {
       const userLocation = turf.point([
         location.coords.longitude,
         location.coords.latitude,
       ]);
 
-      // const userLocation = turf.point([-75.601843, 6.202858]);
-      // const userLocation = turf.point([-75.598214, 6.20328]);
-      // const userLocation = turf.point([-75.599137, 6.204616]);
-      // const userLocation = turf.point([-75.601476, 6.210273]);
+      // Simular la ubicación del usuario
+      // setTimeout(() => {
+      // const userLocation = turf.point([-75.609289, 6.205643]); // fuera de la casa
+      // const userLocation = turf.point([-75.606303, 6.203676]); // mas adelante para probar
+      // }, 5000); // Simular un cambio de ubicación después de 5 segundos
 
+      // Crear una línea completa a partir de los puntos de la ruta
+      const routeLine = turf.lineString(route);
+
+      // Obtener el punto más cercano en la línea
+      const nearestPoint = turf.nearestPointOnLine(routeLine, userLocation);
+
+      // Calcular la distancia entre la ubicación del usuario y la ruta
+      const distanceToRoute =
+        turf.distance(userLocation, nearestPoint, { units: "kilometers" }) *
+        1000; // Convertir a metros
+
+      // Definir un umbral para estar en la ruta (ejemplo: 100 metros)
+
+      const speed = location.coords.speed;
+      let routeThreshold = 50;
+
+      if (speed) {
+        if (speed < 10) {
+          routeThreshold = 15; // caminar
+        } else if (speed < 30) {
+          routeThreshold = 25; // bicicleta
+        } else {
+          routeThreshold = 50; // auto
+        }
+      }
+
+      if (distanceToRoute > routeThreshold) {
+        console.log("fuera de la ruta");
+
+        // Usuario fuera de la ruta
+        setInOnRoute(false);
+        return;
+      }
+
+      console.log("dentro de la ruta");
+
+      // Usuario dentro de la ruta, calcular el paso más cercano
       let minDistance = Infinity;
       let closestStep = 0;
+      const userInstruction = turf.point(nearestPoint.geometry.coordinates);
 
       instructions.forEach((step: any, index: number) => {
         const stepLocation = turf.point(step.geometry.coordinates[0]);
-        const distance = turf.distance(userLocation, stepLocation);
+        const distance = turf.distance(userInstruction, stepLocation);
 
         if (distance < minDistance) {
-          // console.log(instructions[index]);
-          // console.log("array", instructions);
           minDistance = distance;
           closestStep = index;
         }
@@ -124,7 +280,13 @@ export const usePlaceNavigate = () => {
         ? closestInstruction.maneuver.instruction
         : "No hay una instrucción disponible en este momento";
 
+      const currentInstruction = closestInstruction
+        ? closestInstruction.geometry.coordinates
+        : [];
+
+      setInOnRoute(true);
       setCurrentStep(closestStep);
+      setCurrentInstruction(currentInstruction);
       setInstructionStep(instructionText);
     }
   };
@@ -135,7 +297,7 @@ export const usePlaceNavigate = () => {
     setRoute([]);
   };
 
-  return { navigatePlace, checkingRoute, cancelNavigation };
+  return { navigatePlace, checkingRoute, cancelNavigation, getTraficData };
 };
 
 export const useHeadingFromRoute = () => {
@@ -187,4 +349,83 @@ export const useHeadingFromRoute = () => {
   };
 
   return { getHeadingFromRoute, findClosestPointIndex };
+};
+
+export const useMapMatching = () => {
+  const { location } = useLocation();
+  const { setMatchedData, route } = usePlaceNavigateContext(); // `route` ya contiene las coordenadas de la ruta
+
+  // Función para calcular la distancia entre dos puntos usando el método de Haversine
+  const haversine = (
+    lat1: number,
+    lon1: number,
+    lat2: number,
+    lon2: number
+  ) => {
+    const R = 6371000; // Radio de la Tierra en metros
+    const φ1 = (lat1 * Math.PI) / 180;
+    const φ2 = (lat2 * Math.PI) / 180;
+    const Δφ = ((lat2 - lat1) * Math.PI) / 180;
+    const Δλ = ((lon2 - lon1) * Math.PI) / 180;
+
+    const a =
+      Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+      Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+    return R * c; // Distancia en metros
+  };
+
+  // Función para encontrar el punto más cercano en la ruta
+  const findClosestPointOnRoute = (
+    userLocation: { lat: number; lon: number },
+    route: number[][]
+  ) => {
+    let minDistance = Infinity;
+    let closestPoint = { lat: userLocation.lat, lon: userLocation.lon };
+
+    route.forEach((point) => {
+      const [routeLon, routeLat] = point; // Suponiendo que la ruta es un array de [lon, lat]
+      const distance = haversine(
+        userLocation.lat,
+        userLocation.lon,
+        routeLat,
+        routeLon
+      );
+
+      if (distance < minDistance) {
+        minDistance = distance;
+        closestPoint = { lat: routeLat, lon: routeLon };
+      }
+    });
+
+    return closestPoint;
+  };
+
+  // Obtener la ubicación más cercana a la ruta
+  const getMapMatchedLocation = async () => {
+    try {
+      if (!location) return; // Si no hay ubicación, no hacer nada
+
+      // Llamamos a la función para encontrar el punto más cercano en la ruta
+      const matchedLocation = findClosestPointOnRoute(
+        { lat: location.coords.latitude, lon: location.coords.longitude },
+        route // La ruta con las coordenadas de la carretera
+      );
+
+      // Actualizamos el estado con el punto más cercano
+      setMatchedData(matchedLocation);
+    } catch (error) {
+      console.error("Error al obtener el map matching:", error);
+    }
+  };
+
+  // Ejecutar la función cuando cambie la ubicación
+  useEffect(() => {
+    if (location) {
+      getMapMatchedLocation();
+    }
+  }, [location, route]); // Ejecutar cada vez que la ubicación cambie
+
+  return { getMapMatchedLocation };
 };

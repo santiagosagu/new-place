@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "new-place",
+    "name": "new place",
     "slug": "new-place",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/places.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -13,12 +13,12 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "foregroundImage": "./assets/images/places.png",
         "backgroundColor": "#ffffff"
       },
       "permissions": [
-        "android.permission.ACCESS_COARSE_LOCATION",
         "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_COARSE_LOCATION",
         "android.permission.ACCESS_BACKGROUND_LOCATION",
         "android.permission.FOREGROUND_SERVICE",
         "android.permission.FOREGROUND_SERVICE_LOCATION"
@@ -35,10 +35,14 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
+          "image": "./assets/images/places.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
+          "backgroundColor": "#00000000",
+          "orientation": "portrait",
+          "expo-device": {
+            "displayName": "New Place"
+          }
         }
       ],
       [
@@ -64,6 +68,7 @@
       "router": {
         "origin": false
       },
+
       "eas": {
         "projectId": "bd0bcb5b-1bd0-4830-8133-90fe9e147194"
       }

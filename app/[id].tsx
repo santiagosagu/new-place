@@ -20,6 +20,21 @@ export default function DetailsCategory() {
       />
 
       {/* <View style={styles.container}> */}
+      <View
+        style={{
+          backgroundColor: "#049CE4",
+          padding: 10,
+          borderRadius: 10,
+          marginVertical: 10,
+        }}
+      >
+        <Text style={{ color: "white", fontSize: 16, textAlign: "center" }}>
+          Algunos lugares puede que ya no esten disponibles o en la misma
+          ubicacion, si te encuentras con algun problema por favor reportarlo
+          para que podamos solucionarlo.
+        </Text>
+      </View>
+
       <FlatList
         data={category?.category}
         renderItem={({ item }) => (

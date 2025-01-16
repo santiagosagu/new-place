@@ -1,4 +1,11 @@
 {
+  "UI": {
+    "cerrar": "Cerrar",
+    "abrir": "Abrir",
+    "ver en mapa": "Ver en mapa",
+    "ver en tarjetas": "Ver en tarjetas",
+    "coordenadas copiadas al portapapeles": "Coordenadas copiadas al portapapeles"
+  },
   "tabs": {
     "inicio": "Inicio",
     "categorias": "Categorías"
@@ -15,7 +22,7 @@
   },
   "categoriasInternas": {
     "restaurantes": "Restaurantes",
-    "cafeterias": "Cofees",
+    "cafeterias": "Cafeterias",
     "bares": "Bares",
     "comidas rapidas": "Comidas Rapidas",
     "bancos": "Bancos",
@@ -52,5 +59,17 @@
     "comisarias": "Comisarías",
     "estacion de bomberos": "Estaciones de Bomberos",
     "lugar de oracion": "Lugar de Oración"
+  },
+  "modalNavegar": {
+    "navegar": "Navegar",
+    "navegar con app externa": "Navegar con app externa",
+    "solicitar un transporte": "Solicitar un transporte"
+  },
+  "modalUsarAppExternal": {
+    "titulo": "¡Dirígete a Uber, Indrive, etc.!",
+    "paso1": "Abre la aplicación de tu preferencia.",
+    "paso2": "Pega la siguiente ubicacion en el campo de destino.",
+    "paso3": "Selecciona el primer resultado que te ofrece la app.",
+    "botonCopiar": "Copiar coordenadas"
   }
 }

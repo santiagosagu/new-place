@@ -19,10 +19,12 @@ export const useLocation = () => {
         setLocation(initialLocation);
 
         const watchId = await Location.watchPositionAsync(
-          { distanceInterval: 1, timeInterval: 500, accuracy: 6 },
-          (newLocation) => {
-            setLocation(newLocation);
-          }
+          {
+            distanceInterval: 5,
+            timeInterval: 1000,
+            accuracy: Location.Accuracy.BestForNavigation,
+          },
+          (newLocation) => setLocation(newLocation)
         );
 
         return () => {
