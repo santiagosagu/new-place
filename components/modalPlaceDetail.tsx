@@ -13,6 +13,7 @@ import { Linking, Platform } from "react-native";
 import { useRef } from "react";
 import Rive, { RiveRef } from "rive-react-native";
 import i18n from "@/i18n";
+import { useNavigation } from "expo-router";
 
 const imageBackground = require("../assets/images/image.png");
 
@@ -25,6 +26,7 @@ export default function ModalPlaceDetail({
   setModalVisibleTraveling,
 }: any) {
   const { setIsNavigating, place, setPlace } = usePlaceNavigateContext();
+  const navigation = useNavigation();
 
   const riveRefModal = useRef<RiveRef>(null);
 
@@ -37,6 +39,28 @@ export default function ModalPlaceDetail({
 
     Linking.openURL(mapUrl!);
   };
+
+  const openMap = (lat: number, lng: number) => {
+    setModalVisible(false);
+    const scheme = Platform.OS === "ios" ? "maps:" : "geo:";
+    const url =
+      Platform.OS === "ios"
+        ? `${scheme}?q=${lat},${lng}&z=16`
+        : `${scheme}${lat},${lng}?q=${lat},${lng}`;
+
+    Linking.canOpenURL(url).then((supported) => {
+      if (supported) {
+        Linking.openURL(url);
+      } else {
+        // Fallback para web
+        Linking.openURL(
+          `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`
+        );
+      }
+    });
+  };
+
+  console.log(place);
 
   return (
     <Modal
@@ -85,6 +109,28 @@ export default function ModalPlaceDetail({
             )} */}
 
             <Pressable
+              style={[
+                styles.button,
+                styles.buttonClose,
+                { backgroundColor: "#FF385C" },
+              ]}
+              onPress={() => {
+                riveRefModal.current?.setInputState(
+                  "State Machine 1",
+                  "LoadFinished",
+                  true
+                );
+                setModalVisible(!modalVisible);
+                setSeeInCards(false);
+                navigation.navigate<any>("PlaceDetails", {
+                  placeIdProvider: place.placeIdProvider,
+                });
+              }}
+            >
+              <Text style={styles.textStyle}>Detalles del lugar</Text>
+            </Pressable>
+
+            <Pressable
               style={[styles.button, styles.buttonClose]}
               onPress={() => {
                 riveRefModal.current?.setInputState(
@@ -104,9 +150,10 @@ export default function ModalPlaceDetail({
                 {i18n.t(`modalNavegar.navegar`, { defaultValue: "Navegar" })}
               </Text>
             </Pressable>
+
             <Pressable
               onPress={() => {
-                openNativeNavigation(place.lat, place.lon);
+                openMap(place.lat, place.lon);
                 setPlace(null);
               }}
               style={{
@@ -122,7 +169,7 @@ export default function ModalPlaceDetail({
                 })}
               </Text>
             </Pressable>
-            <Pressable
+            {/* <Pressable
               onPress={() => {
                 setModalVisibleTraveling(true);
                 setModalVisible(false);
@@ -139,7 +186,7 @@ export default function ModalPlaceDetail({
                   defaultValue: "Solicitar un transporte",
                 })}
               </Text>
-            </Pressable>
+            </Pressable> */}
           </View>
         </View>
       </View>
@@ -195,7 +242,7 @@ const styles = StyleSheet.create({
     color: "white",
     fontWeight: "bold",
     textAlign: "center",
-    fontSize: 20,
+    fontSize: 16,
     textTransform: "capitalize",
   },
   modalText: {

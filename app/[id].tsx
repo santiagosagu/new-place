@@ -41,9 +41,9 @@ export default function DetailsCategory() {
           <CardListDetailsCategory
             title={item.title}
             color={item.color}
-            categoryMap={item.categoryMap}
-            valueCategoryMap={item.valueCategoryMap}
-            query={item.query}
+            radius={item.radius}
+            type={item.type}
+            keyword={item.keyword}
           />
         )}
         keyExtractor={(item) => item.title}

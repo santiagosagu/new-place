@@ -6,17 +6,17 @@ import i18n from "@/i18n";
 interface IProps {
   title: string;
   color?: string;
-  categoryMap?: string;
-  valueCategoryMap?: string;
-  query?: string;
+  radius?: string;
+  type?: string;
+  keyword?: string;
 }
 
 export default function CardListDetailsCategory({
   title,
   color,
-  categoryMap,
-  valueCategoryMap,
-  query,
+  radius,
+  type,
+  keyword,
 }: IProps) {
   return (
     <Link
@@ -24,9 +24,9 @@ export default function CardListDetailsCategory({
         pathname: "/view-maps-category/[title]",
         params: {
           title,
-          categoryMap,
-          valueCategoryMap,
-          query,
+          radius,
+          type,
+          keyword,
         },
       }}
       asChild

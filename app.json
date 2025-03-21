@@ -9,7 +9,11 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.anonymous.newplace",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -23,7 +27,8 @@
         "android.permission.FOREGROUND_SERVICE",
         "android.permission.FOREGROUND_SERVICE_LOCATION"
       ],
-      "package": "com.anonymous.newplace"
+      "package": "com.anonymous.newplace",
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "bundler": "metro",
@@ -38,7 +43,7 @@
           "image": "./assets/images/places.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#00000000",
+          "backgroundColor": "#000000",
           "orientation": "portrait",
           "expo-device": {
             "displayName": "New Place"
@@ -68,7 +73,6 @@
       "router": {
         "origin": false
       },
-
       "eas": {
         "projectId": "bd0bcb5b-1bd0-4830-8133-90fe9e147194"
       }

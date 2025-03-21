@@ -1,5 +1,5 @@
-import { Tabs } from "expo-router";
-import React from "react";
+import { Tabs, useFocusEffect } from "expo-router";
+import React, { useCallback, useEffect } from "react";
 import { Image, Platform, Text, View } from "react-native";
 
 import { HapticTab } from "@/components/HapticTab";
@@ -10,28 +10,41 @@ import { useColorScheme } from "@/hooks/useColorScheme";
 import i18n from "@/i18n";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { IconItinerary } from "@/components/ui/iconsList";
+import { Ionicons } from "@expo/vector-icons";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
   const colorText = useThemeColor({}, "text");
   const backgroundHeader = useThemeColor({}, "backgroundHeader");
 
+  const { checkoutStatusSesionWithToken } = useAuth();
+
+  useFocusEffect(
+    useCallback(() => {
+      checkoutStatusSesionWithToken();
+
+      return () => {};
+    }, [])
+  );
+
   return (
     <>
       <Tabs
         screenOptions={{
           tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
-          headerShown: true,
+          headerShown: false,
           headerTitle: "New Place",
           tabBarButton: HapticTab,
           tabBarBackground: TabBarBackground,
-          tabBarStyle: Platform.select({
-            ios: {
-              // Use a transparent background on iOS to show the blur effect
-              position: "absolute",
-            },
-            default: {},
-          }),
+          // tabBarStyle: Platform.select({
+          //   ios: {
+          //     // Use a transparent background on iOS to show the blur effect
+          //     position: "absolute",
+          //   },
+          //   default: {},
+          // }),
           header: () => (
             <View
               style={{
@@ -64,6 +77,29 @@ export default function TabLayout() {
               </Text>
             </View>
           ),
+
+          tabBarStyle: {
+            flexDirection: "row",
+            justifyContent: "space-around",
+            paddingVertical: 12,
+            paddingTop: 8,
+            position: "absolute",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            height: 65,
+            borderTopLeftRadius: 30,
+            borderTopRightRadius: 30,
+            backgroundColor: useThemeColor({}, "cardBackground"),
+            shadowColor: "#000",
+            shadowOffset: {
+              width: 0,
+              height: -2,
+            },
+            shadowOpacity: 0.1,
+            shadowRadius: 3.84,
+            elevation: 5,
+          },
         }}
       >
         <Tabs.Screen
@@ -78,14 +114,23 @@ export default function TabLayout() {
         <Tabs.Screen
           name="category"
           options={{
-            title: i18n.t("tabs.categorias", { defaultValue: "Categorías" }),
+            title: "Explorar",
             tabBarIcon: ({ color }) => (
-              <IconSymbol size={28} name="paperplane.fill" color={color} />
+              <MaterialIcons name="explore" size={24} color={color} />
             ),
           }}
         />
         <Tabs.Screen
-          name="itinerarioIA"
+          name="socialNetwork"
+          options={{
+            title: "Red",
+            tabBarIcon: ({ color }) => (
+              <Ionicons name="people" size={24} color={color} />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="Itineraries"
           options={{
             title: "Tus Itinerarios",
             tabBarIcon: ({ color }) => <IconItinerary color={color} />,

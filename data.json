@@ -2,141 +2,108 @@
   "DATA": [
     {
       "id": "1",
-      "title": "servicios",
+      "title": "Comidad y Bebidas",
       "image": "https://i.pinimg.com/236x/00/9a/b9/009ab99f8cb5838605ded510dcd965f6.jpg",
       "category": [
         {
           "title": "restaurantes",
-          "query": "restaurantes",
-          "categoryMap": "amenity",
-          "valueCategoryMap": "restaurant",
+          "keyword": "",
+          "radius": "3000",
+          "type": "restaurant",
           "color": "#4DA1A9"
         },
         {
           "title": "cafeterias",
-          "query": "cafeterias",
-          "categoryMap": "amenity",
-          "valueCategoryMap": "cafe",
+          "keyword": "",
+          "radius": "3000",
+          "type": "coffee_shop",
           "color": "#DEAA79"
         },
         {
           "title": "bares",
-          "query": "noquery",
-          "categoryMap": "amenity",
-          "valueCategoryMap": "bar",
+          "keyword": "",
+          "radius": "3000",
+          "type": "bar",
           "color": "#78B7D0"
         },
         {
           "title": "comidas rapidas",
-          "query": "comidas+rapidas",
-          "categoryMap": "amenity",
-          "valueCategoryMap": "fast_food",
+          "keyword": "fast food",
+          "radius": "3000",
+          "type": "fast_food",
           "color": "#F2E5BF"
         },
         {
-          "title": "bancos",
-          "query": "bancos",
-          "categoryMap": "amenity",
-          "valueCategoryMap": "bank",
-          "color": "#7E5CAD"
-        },
-        {
-          "title": "baños publicos",
-          "query": "noquery",
-          "categoryMap": "amenity",
-          "valueCategoryMap": "toilets",
-          "color": "#C96868"
-        },
-        {
-          "title": "estacionamientos",
-          "query": "noquery",
-          "categoryMap": "amenity",
-          "valueCategoryMap": "parking",
-          "color": "#79D7BE"
-        },
-        {
-          "title": "gasolineras",
-          "query": "gasolineras",
-          "categoryMap": "amenity",
-          "valueCategoryMap": "fuel",
+          "title": "Pizza",
+          "keyword": "pizza restaurant",
+          "radius": "3000",
+          "type": "pizza_restaurant",
           "color": "#F2E5BF"
         },
         {
-          "title": "oficinas de correos",
-          "query": "oficinas+de+correos",
-          "categoryMap": "amenity",
-          "valueCategoryMap": "post_office",
-          "color": "#FFF4EA"
+          "title": "Heladerias",
+          "keyword": "ice cream shop",
+          "radius": "3000",
+          "type": "ice_cream_shop",
+          "color": "#F2E5BF"
+        },
+        {
+          "title": "Restaurante Vegetariano",
+          "keyword": "vegetarian restaurant",
+          "radius": "5000",
+          "type": "vegetarian_restaurant",
+          "color": "#F2E5BF"
+        },
+
+        {
+          "title": "Restaurante Chino",
+          "keyword": "chinese restaurant",
+          "radius": "5000",
+          "type": "chinese_restaurant",
+          "color": "#F2E5BF"
+        },
+        {
+          "title": "Restaurante Buffet",
+          "keyword": "buffet restaurant",
+          "radius": "5000",
+          "type": "buffet_restaurant",
+          "color": "#F2E5BF"
         }
       ]
     },
     {
       "id": "2",
-      "title": "turismo",
+      "title": "Alojamientos",
       "image": "https://i.pinimg.com/236x/22/5e/be/225ebe6849b5714561c783f995167008.jpg",
       "category": [
         {
-          "title": "hoteles",
-          "query": "hoteles",
-          "categoryMap": "tourism",
-          "valueCategoryMap": "hotel",
+          "title": "Hotel",
+          "keyword": "hotel",
+          "radius": "5000",
+          "type": "hotel",
+
           "color": "#F2E5BF"
         },
         {
-          "title": "albergues",
-          "query": "albergues",
-          "categoryMap": "tourism",
-          "valueCategoryMap": "hostel",
-          "color": "#7E5CAD"
-        },
-        {
-          "title": "casa de huespedes",
-          "query": "noquery",
-          "categoryMap": "tourism",
-          "valueCategoryMap": "guest_house",
-          "color": "#79D7BE"
-        },
-        {
-          "title": "campo de campamento",
-          "query": "noquery",
-          "categoryMap": "tourism",
-          "valueCategoryMap": "camp_site",
-          "color": "#FFF4EA"
-        },
-        {
-          "title": "oficinas turisticas",
-          "query": "noquery",
-          "categoryMap": "tourism",
-          "valueCategoryMap": "information",
+          "title": "terreno de camping",
+          "keyword": "campground",
+          "radius": "6000",
+          "type": "campground",
           "color": "#C96868"
         },
         {
-          "title": "atractivos turisticos",
-          "query": "noquery",
-          "categoryMap": "tourism",
-          "valueCategoryMap": "attraction",
-          "color": "#4DA1A9"
+          "title": "hotel resort",
+          "keyword": "hotel resort",
+          "radius": "5000",
+          "type": "hotel_resort",
+          "color": "red"
         },
         {
-          "title": "museos",
-          "query": "museos",
-          "categoryMap": "tourism",
-          "valueCategoryMap": "museum",
-          "color": "#F2E5BF"
-        },
-        {
-          "title": "obras de arte",
-          "query": "obra+de+arte",
-          "categoryMap": "tourism",
-          "valueCategoryMap": "artwork",
-          "color": "#7E5CAD"
-        },
-        {
-          "title": "galerias de arte",
-          "query": "noquery",
-          "categoryMap": "tourism",
-          "valueCategoryMap": "art_gallery",
-          "color": "#79D7BE"
+          "title": "Hostal",
+          "keyword": "hostel",
+          "radius": "5000",
+          "type": "hostel",
+          "color": "red"
         }
       ]
     },
@@ -147,44 +114,37 @@
       "category": [
         {
           "title": "centros comerciales",
-          "query": "centros+comerciales",
-          "categoryMap": "shop",
-          "valueCategoryMap": "mall",
+          "keyword": "shopping mall",
+          "radius": "3000",
+          "type": "shopping_mall",
           "color": "#79D7BE"
         },
         {
-          "title": "supermercados",
-          "query": "supermercados",
-          "categoryMap": "shop",
-          "valueCategoryMap": "supermarket",
+          "title": "Supermercados",
+          "keyword": "supermercados|tiendas",
+          "radius": "3000",
+          "type": "supermarket",
           "color": "#F2E5BF"
         },
         {
-          "title": "ropa",
-          "query": "tienda+de+ropa",
-          "categoryMap": "shop",
-          "valueCategoryMap": "clothes",
+          "title": "Mascotas",
+          "keyword": "",
+          "radius": "3000",
+          "type": "pet_store",
           "color": "#FFF4EA"
         },
         {
-          "title": "zapatos",
-          "query": "noquery",
-          "categoryMap": "shop",
-          "valueCategoryMap": "shoes",
+          "title": "Articulos deportivos",
+          "keyword": "",
+          "radius": "3000",
+          "type": "sporting_goods_store",
           "color": "#C96868"
         },
         {
-          "title": "electronica",
-          "query": "tienda+de+electronica",
-          "categoryMap": "shop",
-          "valueCategoryMap": "electronics",
-          "color": "#4DA1A9"
-        },
-        {
-          "title": "librerias",
-          "query": "noquery",
-          "categoryMap": "shop",
-          "valueCategoryMap": "books",
+          "title": "Joyeria",
+          "keyword": "jewelry store",
+          "radius": "3000",
+          "type": "jewelry_store",
           "color": "#F2E5BF"
         }
       ]
@@ -196,31 +156,80 @@
       "category": [
         {
           "title": "parques",
-          "query": "parques",
-          "categoryMap": "leisure",
-          "valueCategoryMap": "park",
+          "keyword": "park",
+          "radius": "3000",
+          "type": "park",
           "color": "#79D7BE"
         },
         {
-          "title": "centro deportivo",
-          "query": "centros+deportivos",
-          "categoryMap": "leisure",
-          "valueCategoryMap": "sports_centre",
+          "title": "parques de atracciones",
+          "keyword": "amusement park",
+          "radius": "5000",
+          "type": "amusement_park",
           "color": "#F2E5BF"
         },
         {
-          "title": "parques infantiles",
-          "query": "parques+infantiles",
-          "categoryMap": "leisure",
-          "valueCategoryMap": "playground",
+          "title": "Acuario",
+          "keyword": "aquarium",
+          "radius": "5000",
+          "type": "aquarium",
           "color": "#7E5CAD"
         },
         {
-          "title": "gimnasios",
-          "query": "gimnasios",
-          "categoryMap": "leisure",
-          "valueCategoryMap": "fitness_centre",
-          "color": "#FFF4EA"
+          "title": "Jardin botanico",
+          "keyword": "botanical garden",
+          "radius": "5000",
+          "type": "botanical_garden",
+          "color": "#7E5CAD"
+        },
+        {
+          "title": "Cines",
+          "keyword": "movie theater|cine",
+          "radius": "5000",
+          "type": "movie_theater",
+          "color": "#7E5CAD"
+        },
+        {
+          "title": "Bolera",
+          "keyword": "bowling alley|bolos",
+          "radius": "5000",
+          "type": "bowling_alley",
+          "color": "#7E5CAD"
+        },
+        {
+          "title": "Club de comedia",
+          "keyword": "comedy club",
+          "radius": "5000",
+          "type": "comedy_club",
+          "color": "#7E5CAD"
+        },
+        {
+          "title": "Sala de conciertos",
+          "keyword": "concert hall",
+          "radius": "5000",
+          "type": "concert_hall",
+          "color": "#7E5CAD"
+        },
+        {
+          "title": "Salón de baile",
+          "keyword": "dance hall|dance",
+          "radius": "5000",
+          "type": "dance_hall",
+          "color": "#7E5CAD"
+        },
+        {
+          "title": "karaoke",
+          "keyword": "karaoke",
+          "radius": "4000",
+          "type": "karaoke",
+          "color": "#7E5CAD"
+        },
+        {
+          "title": "atracción turística",
+          "keyword": "tourist attraction",
+          "radius": "5000",
+          "type": "tourist_attraction",
+          "color": "#7E5CAD"
         }
       ]
     },
@@ -231,94 +240,150 @@
       "category": [
         {
           "title": "escuelas",
-          "query": "escuelas",
-          "categoryMap": "amenity",
-          "valueCategoryMap": "school",
+          "keyword": "",
+          "radius": "5000",
+          "type": "school",
           "color": "#79D7BE"
         },
         {
           "title": "universidades",
-          "query": "universidades",
-          "categoryMap": "amenity",
-          "valueCategoryMap": "university",
+          "keyword": "",
+          "radius": "5000",
+          "type": "university",
           "color": "#F2E5BF"
         },
         {
-          "title": "guarderias",
-          "query": "noquery",
-          "categoryMap": "amenity",
-          "valueCategoryMap": "kindergarten",
+          "title": "preescolar",
+          "keyword": "preescolar|guarderias|jardin infantil",
+          "radius": "5000",
+          "type": "preschool",
           "color": "#7E5CAD"
+        },
+        {
+          "title": "Bibliotecas",
+          "keyword": "bibliotecas",
+          "radius": "3000",
+          "type": "library",
+          "color": "#F2E5BF"
         }
       ]
     },
     {
       "id": "6",
-      "title": "salud",
+      "title": "salud y bienestar",
       "image": "https://i.pinimg.com/236x/8c/9e/64/8c9e643844b3de7f82c94231a37fea7e.jpg",
       "category": [
         {
           "title": "hospitales",
-          "query": "hospitales",
-          "categoryMap": "amenity",
-          "valueCategoryMap": "hospital",
+          "keyword": "",
+          "radius": "3000",
+          "type": "hospital",
           "color": "#F2E5BF"
         },
         {
-          "title": "clinicas",
-          "query": "noquery",
-          "categoryMap": "amenity",
-          "valueCategoryMap": "clinic",
+          "title": "consultorios medicos",
+          "keyword": "",
+          "radius": "3000",
+          "type": "doctor",
           "color": "#7E5CAD"
         },
         {
-          "title": "consultorios medicos",
-          "query": "consultorios+medicos",
-          "categoryMap": "amenity",
-          "valueCategoryMap": "doctor",
+          "title": "Farmacias",
+          "keyword": "",
+          "radius": "3000",
+          "type": "pharmacy",
+          "color": "#79D7BE"
+        },
+        {
+          "title": "Dentistas",
+          "keyword": "",
+          "radius": "3000",
+          "type": "dentist",
+          "color": "#79D7BE"
+        },
+        {
+          "title": "Veterinarias",
+          "keyword": "",
+          "radius": "3000",
+          "type": "veterinary_care",
+          "color": "#79D7BE"
+        },
+        {
+          "title": "GYM",
+          "keyword": "",
+          "radius": "3000",
+          "type": "gym",
+          "color": "#79D7BE"
+        },
+        {
+          "title": "Campo de golf",
+          "keyword": "golf",
+          "radius": "3000",
+          "type": "golf_course",
+          "color": "#79D7BE"
+        },
+        {
+          "title": "Campo atlético",
+          "keyword": "athletic field",
+          "radius": "3000",
+          "type": "athletic_field",
           "color": "#79D7BE"
         }
       ]
     },
     {
       "id": "7",
-      "title": "servicios publicos",
-      "image": "https://i.pinimg.com/236x/6d/d4/51/6dd4515675c77b5c4cd75695d7394cd3.jpg",
-      "category": [
-        {
-          "title": "bibliotecas",
-          "query": "bibliotecas",
-          "categoryMap": "amenity",
-          "valueCategoryMap": "library",
-          "color": "#F2E5BF"
-        },
-        {
-          "title": "Comisarias",
-          "query": "policias",
-          "categoryMap": "amenity",
-          "valueCategoryMap": "courthouse",
-          "color": "#7E5CAD"
-        },
-        {
-          "title": "estacion de bomberos",
-          "query": "noquery",
-          "categoryMap": "amenity",
-          "valueCategoryMap": "bomb_site",
-          "color": "#79D7BE"
-        }
-      ]
-    },
-    {
-      "id": "8",
       "title": "lugar de oracion",
       "image": "https://i.pinimg.com/236x/d5/cf/ec/d5cfec24ba61ab07a5f232607aa2e11c.jpg",
       "category": [
         {
           "title": "lugar de oracion",
-          "query": "iglesias",
-          "categoryMap": "amenity",
-          "valueCategoryMap": "place_of_worship",
+          "keyword": "",
+          "radius": "3000",
+          "type": "church",
           "color": "#F2E5BF"
+        }
+      ]
+    },
+    {
+      "id": "8",
+      "title": "servicios publicos",
+      "image": "https://i.pinimg.com/236x/6d/d4/51/6dd4515675c77b5c4cd75695d7394cd3.jpg",
+      "category": [
+        {
+          "title": "Gasolineras",
+          "keyword": "",
+          "radius": "3000",
+          "type": "gas_station",
+          "color": "#7E5CAD"
+        },
+        {
+          "title": "Bancos Y Cajeros",
+          "keyword": "",
+          "radius": "3000",
+          "type": "bank|atm",
+          "color": "#7E5CAD"
+        },
+        {
+          "title": "Policia",
+          "keyword": "",
+          "radius": "3000",
+          "type": "police",
+          "color": "#7E5CAD"
+        },
+        {
+          "title": "Estacion de bomberos",
+          "keyword": "",
+          "radius": "5000",
+          "type": "fire_station",
+          "color": "#79D7BE"
+        },
+        {
+          "title": "Embajada",
+          "keyword": "embassy",
+          "radius": "5000",
+          "type": "embassy",
+          "color": "#79D7BE"
         }
       ]
     }

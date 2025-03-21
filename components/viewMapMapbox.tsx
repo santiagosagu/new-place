@@ -10,7 +10,15 @@ import Mapbox, {
   Images,
 } from "@rnmapbox/maps";
 import { IconClose, IconNavigation } from "./ui/iconsList";
-import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import {
+  Image,
+  Linking,
+  Platform,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import ModalPlaceDetail from "./modalPlaceDetail";
 import { useLocation } from "@/hooks/location/useLocation";
@@ -31,6 +39,9 @@ import { deactivateKeepAwake, useKeepAwake } from "expo-keep-awake";
 
 // @ts-ignore
 import navigateIMage from "../assets/images/gps.png";
+import { NewModalPlaceActions } from "./newModalPlaceActions";
+import { AntDesign, FontAwesome, Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "expo-router";
 
 interface itemMarker {
   id: string;
@@ -66,8 +77,11 @@ export default function ViewMapMapbox({ data, latitude, longitude }: any) {
   const cameraRef = useRef<Camera>(null);
   const imagesRef = useRef<Images>(null);
 
+  const cardColor = useThemeColor({}, "cardBackground");
   const backgroundTabTop = useThemeColor({}, "background");
   const colorText = useThemeColor({}, "text");
+
+  const navigation = useNavigation();
 
   const { location } = useLocation();
   const { navigatePlace, checkingRoute, cancelNavigation } = usePlaceNavigate();
@@ -85,11 +99,37 @@ export default function ViewMapMapbox({ data, latitude, longitude }: any) {
     inOnRoute,
     matchedData,
     traficData,
+    setIsNavigating,
   } = usePlaceNavigateContext();
+
+  const navigateExternalApp = () => {
+    setModalVisible(false);
+    const lat = place?.geometry?.location?.lat;
+    const lng = place?.geometry?.location?.lng;
+    const scheme = Platform.OS === "ios" ? "maps:" : "geo:";
+    const url =
+      Platform.OS === "ios"
+        ? `${scheme}?q=${lat},${lng}&z=16`
+        : `${scheme}${lat},${lng}?q=${lat},${lng}`;
+
+    Linking.canOpenURL(url).then((supported) => {
+      if (supported) {
+        Linking.openURL(url);
+      } else {
+        // Fallback para web
+        Linking.openURL(
+          `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`
+        );
+      }
+    });
+  };
 
   useKeepAwake();
 
   const handleNavigatePlace = async () => {
+    setModalVisible(false);
+    setIsNavigating(true);
+
     if (location) {
       navigatePlace(
         [location.coords.longitude, location.coords.latitude],
@@ -226,18 +266,18 @@ export default function ViewMapMapbox({ data, latitude, longitude }: any) {
   if (seeInCards) {
     return (
       <>
-        <ModalPlaceDetail
+        {/* <ModalPlaceDetail
           modalVisible={modalVisible}
           setModalVisible={setModalVisible}
           modalVisibleTraveling={modalVisibleTraveling}
           setModalVisibleTraveling={setModalVisibleTraveling}
           navigatePlace={handleNavigatePlace}
           setSeeInCards={setSeeInCards}
-        />
-        <TravelingWithExternalApp
+        /> */}
+        {/* <TravelingWithExternalApp
           modalVisibleTraveling={modalVisibleTraveling}
           setModalVisibleTraveling={setModalVisibleTraveling}
-        />
+        /> */}
         <View style={styles.containerButtonModeSelect}>
           <Pressable
             onPress={() => setSeeInCards(false)}
@@ -291,20 +331,117 @@ export default function ViewMapMapbox({ data, latitude, longitude }: any) {
           setModalVisible={setModalVisible}
           setPlace={setPlace}
         />
+        {modalVisible && (
+          <NewModalPlaceActions
+            dispatch={setModalVisible}
+            heightInitial={400}
+            heightExpanded={400}
+          >
+            <View>
+              <Text
+                style={[
+                  // styles.sectionTitle,
+                  {
+                    color: colorText,
+                    textAlign: "center",
+                    fontSize: 20,
+                    fontWeight: "bold",
+                  },
+                ]}
+              >
+                {place.name}
+              </Text>
+              <View>
+                <Image
+                  source={{
+                    uri:
+                      place.photos.length > 0
+                        ? place.photos[0]
+                        : "https://api.a0.dev/assets/image?text=Una ilustración minimalista y moderna de una pantalla de error '404 Not Found'. La imagen muestra un paisaje digital desolado con un letrero roto que dice '404'. Un pequeño robot con una expresión confundida revisa el letrero, mientras que en el fondo hay una atmósfera futurista con tonos azulados y morados. La escena transmite una sensación de exploración y pérdida, pero con un toque amigable y tecnológico.&aspect =16:9",
+                  }}
+                  style={styles.image}
+                />
+                <View style={styles.actionButtonsContainer}>
+                  <Pressable
+                    onPress={() => {
+                      setModalVisible(false);
+                      navigation.navigate<any>("PlaceDetails", {
+                        placeIdProvider: place.placeIdProvider,
+                      });
+                    }}
+                    style={[
+                      styles.actionButton,
+                      {
+                        backgroundColor: cardColor,
+                        borderWidth: 1,
+                        borderColor: "#FF385C",
+                      },
+                    ]}
+                  >
+                    <FontAwesome name="home" size={24} color={colorText} />
+                    <Text
+                      style={[
+                        { color: colorText, fontSize: 16, fontWeight: "bold" },
+                      ]}
+                    >
+                      Detalles
+                    </Text>
+                  </Pressable>
+                  <Pressable
+                    onPress={handleNavigatePlace}
+                    style={[
+                      styles.actionButton,
+                      { backgroundColor: "#FF385C" },
+                    ]}
+                  >
+                    <Ionicons name="navigate" size={24} color="white" />
+                    <Text
+                      style={[
+                        { color: "white", fontSize: 16, fontWeight: "bold" },
+                      ]}
+                    >
+                      Navegar
+                    </Text>
+                  </Pressable>
+                  <Pressable
+                    onPress={navigateExternalApp}
+                    style={[
+                      styles.actionButton,
+                      {
+                        backgroundColor: cardColor,
+                        borderWidth: 1,
+                        borderColor: "#FF385C",
+                      },
+                    ]}
+                  >
+                    <Ionicons name="navigate" size={24} color={colorText} />
+                    <Text
+                      style={[
+                        { color: colorText, fontSize: 16, fontWeight: "bold" },
+                      ]}
+                    >
+                      App Externa
+                    </Text>
+                  </Pressable>
+                </View>
+              </View>
+            </View>
+          </NewModalPlaceActions>
+        )}
       </>
     );
   }
 
   return (
     <>
-      <ModalPlaceDetail
+      {/* <ModalPlaceDetail
         modalVisible={modalVisible}
         setModalVisible={setModalVisible}
         modalVisibleTraveling={modalVisibleTraveling}
         setModalVisibleTraveling={setModalVisibleTraveling}
         navigatePlace={handleNavigatePlace}
         setSeeInCards={setSeeInCards}
-      />
+      /> */}
       <TravelingWithExternalApp
         modalVisibleTraveling={modalVisibleTraveling}
         setModalVisibleTraveling={setModalVisibleTraveling}
@@ -554,6 +691,101 @@ export default function ViewMapMapbox({ data, latitude, longitude }: any) {
           </ShapeSource>
         )}
       </MapView>
+      {modalVisible && (
+        <NewModalPlaceActions
+          dispatch={setModalVisible}
+          heightInitial={400}
+          heightExpanded={400}
+        >
+          <View>
+            <Text
+              style={[
+                // styles.sectionTitle,
+                {
+                  color: colorText,
+                  textAlign: "center",
+                  fontSize: 20,
+                  fontWeight: "bold",
+                },
+              ]}
+            >
+              {place.name}
+            </Text>
+            <View>
+              <Image
+                source={{
+                  uri:
+                    place.photos.length > 0
+                      ? place.photos[0]
+                      : "https://api.a0.dev/assets/image?text=Una ilustración minimalista y moderna de una pantalla de error '404 Not Found'. La imagen muestra un paisaje digital desolado con un letrero roto que dice '404'. Un pequeño robot con una expresión confundida revisa el letrero, mientras que en el fondo hay una atmósfera futurista con tonos azulados y morados. La escena transmite una sensación de exploración y pérdida, pero con un toque amigable y tecnológico.&aspect =16:9",
+                }}
+                style={styles.image}
+              />
+              <View style={styles.actionButtonsContainer}>
+                <Pressable
+                  onPress={() => {
+                    setModalVisible(false);
+                    navigation.navigate<any>("PlaceDetails", {
+                      placeIdProvider: place.placeIdProvider,
+                    });
+                  }}
+                  style={[
+                    styles.actionButton,
+                    {
+                      backgroundColor: cardColor,
+                      borderWidth: 1,
+                      borderColor: "#FF385C",
+                    },
+                  ]}
+                >
+                  <FontAwesome name="home" size={24} color={colorText} />
+                  <Text
+                    style={[
+                      { color: colorText, fontSize: 16, fontWeight: "bold" },
+                    ]}
+                  >
+                    Detalles
+                  </Text>
+                </Pressable>
+                <Pressable
+                  onPress={handleNavigatePlace}
+                  style={[styles.actionButton, { backgroundColor: "#FF385C" }]}
+                >
+                  <Ionicons name="navigate" size={24} color="white" />
+                  <Text
+                    style={[
+                      { color: "white", fontSize: 16, fontWeight: "bold" },
+                    ]}
+                  >
+                    Navegar
+                  </Text>
+                </Pressable>
+                <Pressable
+                  onPress={navigateExternalApp}
+                  style={[
+                    styles.actionButton,
+                    {
+                      backgroundColor: cardColor,
+                      borderWidth: 1,
+                      borderColor: "#FF385C",
+                    },
+                  ]}
+                >
+                  <Ionicons name="navigate" size={24} color={colorText} />
+                  <Text
+                    style={[
+                      { color: colorText, fontSize: 16, fontWeight: "bold" },
+                    ]}
+                  >
+                    App Externa
+                  </Text>
+                </Pressable>
+              </View>
+            </View>
+          </View>
+        </NewModalPlaceActions>
+      )}
+
       {isNavigating && (
         <BottomSheet
           ref={bottomSheetRef}
@@ -637,5 +869,36 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 10,
     elevation: 2,
+  },
+  actionButtonsContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    gap: 14,
+    marginTop: 10,
+  },
+  image: {
+    width: "100%",
+    height: 200,
+    borderRadius: 12,
+    marginBottom: 10,
+    marginLeft: 10,
+    marginTop: 10,
+    resizeMode: "cover",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  actionButton: {
+    alignItems: "center",
+    padding: 15,
+    borderRadius: 12,
+    minWidth: "30%",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
 });

@@ -3,54 +3,148 @@ import { useLocation } from "../location/useLocation";
 import * as turf from "@turf/turf";
 import { usePlaceNavigateContext } from "@/context/placeNavigateContext";
 import * as RNLocalize from "react-native-localize";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+// export const useFetchData = async (
+//   latitude: string,
+//   longitude: string,
+//   categoryMap: string,
+//   valueCategoryMap: string,
+//   query: string = "noquery"
+// ) => {
+//   const overpassUrl = `https://overpass-api.de/api/interpreter?data=[out:json];(node[${categoryMap}="${valueCategoryMap}"](around:4000,${latitude},${longitude}););out;`;
+//   // const nominatimUrl = `https://nominatim.openstreetmap.org/search?q=${query}+cerca+de+${latitude},${longitude}&format=json`;
+
+//   const nominatimUrl = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${latitude},${longitude}&radius=4000&type=restaurant&geocodePrecision=EXTENDED&key=AIzaSyBY5fqHDVdAiWD6dLVGDLiaW1iqo_WV2qA`;
+
+//   try {
+//     const overpassResponse = await fetch(overpassUrl);
+//     const nominatimResponse = await fetch(nominatimUrl);
+
+//     const overpassData = await overpassResponse.json();
+//     const nominatimData = await nominatimResponse.json();
+
+//     console.log(nominatimData);
+
+//     const overpassTransform = overpassData.elements.map((item: any) => ({
+//       id: item.id,
+//       name: item.tags.name || "No disponible",
+//       cuisine: item.tags.cuisine || "No disponible",
+//       lat: item.lat.toString(),
+//       lon: item.lon.toString(),
+//       horario: item.tags.opening_hours || "No disponible",
+//       phone: item.tags.phone || "No disponible",
+//       website: item.tags.website || "No disponible",
+//     }));
+
+//     const nominatimTransform = nominatimData.results.map((item: any) => ({
+//       id: item.place_id,
+//       name: item.name,
+//       lat: item.lat,
+//       lon: item.lon,
+//     }));
+
+//     const mergedData = [...overpassTransform, ...nominatimTransform];
+//     const uniqueData = mergedData.filter(
+//       (value, index, self) =>
+//         index ===
+//         self.findIndex((t) => t.lat === value.lat && t.lon === value.lon)
+//     );
+
+//     return uniqueData || [];
+//   } catch (error) {
+//     console.error("Error fetching data:", error);
+//     return [];
+//   }
+// };
+
+// export async function useFetchData(
+//   latitude: string,
+//   longitude: string,
+//   categoryMap: string,
+//   valueCategoryMap: string,
+//   query: string = "noquery"
+// ) {
+//   let allResults = [];
+//   let nextPageToken = null;
+
+//   do {
+//     // let url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${location}&radius=${radius}&rankby=distance&type=${type}&key=${apiKey}`;
+//     // let url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${type}+en+${selectedCountry}+${selectedCity}&key=${apiKey}`;
+
+//     //       let url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${type}+en+${selectedCountry}+${selectedCity}&
+//     // location_step_radius=40000&place_type=${type}&geocodePrecision=EXTENDED&max_results=100&key=${apiKey}
+//     // `;
+
+//     const valueArray = Array.isArray(valueCategoryMap)
+//       ? valueCategoryMap
+//       : [valueCategoryMap];
+
+//     let url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${latitude},${longitude}&radius=4000&types=${valueCategoryMap}&geocodePrecision=EXTENDED&key=AIzaSyBY5fqHDVdAiWD6dLVGDLiaW1iqo_WV2qA`;
+
+//     if (nextPageToken) {
+//       url += `&pagetoken=${nextPageToken}`;
+//       await new Promise((resolve) => setTimeout(resolve, 2000)); // Espera para que el token sea válido
+//     }
+
+//     const response = await fetch(url);
+//     const data = await response.json();
+
+//     if (data.results) {
+//       allResults.push(...data.results);
+//     }
+
+//     nextPageToken = data.next_page_token || null; // Si no hay más token, terminamos
+//   } while (nextPageToken);
+
+//   const dataTransform = allResults.map((item: any) => ({
+//     id: item.place_id,
+//     name: item.name,
+//     lat: item.geometry.location.lat,
+//     lon: item.geometry.location.lng,
+//     types: item.types,
+//     vicinity: item.vicinity,
+//     rating: item.rating,
+//     userRatingTotal: item.user_ratings_total,
+//     photos: item.photos,
+//     businessStatus: item.business_status,
+//     openingHours: item.opening_hours,
+//   }));
+
+//   console.log(dataTransform);
+
+//   return dataTransform;
+// }
 
 export const useFetchData = async (
   latitude: string,
   longitude: string,
-  categoryMap: string,
-  valueCategoryMap: string,
-  query: string = "noquery"
+  radius: string,
+  type: string,
+  keyword: string = ""
 ) => {
-  const overpassUrl = `https://overpass-api.de/api/interpreter?data=[out:json];(node[${categoryMap}="${valueCategoryMap}"](around:4000,${latitude},${longitude}););out;`;
-  const nominatimUrl = `https://nominatim.openstreetmap.org/search?q=${query}+cerca+de+${latitude},${longitude}&format=json`;
+  const token = await AsyncStorage.getItem("jwt");
 
-  try {
-    const overpassResponse = await fetch(overpassUrl);
-    const nominatimResponse = await fetch(nominatimUrl);
+  console.log("radius", radius);
+  console.log("type", type);
+  console.log("keyword", keyword);
 
-    const overpassData = await overpassResponse.json();
-    const nominatimData = await nominatimResponse.json();
+  const response = await fetch(
+    `https://back-new-place-production.up.railway.app/api/places?lat=${latitude}&lng=${longitude}&type=${type}&keyword=${keyword}&radius=${radius}`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
 
-    const overpassTransform = overpassData.elements.map((item: any) => ({
-      id: item.id,
-      name: item.tags.name || "No disponible",
-      cuisine: item.tags.cuisine || "No disponible",
-      lat: item.lat.toString(),
-      lon: item.lon.toString(),
-      horario: item.tags.opening_hours || "No disponible",
-      phone: item.tags.phone || "No disponible",
-      website: item.tags.website || "No disponible",
-    }));
-
-    const nominatimTransform = nominatimData.map((item: any) => ({
-      id: item.place_id,
-      name: item.name,
-      lat: item.lat,
-      lon: item.lon,
-    }));
-
-    const mergedData = [...overpassTransform, ...nominatimTransform];
-    const uniqueData = mergedData.filter(
-      (value, index, self) =>
-        index ===
-        self.findIndex((t) => t.lat === value.lat && t.lon === value.lon)
-    );
-
-    return uniqueData || [];
-  } catch (error) {
-    console.error("Error fetching data:", error);
-    return [];
+  if (!response.ok) {
+    throw new Error("Error al verificar el token");
   }
+
+  return response.json();
 };
 
 // export const usePlaceNavigate = () => {

@@ -1,0 +1,61 @@
+interface Location {
+  lat: number;
+  lng: number;
+}
+
+interface Viewport {
+  northeast: Location;
+  southwest: Location;
+}
+
+interface Geometry {
+  location: Location;
+  viewport: Viewport;
+}
+
+interface OpeningHours {
+  open_now: boolean;
+  periods: { open: { day: number; time: string } }[];
+  weekday_text: string[];
+}
+
+interface Review {
+  author_name: string;
+  author_url: string;
+  language: string;
+  original_language: string;
+  profile_photo_url: string;
+  rating: number;
+  relative_time_description: string;
+  text: string;
+  time: number;
+  translated: boolean;
+}
+
+interface EditorialSummary {
+  language: string;
+  overview: string;
+}
+
+export interface Place {
+  editorial_summary?: EditorialSummary;
+  formatted_address: string;
+  formatted_phone_number: string;
+  geometry: Geometry;
+  name: string;
+  opening_hours: OpeningHours;
+  photos: string[];
+  place_id: string;
+  rating: number;
+  reviews: Review[];
+  types: string[];
+  url: string;
+  user_ratings_total: number;
+  website: string;
+}
+
+export interface GooglePlaceResponse {
+  html_attributions: string[];
+  result: Place;
+  status: string;
+}

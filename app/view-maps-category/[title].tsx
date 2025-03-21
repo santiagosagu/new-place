@@ -12,8 +12,7 @@ import { Pressable } from "react-native-gesture-handler";
 import { usePlaceNavigateContext } from "@/context/placeNavigateContext";
 
 export default function ViewMapsCategory() {
-  const { title, categoryMap, valueCategoryMap, query } =
-    useLocalSearchParams();
+  const { title, radius, type, keyword } = useLocalSearchParams();
 
   console.log(title);
 
@@ -39,9 +38,9 @@ export default function ViewMapsCategory() {
         const data = await useFetchData(
           latitude,
           longitude,
-          categoryMap.toString(),
-          valueCategoryMap.toString(),
-          query.toString()
+          radius.toString(),
+          type.toString(),
+          keyword.toString()
         );
         setResultPlaces(data);
       }

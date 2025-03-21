@@ -5,7 +5,7 @@ import { useEffect, useRef } from "react";
 import { Image, SafeAreaView, ScrollView, Text, View } from "react-native";
 import { FlatList, Pressable } from "react-native-gesture-handler";
 import Rive, { RiveRef } from "rive-react-native";
-import data from "../../dataItinerarios.json";
+import data from "../dataItinerarios.json";
 import CardDetailsItinerary from "@/components/cardDetailsItinerary";
 import { useThemeColor } from "@/hooks/useThemeColor";
 
@@ -66,7 +66,7 @@ export default function ItinerioIA() {
           }}
         >
           <Image
-            source={require("../../assets/images/map.png")}
+            source={require("@/assets/images/map.png")}
             style={{ width: 80, height: 80 }}
           />
           <View

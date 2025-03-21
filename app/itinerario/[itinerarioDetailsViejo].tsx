@@ -1,7 +1,11 @@
 import AccordionItem from "@/components/accordionItinerario";
 import { IconAccordion } from "@/components/ui/iconsList";
+import { usePlaceNavigateContext } from "@/context/placeNavigateContext";
+import { useLocation } from "@/hooks/location/useLocation";
+import { useMapMatching, usePlaceNavigate } from "@/hooks/maps/usemaps";
 import { useThemeColor } from "@/hooks/useThemeColor";
-import { Stack, useLocalSearchParams } from "expo-router";
+import { router, Stack, useLocalSearchParams } from "expo-router";
+
 import { useState } from "react";
 import {
   Button,
@@ -23,6 +27,21 @@ export default function ItinerarioDetails() {
   const [expandedItems, setExpandedItems] = useState<{
     [key: number]: boolean;
   }>({});
+
+  const { setIsNavigating, setPlace, place } = usePlaceNavigateContext();
+  const { navigatePlace, checkingRoute, cancelNavigation } = usePlaceNavigate();
+  const { getMapMatchedLocation } = useMapMatching();
+
+  const handleNavigatePlace = async () => {
+    if (location) {
+      navigatePlace(
+        // [location.coords.longitude, location.coords.latitude],
+        [-75.606303, 6.203676],
+        [place.lon, place.lat]
+      );
+      getMapMatchedLocation();
+    }
+  };
 
   const toggleItem = (id: number) => {
     setExpandedItems((prevState) => ({
@@ -69,7 +88,18 @@ export default function ItinerarioDetails() {
                   </Text>
                 )}
 
-                <Pressable>
+                <Pressable
+                  onPress={() => {
+                    setIsNavigating(true);
+                    setPlace({
+                      name: itineraryItem.breakfast.name,
+                      lat: itineraryItem.breakfast.latitude,
+                      lon: itineraryItem.breakfast.longitude,
+                    });
+                    handleNavigatePlace();
+                    router.push("/navigateItinerary");
+                  }}
+                >
                   <View
                     style={{
                       backgroundColor: "rgba(245, 222, 179, 1)",
@@ -107,7 +137,18 @@ export default function ItinerarioDetails() {
                   </Text>
                 )}
 
-                <Pressable>
+                <Pressable
+                  onPress={() => {
+                    setIsNavigating(true);
+                    setPlace({
+                      name: itineraryItem.lunch.name,
+                      lat: itineraryItem.lunch.latitude,
+                      lon: itineraryItem.lunch.longitude,
+                    });
+                    handleNavigatePlace();
+                    router.push("/navigateItinerary");
+                  }}
+                >
                   <View
                     style={{
                       backgroundColor: "rgba(245, 222, 179, 1)",
@@ -147,7 +188,18 @@ export default function ItinerarioDetails() {
                   </Text>
                 )}
 
-                <Pressable>
+                <Pressable
+                  onPress={() => {
+                    setIsNavigating(true);
+                    setPlace({
+                      name: itineraryItem.dinner.name,
+                      lat: itineraryItem.dinner.latitude,
+                      lon: itineraryItem.dinner.longitude,
+                    });
+                    handleNavigatePlace();
+                    router.push("/navigateItinerary");
+                  }}
+                >
                   <View
                     style={{
                       backgroundColor: "rgba(245, 222, 179, 1)",
@@ -216,7 +268,18 @@ export default function ItinerarioDetails() {
         <Text style={{ fontSize: 16, color: "black" }}>
           {item.hotel.descripcion}
         </Text>
-        <Pressable>
+        <Pressable
+          onPress={() => {
+            setIsNavigating(true);
+            setPlace({
+              name: item.hotel.name,
+              lat: item.hotel.latitude,
+              lon: item.hotel.longitude,
+            });
+            handleNavigatePlace();
+            router.push("/navigateItinerary");
+          }}
+        >
           <View
             style={{
               backgroundColor: "#049CE4",

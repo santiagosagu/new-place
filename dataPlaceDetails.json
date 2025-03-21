@@ -1,0 +1,115 @@
+{
+  "editorial_summary": {
+    "language": "es-419",
+    "overview": "Habitaciones y suites elegantes en un hotel de lujo con piscina climatizada al aire libre y restaurante."
+  },
+  "formatted_address": "Cl. 17 #40b - 300, El Poblado, Medellín, El Poblado, Medellín, Antioquia, Colombia",
+  "formatted_phone_number": "(604) 4445252",
+  "geometry": {
+    "location": { "lat": 6.2193101, "lng": -75.5684291 },
+    "viewport": {
+      "northeast": { "lat": 6.220711130291502, "lng": -75.56718526970849 },
+      "southwest": { "lat": 6.218013169708498, "lng": -75.5698832302915 }
+    }
+  },
+  "name": "Hotel Dann Carlton Belfort",
+  "opening_hours": {
+    "open_now": true,
+    "periods": [{ "open": { "day": 0, "time": "0000" } }],
+    "weekday_text": [
+      "Monday: Open 24 hours",
+      "Tuesday: Open 24 hours",
+      "Wednesday: Open 24 hours",
+      "Thursday: Open 24 hours",
+      "Friday: Open 24 hours",
+      "Saturday: Open 24 hours",
+      "Sunday: Open 24 hours"
+    ]
+  },
+  "photos": [
+    "https://lh3.googleusercontent.com/places/ANXAkqE5ht1v_aEqHavGstPy49Uaq-IAiqD1qXW1IzXa-ck-_Si3Yel2LHmCTc0ezZhmRC0pT4nFNcQ_J2y9CSA6YJcl9qtqL9YvXMg=s1600-w1200",
+    "https://lh3.googleusercontent.com/places/ANXAkqHcxZgbjbeiYzO6igzYnSeiPN7hCfSNbcV1P-w5ehFxE5zbvP337RMNj1yqQXbAuePisBOwTySJvZ0L6pg3BAEGdvyqkgmlzh0=s1600-w1200",
+    "https://lh3.googleusercontent.com/places/ANXAkqGd3Of8JJWF0I8riwBDueySf79NeYufHPXJZ7on2EXWDRj7y7okt22tD5SvNCPUMgF8CLdRsFlV6T1e-3DoxQnM2NWaEDUfPCA=s1600-w1200",
+    "https://lh3.googleusercontent.com/places/ANXAkqHOBrzMpDrvNZ5wXsW4bluVmZRJxj92_O2H66H5GUP69W6aPW2GvpumeouHGmfgMWSEDFpRx-I9d5OJCQrW_YPaGL0e0Qmv_SE=s1600-w1200",
+    "https://lh3.googleusercontent.com/places/ANXAkqFmDOoC8NE8ejSzaV8J9fccj-oSN01GGiutkCGyD9ouPtQHhKegs2_5DcFW203QFWfuxbngSzxV-7e2vvWxEIr5BbKFE15cbs4=s1600-w1200",
+    "https://lh3.googleusercontent.com/places/ANXAkqEOFWcDEEZ66wZVrG2OeIEYPfTOr0PXJ_n3NKQR1e5UpVTO2tdljtRMzCKIDdpBZoWCt5cKfQEk8-WUjt85cXmS0Z2AkKpvae8=s1600-w1200",
+    "https://lh3.googleusercontent.com/places/ANXAkqFYcA6dyZZ6VlU-93cuCXxTUkOY-JkQO_vIqb94wn0mrrLL9WEUls_1AiKtdtOkhLYOrqKqCB9hxJ-TF12d1u45LDVfbRaFdDo=s1600-w1200",
+    "https://lh3.googleusercontent.com/places/ANXAkqHsvFWYml4bOtdmCnQpLasIP8bFq3hXHKSVhFKViiPrnv8HtUQS-IpnSx9PLC9aksPNch8-luqCBZy0L1tbtqB5gxyg0TgrJJw=s1600-w1200",
+    "https://lh3.googleusercontent.com/places/ANXAkqGYok5I-o35bC_e5a9j_tk_dH0Ema_RFBCbi3mh2e5fpH8hRXESpFSa2OhriKKjmO58UluF-EqSqv18lYlKknxxY4EZhC60Azo=s1600-w1200",
+    "https://lh3.googleusercontent.com/places/ANXAkqETJ77aPSuUk6F1PcMkiXCQxPd-WJEaaVZxDoaqWKydp-bxyJH88UDACnNhkBgfSdPOUBLTFFZEavJv2AcmK5KspPKPfZsXsCk=s1600-w1200"
+  ],
+  "place_id": "ChIJeZGq4jEoRI4ReThPo-ow2JI",
+  "rating": 4.6,
+  "reviews": [
+    {
+      "author_name": "Joy Levesque",
+      "author_url": "https://www.google.com/maps/contrib/110052423457752482995/reviews",
+      "language": "en",
+      "original_language": "en",
+      "profile_photo_url": "https://lh3.googleusercontent.com/a-/ALV-UjV6pqv5LWPtiIPfO5T7GoaNmmclOcmoybNI4pOwRaX7i0SfcO9U=s128-c0x00000000-cc-rp-mo",
+      "rating": 2,
+      "relative_time_description": "a month ago",
+      "text": "I recently stayed at the Belfort location and unfortunately, it was a disappointing experience. The mattresses were incredibly uncomfortable, making it difficult to get a good night's sleep. On top of that, the air conditioning didn’t work properly, leaving the room either too warm or too humid.\nIf you’re considering staying here, I strongly recommend requesting a room as far away from the pool and restaurant as possible. Over the weekend, there was a loud party, and despite the obvious disturbance to hotel guests, nothing was done to address the noise.\nThe location is not ideal if you don't have a vehicle.\nThe 'surprise' fees, not honoured through our Booking.com price are a wonderful topper too.\nOverall, I wouldn’t stay here again nor would I recommend it.",
+      "time": 1739279058,
+      "translated": false
+    },
+    {
+      "author_name": "Francisco cruz",
+      "author_url": "https://www.google.com/maps/contrib/104415158202182455403/reviews",
+      "language": "en",
+      "original_language": "en",
+      "profile_photo_url": "https://lh3.googleusercontent.com/a/ACg8ocL8o0q9ChDFBl4OtNOE9kSUgk3RoTaQ_evj4g-CWSWWzE6gToc=s128-c0x00000000-cc-rp-mo",
+      "rating": 1,
+      "relative_time_description": "4 months ago",
+      "text": "I am extremely disappointed with the service and hidden fees at this hotel. The experience has been far below what I expected. I'm staying at a different hotel nearby but came back to visit a friend who is staying here, only to be told I’d have to pay an outrageous $140 USD just to go up and see them. This is beyond unreasonable, and no one even explained this upfront.\n\nOn top of that, the reception desk staff were incredibly rude and dismissive when I questioned this fee. It felt like they had no interest in helping or accommodating me, and I left feeling unwelcome and frustrated. For what they charge, you’d expect much better service and clearer policies.\n\nWith the combination of hidden fees and poor customer service, I can't recommend this place to anyone looking for a pleasant, welcoming experience. Definitely will not be returning.\n\nI waited in the lobby for about 40 min se then we can head out.",
+      "time": 1731261901,
+      "translated": false
+    },
+    {
+      "author_name": "עופר חמו",
+      "author_url": "https://www.google.com/maps/contrib/104079003976585913432/reviews",
+      "language": "en",
+      "original_language": "en",
+      "profile_photo_url": "https://lh3.googleusercontent.com/a/ACg8ocJehttQqHmWrGxlFQ9jUxFZ-HglJ5Yr1R0FFgJ93AwGTWjYpA=s128-c0x00000000-cc-rp-mo",
+      "rating": 2,
+      "relative_time_description": "2 months ago",
+      "text": "Small hotel , food should be better like the sushi that was too dry , waitress should be more accurate , and the woman receptionist should learn manners of for example how to behave to customers and instead of making hard situations so to try to help to solve situations",
+      "time": 1737099874,
+      "translated": false
+    },
+    {
+      "author_name": "Zana Suran",
+      "author_url": "https://www.google.com/maps/contrib/103966079062372996931/reviews",
+      "language": "en",
+      "original_language": "en",
+      "profile_photo_url": "https://lh3.googleusercontent.com/a-/ALV-UjXBbgBjVmki092oXCeOthMAHL62vrlQE0iPpAmVZlWYxUdtvZcu=s128-c0x00000000-cc-rp-mo-ba5",
+      "rating": 1,
+      "relative_time_description": "5 months ago",
+      "text": "Except Deivy at reception & Corazón at the restaurant, both are friendly & helpful… the rest are working at the wrong place! Unfriendly or just ignoring what we asked! Pure apartheid rules against English speakers most of the time ignoring us for the food at breakfast time! Have been in thousands 5 stars Hotel but this one is the worse & not in the level of 5 stars standard!",
+      "time": 1728590495,
+      "translated": false
+    },
+    {
+      "author_name": "David Laverde",
+      "author_url": "https://www.google.com/maps/contrib/114800570462800859784/reviews",
+      "language": "en",
+      "original_language": "en",
+      "profile_photo_url": "https://lh3.googleusercontent.com/a-/ALV-UjUhEI9KBZTK44FOPRUy0uqcjvWV8ALnsseGN_7uw7XDxCoMc1s=s128-c0x00000000-cc-rp-mo",
+      "rating": 4,
+      "relative_time_description": "a year ago",
+      "text": "We stayed in the hotel for 5 days on July 5th weekend.\nBreakfast: ***** Incredible!!!\nRooms: ***** Good size, comfortable , clean,\nPool area: **** Needs a little love but it was enough\nGym and Sauna: *** Needs upgrade\nPeople and Service: ***** They were very helpful and friendly\nLocation: ***** Quiet but close to everything\nOur family was happy and had a blast. The people (service)and breakfast did it for me. Will come back, I felt at home.",
+      "time": 1688745209,
+      "translated": false
+    }
+  ],
+  "types": [
+    "lodging",
+    "restaurant",
+    "food",
+    "point_of_interest",
+    "establishment"
+  ],
+  "url": "https://maps.google.com/?cid=10581261108827338873",
+  "user_ratings_total": 3274,
+  "website": "https://www.hoteldanncarltonbelfort.com/"
+}

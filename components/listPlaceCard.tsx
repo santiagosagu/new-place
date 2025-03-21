@@ -9,6 +9,7 @@ import {
 import { IconStar, IconStarFilled } from "./ui/iconsList";
 import { useLocation } from "@/hooks/location/useLocation";
 import { useThemeColor } from "@/hooks/useThemeColor";
+import { AntDesign } from "@expo/vector-icons";
 
 const notImage = require("@/assets/images/notImage.png");
 
@@ -64,10 +65,10 @@ export default function ListPlaceCard({
   });
 
   return (
-    <View style={styles.container}>
+    <View style={{ marginTop: 10 }}>
       <FlatList
         data={sortedData}
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={(item) => item.placeIdProvider}
         renderItem={({ item }) => {
           const distance = haversineDistance(
             {
@@ -85,52 +86,101 @@ export default function ListPlaceCard({
                 setPlace(item);
                 setModalVisible(true);
               }}
-              style={{
-                backgroundColor: backgroundColor,
-                borderRadius: 10,
-                marginBottom: 10,
-              }}
+              style={[styles.pressable, { backgroundColor }]}
             >
-              <View
-                style={[
-                  styles.containerCard,
-                  { backgroundColor: backgroundColorTransparent },
-                ]}
-              >
+              <View style={styles.containerCard}>
                 <Image
-                  source={notImage}
-                  style={{
-                    width: 100,
-                    height: 100,
-                    borderRadius: 10,
-                    borderColor: "black",
-                    borderWidth: 1,
+                  source={{
+                    uri:
+                      item.photos.length > 0
+                        ? item.photos[0]
+                        : "https://api.a0.dev/assets/image?text=Una ilustración minimalista y moderna de una pantalla de error '404 Not Found'. La imagen muestra un paisaje digital desolado con un letrero roto que dice '404'. Un pequeño robot con una expresión confundida revisa el letrero, mientras que en el fondo hay una atmósfera futurista con tonos azulados y morados. La escena transmite una sensación de exploración y pérdida, pero con un toque amigable y tecnológico.&aspect =16:9",
                   }}
+                  style={styles.image}
                 />
-                <View style={{ flex: 1, height: 100 }}>
-                  <Text
-                    style={{
-                      fontSize: 20,
-                      fontWeight: "bold",
-                      color: colorText,
-                    }}
-                  >
+                <View style={styles.textContainer}>
+                  <Text style={[styles.name, { color: colorText }]}>
                     {item.name}
                   </Text>
-                  {item.cuisine !== "No disponible" && (
-                    <Text style={{ color: colorText }}>
-                      Cuisine: {item.cuisine}
-                    </Text>
+                  {item?.openingHours?.open_now ? (
+                    <View
+                      style={{
+                        paddingVertical: 8,
+                        paddingHorizontal: 16,
+                        borderRadius: 20,
+                        backgroundColor: "#E8F5E9", // Verde claro para el fondo
+                        borderColor: "#81C784", // Verde intermedio para el borde
+                        borderWidth: 1,
+                        alignSelf: "flex-start",
+                        shadowColor: "#000",
+                        shadowOffset: { width: 0, height: 2 },
+                        shadowOpacity: 0.2,
+                        shadowRadius: 2,
+                        elevation: 2,
+                      }}
+                    >
+                      <Text
+                        style={{
+                          fontSize: 14,
+                          fontWeight: "600",
+                          color: "#388E3C", // Verde oscuro para el texto
+                        }}
+                      >
+                        Abierto
+                      </Text>
+                    </View>
+                  ) : (
+                    <View
+                      style={{
+                        paddingVertical: 8,
+                        paddingHorizontal: 16,
+                        borderRadius: 20,
+                        backgroundColor: "#FCE4EC", // Rojo claro para el fondo
+                        borderColor: "#E57373", // Rojo intermedio para el borde
+                        borderWidth: 1,
+                        alignSelf: "flex-start",
+                        shadowColor: "#000",
+                        shadowOffset: { width: 0, height: 2 },
+                        shadowOpacity: 0.2,
+                        shadowRadius: 2,
+                        elevation: 2,
+                      }}
+                    >
+                      <Text
+                        style={{
+                          fontSize: 14,
+                          fontWeight: "600",
+                          color: "#D32F2F", // Rojo oscuro para el texto
+                        }}
+                      >
+                        Cerrado
+                      </Text>
+                    </View>
                   )}
-                  <Text style={{ color: colorText }}>
-                    Distancia: {distance.toFixed(2)} km
+                  <Text style={[styles.distance, { color: colorText }]}>
+                    {distance.toFixed(2)} km
                   </Text>
-                  <View style={{ flexDirection: "row", marginTop: 3 }}>
-                    <IconStar />
-                    <IconStar />
-                    <IconStar />
-                    <IconStarFilled />
-                    <IconStarFilled />
+                  <View style={styles.rating}>
+                    {[...Array(5)].map((_, i) => (
+                      <AntDesign
+                        key={i}
+                        name="star"
+                        size={18}
+                        color={
+                          i < item.rating ? "#FFD700" : "#D3D3D3" // Amarillo para estrellas llenas, gris para vacías
+                        }
+                      />
+                    ))}
+                    <Text
+                      style={{
+                        fontSize: 14,
+                        fontWeight: "600",
+                        color: colorText,
+                      }}
+                    >
+                      {" "}
+                      reviews: ({item.userRatingTotal})
+                    </Text>
                   </View>
                 </View>
               </View>
@@ -143,28 +193,49 @@ export default function ListPlaceCard({
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    // backgroundColor: "white",
-    padding: 10,
-  },
-  title: {
-    color: "white",
-    fontSize: 20,
-    fontWeight: "bold",
+  pressable: {
+    borderRadius: 12,
     marginBottom: 10,
+    padding: 12,
+    elevation: 4,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
   },
   containerCard: {
-    alignContent: "center",
-    alignItems: "center",
-    width: "100%",
-    // backgroundColor: "rgba(128, 128, 128, 0.3)",
-    padding: 10,
-    marginBottom: 10,
     flexDirection: "row",
-    gap: 6,
+    alignItems: "center",
+  },
+  image: {
+    width: 90,
+    height: 90,
     borderRadius: 10,
-    borderBottomRightRadius: 90,
-    minHeight: 150,
+    marginRight: 12,
+  },
+  textContainer: {
+    flex: 1,
+  },
+  name: {
+    fontSize: 19,
+    fontWeight: "600",
+
+    marginBottom: 5,
+  },
+  open: {
+    color: "#388E3C",
+    fontSize: 13,
+  },
+  closed: {
+    color: "#FF385C",
+    fontSize: 13,
+  },
+  distance: {
+    fontSize: 13,
+    marginVertical: 4,
+  },
+  rating: {
+    flexDirection: "row",
+    marginTop: 4,
   },
 });
