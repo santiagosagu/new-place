@@ -130,6 +130,7 @@ export const useFetchData = async (
   console.log("keyword", keyword);
 
   const response = await fetch(
+    // `http://192.168.1.6:8080/api/places?lat=${latitude}&lng=${longitude}&type=${type}&keyword=${keyword}&radius=${radius}`,
     `https://back-new-place-production.up.railway.app/api/places?lat=${latitude}&lng=${longitude}&type=${type}&keyword=${keyword}&radius=${radius}`,
     {
       method: "GET",

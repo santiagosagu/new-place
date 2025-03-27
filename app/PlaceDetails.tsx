@@ -33,6 +33,8 @@ import { useThemeColor } from "@/hooks/useThemeColor";
 import { usePlaceNavigateContext } from "@/context/placeNavigateContext";
 import { useMapMatching, usePlaceNavigate } from "@/hooks/maps/usemaps";
 import { useLocation } from "@/hooks/location/useLocation";
+import FormCharactersRestaurant from "@/components/formsContribution/FormCharactersRestaurant";
+import FormCommentsPlaceDetails from "@/components/FormCommentsPlaceDetails";
 
 const { width } = Dimensions.get("window");
 
@@ -50,6 +52,8 @@ export default function PlaceDetails() {
   const [reviewsExpanded, setReviewsExpanded] = useState(false);
   const [dataPlaceDetails, setDataPlaceDetails] = useState<Place | null>(null);
   const [viewNavigationModal, setViewNavigationModal] = useState(false);
+  const [viewCommentsModal, setViewCommentsModal] = useState(false);
+  const [viewContributionModal, setViewContributionModal] = useState(false);
 
   const { location } = useLocation();
   const { setIsNavigating, place } = usePlaceNavigateContext();
@@ -106,6 +110,7 @@ export default function PlaceDetails() {
       const token = await AsyncStorage.getItem("jwt");
 
       const response = await fetch(
+        // `http://192.168.1.6:8080/api/place-details?place_id=${placeIdProvider}&lang=es`,
         `https://back-new-place-production.up.railway.app/api/place-details?place_id=${placeIdProvider}&lang=es`,
         {
           method: "GET",
@@ -118,7 +123,12 @@ export default function PlaceDetails() {
 
       const data = await response.json();
 
-      setDataPlaceDetails(data);
+      console.log("data", data);
+
+      setDataPlaceDetails({
+        ...data,
+        reviews: [...data.comments, ...data.reviews],
+      });
     };
 
     getDetailsPlace();
@@ -432,7 +442,7 @@ export default function PlaceDetails() {
               <Text style={[styles.expandButtonText, { color: "#FF385C" }]}>
                 {reviewsExpanded
                   ? "Show less"
-                  : `Show all ${reviews?.length} reviews`}
+                  : `Show all ${dataPlaceDetails?.reviews?.length} reviews`}
               </Text>
             </TouchableOpacity>
           )}
@@ -449,7 +459,7 @@ export default function PlaceDetails() {
               borderWidth: 1,
             },
           ]}
-          // onPress={openMaps}
+          onPress={() => setViewCommentsModal(true)}
         >
           <Text style={[styles.directionsButtonText, { color: textColor }]}>
             Comentar
@@ -462,13 +472,56 @@ export default function PlaceDetails() {
         </TouchableOpacity>
 
         <TouchableOpacity
+          style={[
+            styles.directionsButton,
+            {
+              backgroundColor: cardColor,
+              borderColor: "#FF385C",
+              borderWidth: 1,
+            },
+          ]}
+          onPress={() => setViewContributionModal(true)}
+        >
+          <Text style={[styles.directionsButtonText, { color: textColor }]}>
+            Contribution
+          </Text>
+          <MaterialIcons name="star-outline" size={18} color={textColor} />
+        </TouchableOpacity>
+
+        <TouchableOpacity
           style={styles.directionsButton}
           onPress={() => setViewNavigationModal(true)}
         >
-          <Text style={styles.directionsButtonText}>Get Directions</Text>
+          <Text style={styles.directionsButtonText}>Directions</Text>
           <MaterialIcons name="directions" size={18} color="#FFFFFF" />
         </TouchableOpacity>
       </View>
+
+      {viewCommentsModal && (
+        <NewModalPlaceActions
+          dispatch={setViewCommentsModal}
+          heightInitial={500}
+          heightExpanded={500}
+        >
+          <FormCommentsPlaceDetails
+            placeId={dataPlaceDetails?.place_id}
+            setModalVisible={setViewCommentsModal}
+          />
+        </NewModalPlaceActions>
+      )}
+
+      {viewContributionModal && (
+        <NewModalPlaceActions
+          dispatch={setViewContributionModal}
+          heightInitial={800}
+          heightExpanded={800}
+        >
+          <FormCharactersRestaurant
+            placeId={dataPlaceDetails?.place_id}
+            setModalVisible={setViewContributionModal}
+          />
+        </NewModalPlaceActions>
+      )}
 
       {viewNavigationModal && (
         <NewModalPlaceActions
@@ -697,8 +750,8 @@ const styles = StyleSheet.create({
   bottomBar: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 20,
+    gap: 2,
+    paddingHorizontal: 5,
     paddingVertical: 16,
     borderTopWidth: 1,
     borderTopColor: "rgba(0,0,0,0.05)",
@@ -713,8 +766,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "#FF385C",
     paddingVertical: 12,
-    paddingHorizontal: 20,
+    paddingHorizontal: 10,
     borderRadius: 8,
+    width: 120,
   },
   directionsButtonText: {
     color: "#FFFFFF",

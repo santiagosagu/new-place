@@ -52,19 +52,23 @@ export default function Login() {
 
       console.log("idToken", idToken);
 
-      const response = await fetch("http://192.168.1.6:8080/api/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ idToken }),
-      });
+      const response = await fetch(
+        // "http://192.168.1.6:8080/api/login",
+        "https://back-new-place-production.up.railway.app/api/login",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ idToken }),
+        }
+      );
 
       const data = await response.json();
-      console.log(data);
+      console.log("data", data);
       console.log("response", response);
       if (response.ok) {
         console.log("Token status:", data.token);
         await AsyncStorage.setItem("jwt", data.token);
-        // router.push("/");
+        await AsyncStorage.setItem("user_id", data.user_id);
       }
     } catch (error) {
       console.error("Error de autenticación", error);
