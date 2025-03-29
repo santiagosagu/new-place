@@ -8,13 +8,13 @@
         {
           "title": "restaurantes",
           "keyword": "",
-          "radius": "3000",
+          "radius": "100",
           "type": "restaurant",
           "color": "#4DA1A9"
         },
         {
           "title": "cafeterias",
-          "keyword": "",
+          "keyword": "coffee shop| cofee| bakeries| panaderia",
           "radius": "3000",
           "type": "coffee_shop",
           "color": "#DEAA79"
@@ -42,9 +42,9 @@
         },
         {
           "title": "Heladerias",
-          "keyword": "ice cream shop",
+          "keyword": "ice cream",
           "radius": "3000",
-          "type": "ice_cream_shop",
+          "type": "ice_cream",
           "color": "#F2E5BF"
         },
         {
@@ -60,13 +60,6 @@
           "keyword": "chinese restaurant",
           "radius": "5000",
           "type": "chinese_restaurant",
-          "color": "#F2E5BF"
-        },
-        {
-          "title": "Restaurante Buffet",
-          "keyword": "buffet restaurant",
-          "radius": "5000",
-          "type": "buffet_restaurant",
           "color": "#F2E5BF"
         }
       ]
@@ -85,10 +78,10 @@
           "color": "#F2E5BF"
         },
         {
-          "title": "terreno de camping",
-          "keyword": "campground",
+          "title": "Glamping",
+          "keyword": "campground| glamping",
           "radius": "6000",
-          "type": "campground",
+          "type": "glamping",
           "color": "#C96868"
         },
         {

@@ -37,8 +37,8 @@ export default function FormCommentsPlaceDetails({
     console.log("user_id", user_id);
 
     const response = await fetch(
-      `http://192.168.1.6:8080/api/place-add-comment`,
-      // `https://back-new-place-production.up.railway.app/api/place-add-comments`,
+      // `http://192.168.1.6:8080/api/place-add-comment`,
+      `https://back-new-place-production.up.railway.app/api/place-add-comment`,
       {
         method: "POST",
         headers: {
