@@ -273,7 +273,7 @@ export const usePlaceNavigate = () => {
       from[0]
     }%2C${from[1]}%3B${to[0]}%2C${
       to[1]
-    }?alternatives=true&annotations=distance%2Cduration&geometries=geojson&language=${
+    }?alternatives=true&annotations=distance%2Cduration&geometries=geojson&notifications=all&banner_instructions=true&voice_instructions=true&language=${
       RNLocalize.getLocales()[0].languageCode
     }&overview=full&steps=true&access_token=pk.eyJ1IjoiczRndSIsImEiOiJjbDhwZHE2NDIxa2k4M3B0b3FsaXZydm02In0.plTbzb5jQBHgNvkiWE4h9w`;
 

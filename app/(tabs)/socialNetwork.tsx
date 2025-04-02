@@ -14,6 +14,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons, Feather, MaterialIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { Link, Stack, useRouter } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function HomeScreen() {
   const colorScheme = useColorScheme();
@@ -183,6 +184,8 @@ function StoryBar({ theme }) {
 }
 
 function Feed({ theme, navigation }) {
+  const [postsApi, setPostsApi] = useState([]);
+
   const posts = [
     {
       id: "1",
@@ -250,11 +253,34 @@ function Feed({ theme, navigation }) {
     },
   ];
 
+  useEffect(() => {
+    const getPosts = async () => {
+      const token = await AsyncStorage.getItem("jwt");
+
+      const response = await fetch(
+        `https://back-new-place-production.up.railway.app/api/post`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const data = await response.json();
+
+      setPostsApi(data);
+    };
+
+    getPosts();
+  }, []);
+
   return (
     <View style={styles.feed}>
-      {posts.map((post) => (
+      {postsApi.map((post) => (
         <View
-          key={post.id}
+          key={post._id}
           style={[
             styles.postCard,
             { backgroundColor: theme === "dark" ? "#242424" : "#FFFFFF" },
@@ -262,7 +288,7 @@ function Feed({ theme, navigation }) {
         >
           <View style={styles.postHeader}>
             <Image
-              source={{ uri: post.user.avatar }}
+              source={{ uri: post.user.picture }}
               style={styles.userAvatar}
             />
             <View style={styles.postHeaderText}>
@@ -286,7 +312,9 @@ function Feed({ theme, navigation }) {
                     { color: theme === "dark" ? "#BBB" : "#666" },
                   ]}
                 >
-                  {post.type === "place" ? post.location : post.duration}
+                  {post.type_post === "place"
+                    ? post.place_details?.formatted_address
+                    : ""}
                 </Text>
               </View>
             </View>
@@ -299,23 +327,15 @@ function Feed({ theme, navigation }) {
             </TouchableOpacity>
           </View>
 
-          {post.type === "place" ? (
+          {post.type_post === "place" ? (
             <>
-              <Text
-                style={[
-                  styles.placeName,
-                  { color: theme === "dark" ? "#FFFFFF" : "#000000" },
-                ]}
-              >
-                {post.place}
-              </Text>
               <Text
                 style={[
                   styles.postDescription,
                   { color: theme === "dark" ? "#DDD" : "#333" },
                 ]}
               >
-                {post.description}
+                {post.content}
               </Text>
               <ScrollView
                 horizontal
@@ -323,21 +343,70 @@ function Feed({ theme, navigation }) {
                 style={styles.postImagesScroll}
                 contentContainerStyle={styles.postImagesContainer}
               >
-                {post.images.map((image, index) => (
+                {post.media.map((image, index) => (
                   <Image
                     key={index}
-                    source={{ uri: image }}
+                    source={{ uri: image.url }}
                     style={styles.postImage}
                     resizeMode="cover"
                   />
                 ))}
               </ScrollView>
+              <View style={styles.divider} />
+              {post.type_post === "place" && (
+                <View style={styles.placeDetailsContainer}>
+                  <Text
+                    style={[
+                      styles.placeName,
+                      { color: theme === "dark" ? "#FFFFFF" : "#000000" },
+                    ]}
+                  >
+                    {post.place_details.name}
+                  </Text>
+                  <View style={styles.starRating}>
+                    {[1, 2, 3, 4, 5]?.map((star) => {
+                      let iconName: "star-outline" | "star" | "star-half" =
+                        "star-outline"; // Estrella vacía
+
+                      if (star <= post.place_details.rating) {
+                        iconName = "star"; // Estrella llena
+                      } else if (star - 0.5 <= post.place_details.rating) {
+                        iconName = "star-half"; // Media estrella
+                      }
+
+                      return (
+                        <Ionicons
+                          key={star}
+                          name={iconName}
+                          size={18}
+                          color={
+                            post.place_details.rating ? "#FFD700" : "#CCCCCC"
+                          }
+                        />
+                      );
+                    })}
+
+                    <Text
+                      style={[
+                        styles.ratingText,
+                        { color: theme === "dark" ? "#FFFFFF" : "#000000" },
+                      ]}
+                    >
+                      {post.place_details?.rating?.toFixed(1)}
+                    </Text>
+                  </View>
+                </View>
+              )}
               <TouchableOpacity
                 style={[
                   styles.detailsButton,
                   { backgroundColor: theme === "dark" ? "#444" : "#f0f0f0" },
                 ]}
-                onPress={() => navigation.navigate("PlaceDetails", { post })}
+                onPress={() =>
+                  navigation.navigate("PlaceDetails", {
+                    placeIdProvider: post.place_id,
+                  })
+                }
               >
                 <Text
                   style={[
@@ -411,6 +480,7 @@ function Feed({ theme, navigation }) {
                   </Text>
                 )}
               </View>
+
               <Link
                 href={{
                   pathname: "/[ItineraryDetails]",
@@ -455,7 +525,7 @@ function Feed({ theme, navigation }) {
                     { color: theme === "dark" ? "#DDD" : "#666" },
                   ]}
                 >
-                  {post.likes}
+                  3
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.actionButton}>
@@ -470,7 +540,7 @@ function Feed({ theme, navigation }) {
                     { color: theme === "dark" ? "#DDD" : "#666" },
                   ]}
                 >
-                  {post.comments}
+                  {post.comments_count}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -642,10 +712,38 @@ const styles = StyleSheet.create({
   moreButton: {
     padding: 4,
   },
+  placeDetailsContainer: {
+    marginTop: 5,
+    marginBottom: 16,
+    paddingTop: 16,
+    paddingBottom: 16,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+    backgroundColor: "#242424",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 5,
+    elevation: 2,
+  },
   placeName: {
     fontSize: 18,
     fontWeight: "600",
     marginBottom: 6,
+  },
+  starRating: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  ratingText: {
+    fontSize: 14,
+    fontWeight: "600",
+    marginLeft: 4,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: "#FF385C",
+    marginVertical: 16,
   },
   postDescription: {
     fontSize: 14,
