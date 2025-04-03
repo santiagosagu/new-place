@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   View,
   Text,
@@ -23,44 +23,46 @@ import {
 } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { useContext } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useLocation } from "@/hooks/location/useLocation";
 // import ThemeContext from "../context/ThemeContext";
 // import { toast } from "sonner-native";
 
-// Simulating server responses
-const fakeLocationSearch = async (query) => {
+export interface Place {
+  placeIdProvider: string;
+  name: string;
+  lat: number;
+  lon: number;
+  types: string[];
+  vicinity: string;
+  rating: number;
+  userRatingTotal: number;
+  photos: (string | never[] | null)[];
+  businessStatus: string;
+}
+
+const fakeLocationSearch = async (query: string, lat: number, long: number) => {
   // Simulate network delay
-  await new Promise((resolve) => setTimeout(resolve, 1000));
+  // await new Promise((resolve) => setTimeout(resolve, 3000));
 
-  if (query.length < 2) return [];
+  console.log("query", query);
+  const token = await AsyncStorage.getItem("jwt");
 
-  const locations = [
-    { id: "1", name: "The Ritz-Carlton", address: "Los Angeles, California" },
-    { id: "2", name: "Nobu Restaurant", address: "Malibu, California" },
+  const response = await fetch(
+    // `http://192.168.1.8:8080/api/place-autocomplete?input=${query}&lang=es&lat=${lat}&long=${long}`,
+    `https://back-new-place-production.up.railway.app/api/place-autocomplete?input=${query}&lang=es&lat=${lat}&long=${long}`,
     {
-      id: "3",
-      name: "Grand Central Market",
-      address: "Downtown Los Angeles, CA",
-    },
-    {
-      id: "4",
-      name: "Griffith Observatory",
-      address: "Los Angeles, California",
-    },
-    { id: "5", name: "Venice Beach Boardwalk", address: "Venice, California" },
-    { id: "6", name: "The Getty Center", address: "Los Angeles, California" },
-    {
-      id: "7",
-      name: "Hollywood Walk of Fame",
-      address: "Hollywood, California",
-    },
-    { id: "8", name: "Santa Monica Pier", address: "Santa Monica, California" },
-  ];
-
-  return locations.filter(
-    (loc) =>
-      loc.name.toLowerCase().includes(query.toLowerCase()) ||
-      loc.address.toLowerCase().includes(query.toLowerCase())
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    }
   );
+
+  const data = await response.json();
+
+  return await data;
 };
 
 export default function CreatePost() {
@@ -70,17 +72,20 @@ export default function CreatePost() {
   const navigation = useNavigation();
 
   const [postType, setPostType] = useState("place"); // 'place' or 'itinerary'
-  const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [selectedImages, setSelectedImages] = useState([]);
-  const [selectedLocation, setSelectedLocation] = useState(null);
+  const [selectedLocation, setSelectedLocation] = useState<Place | null>(null);
   const [locationQuery, setLocationQuery] = useState("");
   const [locationResults, setLocationResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
   const [showLocationSearch, setShowLocationSearch] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
   const textInputRef = useRef(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [images, setImages] = useState<
+    { uri: string; mimeType?: string; fileName?: string }[]
+  >([]);
+
+  const { location } = useLocation();
 
   // Theming colors
   const backgroundColor = theme === "dark" ? "#121212" : "#F5F5F5";
@@ -99,31 +104,34 @@ export default function CreatePost() {
       quality: 1,
     });
 
+    console.log(result);
+
     if (!result.canceled) {
       if (result.assets) {
         // Check if we're adding too many images
-        if (selectedImages.length + result.assets.length > 10) {
-          toast.error("You can only add up to 10 photos/videos");
+        if (images.length + result.assets.length > 10) {
+          console.error("You can only add up to 10 photos/videos");
           return;
         }
-        setSelectedImages([
-          ...selectedImages,
-          ...result.assets.map((asset) => asset.uri),
-        ]);
+        setImages(
+          result.assets as {
+            uri: string;
+            mimeType?: string;
+            fileName?: string;
+          }[]
+        );
       }
     }
   };
 
-  const removeImage = (index) => {
-    const newImages = [...selectedImages];
-    newImages.splice(index, 1);
-    setSelectedImages(newImages);
+  const removeImage = (index: number) => {
+    const newImagesSend = [...images];
+    newImagesSend.splice(index, 1);
+    setImages(newImagesSend);
   };
 
-  const handleLocationSearch = async (text) => {
-    setLocationQuery(text);
-
-    if (text.length < 2) {
+  const handleLocationSearch = async (text: string) => {
+    if (text.length < 3) {
       setLocationResults([]);
       return;
     }
@@ -131,17 +139,42 @@ export default function CreatePost() {
     setIsSearching(true);
 
     try {
-      const results = await fakeLocationSearch(text);
+      if (!location) {
+        console.error("No se pudo obtener la ubicación actual");
+        return;
+      }
+
+      const results = await fakeLocationSearch(
+        text,
+        location.coords.latitude,
+        location.coords.longitude
+      );
       setLocationResults(results);
     } catch (error) {
       console.error("Error searching locations:", error);
-      toast.error("Failed to search locations");
+      console.error("Failed to search locations");
     } finally {
       setIsSearching(false);
     }
   };
 
-  const selectLocation = (location) => {
+  useEffect(() => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+
+    timeoutRef.current = setTimeout(() => {
+      handleLocationSearch(locationQuery);
+    }, 2000);
+
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, [locationQuery]);
+
+  const selectLocation = (location: Place) => {
     setSelectedLocation(location);
     setLocationQuery("");
     setLocationResults([]);
@@ -150,30 +183,80 @@ export default function CreatePost() {
 
   const handleSubmit = async () => {
     // Validate post data
-    if (!title.trim()) {
-      toast.error("Please enter a title");
-      return;
-    }
+    // if (!title.trim()) {
+    //   toast.error("Please enter a title");
+    //   return;
+    // }
 
     if (postType === "place" && !selectedLocation) {
-      toast.error("Please select a location");
+      console.log("Please select a location");
+      console.error("Please select a location");
       return;
     }
 
-    if (postType === "place" && selectedImages.length === 0) {
-      toast.error("Please add at least one photo");
+    if (postType === "place" && images.length === 0) {
+      console.log("Please add at least one photo");
+      console.error("Please add at least one photo");
       return;
     }
 
+    console.log("entre aqui");
+    const user_id = await AsyncStorage.getItem("user_id");
     setIsSubmitting(true);
+
+    if (!user_id) {
+      console.error("No se pudo obtener el id de usuario");
+      return;
+    }
+
+    if (!selectedLocation) {
+      console.error("No se pudo obtener el id de la ubicación");
+      return;
+    }
+    try {
+      const formData = new FormData();
+      images.forEach((image, index) => {
+        formData.append("media", {
+          uri: image.uri,
+          type: image.mimeType || "image/jpeg",
+          name: image.fileName || `photo_${index}.jpg`,
+        } as unknown as Blob);
+      });
+
+      formData.append("user_id", user_id);
+      formData.append("content", description);
+      formData.append("place_id", selectedLocation.placeIdProvider);
+      formData.append("type_post", postType);
+
+      const response = await fetch(
+        // "http://192.168.1.8:8080/api/new-post",
+        "https://back-new-place-production.up.railway.app/api/new-post",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Error al crear el post");
+      }
+
+      const data = await response.json();
+
+      console.log(data);
+    } catch (error) {
+      console.log(error);
+    }
 
     // Simulate network request
     setTimeout(() => {
       setIsSubmitting(false);
-      toast.success("Post created successfully!");
+      // toast.success("Post created successfully!");
       navigation.goBack();
     }, 2000);
   };
+
+  // console.log(dataPlaceDetails);
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor }]}>
@@ -241,15 +324,13 @@ export default function CreatePost() {
           <TouchableOpacity
             style={[
               styles.postButton,
-              !title.trim() || (postType === "place" && !selectedLocation)
+              postType === "place" && !selectedLocation
                 ? styles.disabledButton
                 : { backgroundColor: "#FF385C" },
             ]}
             onPress={handleSubmit}
             disabled={
-              !title.trim() ||
-              (postType === "place" && !selectedLocation) ||
-              isSubmitting
+              (postType === "place" && !selectedLocation) || isSubmitting
             }
           >
             {isSubmitting ? (
@@ -263,21 +344,6 @@ export default function CreatePost() {
         {postType === "place" ? (
           <ScrollView contentContainerStyle={styles.scrollContent}>
             <View style={[styles.formCard, { backgroundColor: cardColor }]}>
-              <TextInput
-                ref={textInputRef}
-                placeholder="What's the name of this place?"
-                placeholderTextColor={placeholderColor}
-                style={[
-                  styles.titleInput,
-                  {
-                    color: textColor,
-                    backgroundColor: inputBgColor,
-                  },
-                ]}
-                value={title}
-                onChangeText={setTitle}
-              />
-
               <TouchableOpacity
                 style={[
                   styles.locationPickerButton,
@@ -329,7 +395,7 @@ export default function CreatePost() {
                     placeholderTextColor={placeholderColor}
                     style={[styles.locationSearchInput, { color: textColor }]}
                     value={locationQuery}
-                    onChangeText={handleLocationSearch}
+                    onChangeText={setLocationQuery}
                     autoFocus
                   />
 
@@ -341,9 +407,9 @@ export default function CreatePost() {
                   ) : (
                     locationResults.length > 0 && (
                       <View style={styles.locationResultsList}>
-                        {locationResults.map((location) => (
+                        {locationResults.map((location, index) => (
                           <TouchableOpacity
-                            key={location.id}
+                            key={index}
                             style={[
                               styles.locationResultItem,
                               {
@@ -419,9 +485,12 @@ export default function CreatePost() {
                   <Ionicons name="add" size={40} color="#FF385C" />
                 </TouchableOpacity>
 
-                {selectedImages.map((uri, index) => (
+                {images.map((image, index) => (
                   <View key={index} style={styles.selectedImageContainer}>
-                    <Image source={{ uri }} style={styles.selectedImage} />
+                    <Image
+                      source={{ uri: image.uri }}
+                      style={styles.selectedImage}
+                    />
                     <TouchableOpacity
                       style={styles.removeImageButton}
                       onPress={() => removeImage(index)}

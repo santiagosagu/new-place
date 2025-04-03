@@ -9,17 +9,49 @@ import {
   useColorScheme,
   StatusBar,
   Pressable,
+  RefreshControl,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons, Feather, MaterialIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { Link, Stack, useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import ImageViewing from "react-native-image-viewing";
+import { NativeStackNavigationProp } from "react-native-screens/lib/typescript/native-stack/types";
+
+interface Post {
+  _id: string;
+  user: {
+    picture: string;
+    name: string;
+  };
+  type_post: "place" | "itinerary";
+  content?: string;
+  media: { url: string }[];
+  place_details?: {
+    formatted_address?: string;
+    name?: string;
+    rating?: number;
+  };
+  place_id?: string;
+  title?: string;
+  places: string[];
+  coverImage?: string;
+  comments_count: number;
+  time: string;
+}
 
 export default function HomeScreen() {
   const colorScheme = useColorScheme();
+  const navigation = useNavigation<any>();
+  
+  const [refreshing, setRefreshing] = useState(false);
   const [theme, setTheme] = useState(colorScheme || "light");
-  const navigation = useNavigation();
+  const [postsApi, setPostsApi] = useState([]);
+  const [visible, setVisible] = useState(false);
+  const [postSeletedImages, setPostSeletedImages] = useState<{ uri: string }[]>(
+    []
+  );
 
   useEffect(() => {
     if (colorScheme) {
@@ -29,6 +61,35 @@ export default function HomeScreen() {
 
   const toggleTheme = () => {
     setTheme(theme === "light" ? "dark" : "light");
+  };
+
+  const getPosts = async () => {
+    const token = await AsyncStorage.getItem("jwt");
+
+    const response = await fetch(
+      `https://back-new-place-production.up.railway.app/api/post`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const data = await response.json();
+
+    setRefreshing(false);
+
+    setPostsApi(data);
+  };
+  useEffect(() => {
+    getPosts();
+  }, []);
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    getPosts();
   };
 
   return (
@@ -48,9 +109,22 @@ export default function HomeScreen() {
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            // colors={[theme.primary]}
+          />
+        }
       >
         <StoryBar theme={theme} />
-        <Feed theme={theme} navigation={navigation} />
+        <Feed
+          theme={theme}
+          navigation={navigation}
+          posts={postsApi}
+          visibleZoomImage={setVisible}
+          setPostSeletedImages={setPostSeletedImages}
+        />
       </ScrollView>
       <TouchableOpacity
         style={styles.createButton}
@@ -59,13 +133,38 @@ export default function HomeScreen() {
         <Ionicons name="add" size={28} color="#FFFFFF" />
       </TouchableOpacity>
 
+      <ImageViewing
+        images={postSeletedImages}
+        imageIndex={0}
+        visible={visible}
+        onRequestClose={() => setVisible(false)}
+        FooterComponent={() => (
+          <View style={styles.footer}>
+            <TouchableOpacity style={styles.button}>
+              <Ionicons name="heart-outline" size={24} color="white" />
+              <Text style={styles.buttonText}>Me gusta</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.button}>
+              <Ionicons name="chatbubble-outline" size={24} color="white" />
+              <Text style={styles.buttonText}>Comentar</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.button}>
+              <Ionicons name="share-outline" size={24} color="white" />
+              <Text style={styles.buttonText}>Compartir</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+      />
+
       {/* <BottomNavBar theme={theme} navigation={navigation} /> */}
     </SafeAreaView>
     // </ThemeContext.Provider>
   );
 }
 
-function Header({ theme, toggleTheme }) {
+function Header({ theme, toggleTheme }: { theme: string; toggleTheme: any }) {
   return (
     <View
       style={[
@@ -101,7 +200,7 @@ function Header({ theme, toggleTheme }) {
   );
 }
 
-function StoryBar({ theme }) {
+function StoryBar({ theme }: { theme: string }) {
   const stories = [
     { id: "add", name: "New", isAdd: true },
     {
@@ -183,102 +282,22 @@ function StoryBar({ theme }) {
   );
 }
 
-function Feed({ theme, navigation }) {
-  const [postsApi, setPostsApi] = useState([]);
-
-  const posts = [
-    {
-      id: "1",
-      type: "place",
-      user: {
-        name: "Alex Johnson",
-        avatar:
-          "https://api.a0.dev/assets/image?text=person%20profile%20picture%20traveler&aspect=1:1&seed=123",
-      },
-      place: "Seaside Resort & Spa",
-      location: "Malibu, California",
-      description:
-        "Amazing weekend getaway with incredible ocean views and delicious seafood!",
-      images: [
-        "https://api.a0.dev/assets/image?text=beach%20resort%20luxury%20swimming%20pool%20ocean%20view&aspect=16:9&seed=1234",
-        "https://api.a0.dev/assets/image?text=luxury%20hotel%20room%20with%20ocean%20view&aspect=16:9&seed=1235",
-        "https://api.a0.dev/assets/image?text=seafood%20platter%20gourmet%20restaurant&aspect=16:9&seed=1236",
-      ],
-      likes: 342,
-      comments: 58,
-      time: "2 hours ago",
-    },
-    {
-      id: "2",
-      type: "itinerary",
-      user: {
-        name: "Maria Silva",
-        avatar:
-          "https://api.a0.dev/assets/image?text=woman%20profile%20picture%20traveler&aspect=1:1&seed=456",
-      },
-      title: "Weekend in Barcelona",
-      duration: "3 days",
-      places: [
-        "La Sagrada Familia",
-        "Park Güell",
-        "La Rambla",
-        "Barceloneta Beach",
-      ],
-      coverImage:
-        "https://api.a0.dev/assets/image?text=barcelona%20aerial%20view%20cityscape&aspect=16:9&seed=4567",
-      likes: 189,
-      comments: 27,
-      time: "1 day ago",
-    },
-    {
-      id: "3",
-      type: "place",
-      user: {
-        name: "David Kim",
-        avatar:
-          "https://api.a0.dev/assets/image?text=asian%20man%20profile%20picture%20traveler&aspect=1:1&seed=789",
-      },
-      place: "Sakura Japanese Restaurant",
-      location: "Kyoto, Japan",
-      description:
-        "Authentic Kaiseki dining experience with seasonal ingredients. A culinary journey through Japan",
-      images: [
-        "https://api.a0.dev/assets/image?text=japanese%20restaurant%20interior%20traditional&aspect=16:9&seed=7890",
-        "https://api.a0.dev/assets/image?text=sushi%20platter%20gourmet%20food&aspect=16:9&seed=7891",
-        "https://api.a0.dev/assets/image?text=traditional%20japanese%20garden%20view&aspect=16:9&seed=7892",
-      ],
-      likes: 267,
-      comments: 41,
-      time: "3 days ago",
-    },
-  ];
-
-  useEffect(() => {
-    const getPosts = async () => {
-      const token = await AsyncStorage.getItem("jwt");
-
-      const response = await fetch(
-        `https://back-new-place-production.up.railway.app/api/post`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      const data = await response.json();
-
-      setPostsApi(data);
-    };
-
-    getPosts();
-  }, []);
-
+function Feed({
+  theme,
+  navigation,
+  posts,
+  visibleZoomImage,
+  setPostSeletedImages,
+}: {
+  theme: string;
+  navigation: any;
+  posts: Post[];
+  visibleZoomImage: (visible: boolean) => void;
+  setPostSeletedImages: (images: { uri: string }[]) => void;
+}) {
   return (
     <View style={styles.feed}>
-      {postsApi.map((post) => (
+      {posts.map((post) => (
         <View
           key={post._id}
           style={[
@@ -291,6 +310,7 @@ function Feed({ theme, navigation }) {
               source={{ uri: post.user.picture }}
               style={styles.userAvatar}
             />
+
             <View style={styles.postHeaderText}>
               <Text
                 style={[
@@ -344,33 +364,62 @@ function Feed({ theme, navigation }) {
                 contentContainerStyle={styles.postImagesContainer}
               >
                 {post.media.map((image, index) => (
-                  <Image
+                  <TouchableOpacity
                     key={index}
-                    source={{ uri: image.url }}
-                    style={styles.postImage}
-                    resizeMode="cover"
-                  />
+                    onPress={() => {
+                      setPostSeletedImages(
+                        post.media.map((img: any) => {
+                          return { uri: img.url };
+                        })
+                      );
+                      visibleZoomImage(true);
+                    }}
+                  >
+                    <Image
+                      source={{ uri: image.url }}
+                      style={styles.postImage}
+                      resizeMode="cover"
+                    />
+                  </TouchableOpacity>
                 ))}
               </ScrollView>
               <View style={styles.divider} />
               {post.type_post === "place" && (
-                <View style={styles.placeDetailsContainer}>
-                  <Text
-                    style={[
-                      styles.placeName,
-                      { color: theme === "dark" ? "#FFFFFF" : "#000000" },
-                    ]}
-                  >
-                    {post.place_details.name}
-                  </Text>
+                <View
+                  style={[
+                    styles.placeDetailsContainer,
+                    { backgroundColor: theme === "dark" ? "#333" : "#f0f0f0" },
+                  ]}
+                >
+                  <View style={{ flexDirection: "row", gap: 5 }}>
+                    <Ionicons
+                      name="location-outline"
+                      size={23}
+                      color={theme === "dark" ? "#BBB" : "#666"}
+                    />
+                    <Text
+                      style={[
+                        styles.placeName,
+                        { color: theme === "dark" ? "#FFFFFF" : "#000000" },
+                      ]}
+                    >
+                      {post?.place_details?.name}
+                    </Text>
+                  </View>
                   <View style={styles.starRating}>
                     {[1, 2, 3, 4, 5]?.map((star) => {
                       let iconName: "star-outline" | "star" | "star-half" =
                         "star-outline"; // Estrella vacía
 
-                      if (star <= post.place_details.rating) {
+                      if (
+                        post?.place_details?.rating &&
+                        star <= post.place_details.rating
+                      ) {
                         iconName = "star"; // Estrella llena
-                      } else if (star - 0.5 <= post.place_details.rating) {
+                      } else if (
+                        post?.place_details?.rating &&
+                        star - 0.5 <= post.place_details.rating
+                      ) {
                         iconName = "star-half"; // Media estrella
                       }
 
@@ -380,7 +429,7 @@ function Feed({ theme, navigation }) {
                           name={iconName}
                           size={18}
                           color={
-                            post.place_details.rating ? "#FFD700" : "#CCCCCC"
+                            post?.place_details?.rating ? "#FFD700" : "#CCCCCC"
                           }
                         />
                       );
@@ -483,7 +532,7 @@ function Feed({ theme, navigation }) {
 
               <Link
                 href={{
-                  pathname: "/[ItineraryDetails]",
+                  pathname: "/itinerario/[ItineraryDetails]",
                   params: { ItineraryDetails: JSON.stringify(post) },
                 }}
                 style={[
@@ -555,61 +604,6 @@ function Feed({ theme, navigation }) {
           </View>
         </View>
       ))}
-    </View>
-  );
-}
-
-function BottomNavBar({ theme, navigation }) {
-  return (
-    <View
-      style={[
-        styles.bottomNav,
-        { backgroundColor: theme === "dark" ? "#242424" : "#FFFFFF" },
-      ]}
-    >
-      <TouchableOpacity style={styles.navItem}>
-        <Ionicons
-          name="home"
-          size={24}
-          color={theme === "dark" ? "#FFFFFF" : "#000000"}
-        />
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={styles.navItem}
-        onPress={() => navigation.navigate("Search")}
-      >
-        <Ionicons
-          name="search"
-          size={24}
-          color={theme === "dark" ? "#BBB" : "#666"}
-        />
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={styles.createButton}
-        onPress={() => navigation.navigate("CreatePost")}
-      >
-        <Ionicons name="add" size={28} color="#FFFFFF" />
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={styles.navItem}
-        onPress={() => navigation.navigate("Itineraries")}
-      >
-        <MaterialIcons
-          name="map"
-          size={24}
-          color={theme === "dark" ? "#BBB" : "#666"}
-        />
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={styles.navItem}
-        onPress={() => navigation.navigate("Profile")}
-      >
-        <Ionicons
-          name="person-outline"
-          size={24}
-          color={theme === "dark" ? "#BBB" : "#666"}
-        />
-      </TouchableOpacity>
     </View>
   );
 }
@@ -742,7 +736,7 @@ const styles = StyleSheet.create({
   },
   divider: {
     height: 1,
-    backgroundColor: "#FF385C",
+    backgroundColor: "#BBB",
     marginVertical: 16,
   },
   postDescription: {
@@ -771,6 +765,11 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginTop: 4,
     marginBottom: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 5,
+    elevation: 2,
   },
   detailsButtonText: {
     fontWeight: "600",
@@ -852,7 +851,7 @@ const styles = StyleSheet.create({
   createButton: {
     position: "absolute",
     bottom: 100,
-    right: 0,
+    right: 10,
     padding: 8,
     width: 48,
     height: 48,
@@ -865,5 +864,20 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 4,
     elevation: 4,
+  },
+
+  footer: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    padding: 20,
+    backgroundColor: "rgba(0,0,0,0.6)",
+  },
+  button: {
+    alignItems: "center",
+  },
+  buttonText: {
+    color: "white",
+    fontSize: 12,
+    marginTop: 4,
   },
 });
