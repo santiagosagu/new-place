@@ -50,13 +50,14 @@ export default function PlaceDetails() {
   const [bookmarked, setBookmarked] = useState(false);
 
   const [reviewsExpanded, setReviewsExpanded] = useState(false);
+  //TODO: descomentar cuando se tenga la api
   const [dataPlaceDetails, setDataPlaceDetails] = useState<Place | null>(null);
   const [viewNavigationModal, setViewNavigationModal] = useState(false);
   const [viewCommentsModal, setViewCommentsModal] = useState(false);
   const [viewContributionModal, setViewContributionModal] = useState(false);
 
   const { location } = useLocation();
-  const { setIsNavigating, place } = usePlaceNavigateContext();
+  const { setIsNavigating, place, setPlace } = usePlaceNavigateContext();
   const { navigatePlace } = usePlaceNavigate();
   const { getMapMatchedLocation } = useMapMatching();
 
@@ -105,13 +106,15 @@ export default function PlaceDetails() {
     { icon: "concierge-bell", name: "Concierge" },
   ];
 
+  //TODO: descomentar cuando se tenga la api
   useEffect(() => {
+    console.log("placeIdProvider", placeIdProvider);
     const getDetailsPlace = async () => {
       const token = await AsyncStorage.getItem("jwt");
 
       const response = await fetch(
-        // `http://192.168.1.6:8080/api/place-details?place_id=${placeIdProvider}&lang=es`,
-        `https://back-new-place-production.up.railway.app/api/place-details?place_id=${placeIdProvider}&lang=es`,
+        // `http://192.168.1.7:8080/api/place-details?place_id=${placeIdProvider}`,
+        `https://back-new-place.onrender.com/api/place-details?place_id=${placeIdProvider}&lang=es`,
         {
           method: "GET",
           headers: {
@@ -123,14 +126,86 @@ export default function PlaceDetails() {
 
       const data = await response.json();
 
+      console.log(data);
       setDataPlaceDetails({
         ...data,
-        reviews: [...data.comments, ...data.reviews],
+        reviews: data.comments,
       });
     };
 
     getDetailsPlace();
   }, [placeIdProvider]);
+
+  //TODO: comentar y/o eliminar cuando se tenga la api
+  // const dataPlaceDetails = {
+  //   editorial_summary: {
+  //     overview:
+  //       "Kokoriko Laureles es un restaurante de pollo asado ubicado en Medellín, Colombia. Ofrece una amplia variedad de platos tradicionales y modernos, con un ambiente acogedor y un servicio excelente.",
+  //   },
+
+  //   formatted_address:
+  //     "Circular 4 #70-89, Laureles, Medellín, Antioquia, Colombia",
+  //   formatted_phone_number: "+57 4 1234567",
+  //   geometry: {
+  //     location: {
+  //       lat: 6.244203,
+  //       lng: -75.591769,
+  //     },
+  //   },
+  //   name: "Kokoriko Laureles",
+  //   opening_hours: {
+  //     open_now: true,
+  //     weekday_text: [
+  //       "Lunes: 10:00 AM – 10:00 PM",
+  //       "Martes: 10:00 AM – 10:00 PM",
+  //       "Miércoles: 10:00 AM – 10:00 PM",
+  //       "Jueves: 10:00 AM – 10:00 PM",
+  //       "Viernes: 10:00 AM – 11:00 PM",
+  //       "Sábado: 10:00 AM – 11:00 PM",
+  //       "Domingo: 10:00 AM – 10:00 PM",
+  //     ],
+  //   },
+  //   photos: [
+  //     "https://lh3.googleusercontent.com/p/AF1QipOPmgrD4rZidqX9-2f6uWeOKFSXqy-B2hXRh6dw=s471-k-no",
+  //     "https://lh3.googleusercontent.com/gps-cs-s/AB5caB_-DQknYzQ4s-ZgSVOirMiTFJ8YTu4NYUEAeKKuOl_KQxa8F12_TQRJpkFBRlKB_8oB2XNoQtuYENQGOtQD0ooW7Geh8lZtkBqryQ_WYFztyNfnABTc1bnNj7mZQTzsi8LYEaCIJQ=s387-k-no",
+  //     "https://lh3.googleusercontent.com/gps-cs-s/AB5caB9Kqvu6CW_UQl57KAAHWKVUV0r5uXj31YgoRhiuynM4I2Z97fHvQ1Q8jkN5JSaQmo73No7XL7mtDhRNzGWfn1hvL8Xc88B5-1uZhRdviq1maMaT6Us1NJyIbSqVAOzV3ed4JUxk=s677-k-no",
+  //     "https://lh3.googleusercontent.com/gps-cs-s/AB5caB9ql2v08TD_EDFGY8llON2qa8_7an57QMCISKYK_zWxoX3pKDMIYj7rqn7iGLpoUZyOKWpN2bzNNZCMkWxPivIBMpUU5nwrgdtxjF2YRUbz5tE6gXHo6olnNNrH6i-5uBd4BaXt=s386-k-no",
+  //   ],
+  //   place_id: "ChIJkUeWlD3ZYI4RjABKOKokoriko",
+  //   rating: 4.3,
+  //   reviews: [
+  //     {
+  //       author_name: "Juan Pérez",
+  //       rating: 5,
+  //       text: "El pollo estaba increíblemente jugoso y bien sazonado. Excelente servicio.",
+  //       relative_time_description: "hace 2 horas",
+  //       profile_photo_url: "https://randomuser.me/api/portraits/men/32.jpg",
+  //       time: "2023-10-01T12:00:00Z",
+  //     },
+  //     {
+  //       author_name: "María Gómez",
+  //       rating: 4,
+  //       text: "Buena comida, pero el servicio podría mejorar.",
+  //       relative_time_description: "hace 1 día",
+  //       profile_photo_url: "https://randomuser.me/api/portraits/women/44.jpg",
+  //       time: "2023-09-30T15:00:00Z",
+  //     },
+  //   ],
+  //   types: ["restaurant", "food", "point_of_interest", "establishment"],
+  //   url: "https://www.google.com/maps/place/Kokoriko+Laureles",
+  //   user_ratings_total: 387,
+  //   website: "https://www.kokoriko.com.co/",
+  //   comments: [],
+  // };
+
+  //TODO: descomentar cuando se tenga la api
+  // useEffect(() => {
+  //   setPlace({
+  //     ...dataPlaceDetails,
+  //     lon: dataPlaceDetails?.geometry.location.lng,
+  //     lat: dataPlaceDetails?.geometry.location.lat,
+  //   });
+  // }, [dataPlaceDetails]);
 
   const navigateExternalApp = () => {
     const lat = dataPlaceDetails?.geometry?.location?.lat;
@@ -154,16 +229,16 @@ export default function PlaceDetails() {
   };
 
   const handleNavigatePlace = async () => {
-    setViewNavigationModal(false);
-    setIsNavigating(true);
-
     if (location) {
-      navigatePlace(
+      console.log(location);
+      await navigatePlace(
         [location.coords.longitude, location.coords.latitude],
-        // [-75.606303, 6.203676],
+        // [-75.606303, 6.203676]
         [place.lon, place.lat]
       );
-      getMapMatchedLocation();
+      await getMapMatchedLocation();
+      await setViewNavigationModal(false);
+      await setIsNavigating(true);
       router.push("/NavigateDriver");
     } else {
       console.log("No se pudo obtener la ubicación actual");
@@ -224,8 +299,8 @@ export default function PlaceDetails() {
             )}
             scrollEventThrottle={16}
           >
-            {dataPlaceDetails?.photos?.length > 0 ? (
-              dataPlaceDetails?.photos?.map((image, index) => (
+            {dataPlaceDetails?.media?.length > 0 ? (
+              dataPlaceDetails?.media?.map((image, index) => (
                 <Image
                   key={index}
                   source={{ uri: image }}
@@ -244,9 +319,9 @@ export default function PlaceDetails() {
             )}
           </ScrollView>
 
-          {dataPlaceDetails?.photos?.length > 1 && (
+          {dataPlaceDetails?.media?.length > 1 && (
             <View style={styles.pagination}>
-              {dataPlaceDetails?.photos?.map((_, i) => {
+              {dataPlaceDetails?.media?.map((_, i) => {
                 const opacity = scrollX.interpolate({
                   inputRange: [(i - 1) * width, i * width, (i + 1) * width],
                   outputRange: [0.3, 1, 0.3],
@@ -271,14 +346,12 @@ export default function PlaceDetails() {
           <Text style={[styles.placeName, { color: textColor }]}>
             {dataPlaceDetails.name}
           </Text>
-
           <View style={styles.locationRow}>
             <MaterialIcons name="location-on" size={24} color="#FF385C" />
             <Text style={[styles.locationText, { color: secondaryTextColor }]}>
-              {dataPlaceDetails.formatted_address}
+              {dataPlaceDetails.format_address}
             </Text>
           </View>
-
           <View style={styles.ratingRow}>
             <View style={styles.starRating}>
               {[1, 2, 3, 4, 5]?.map((star) => {
@@ -309,22 +382,19 @@ export default function PlaceDetails() {
               ({dataPlaceDetails.user_ratings_total} reviews)
             </Text>
           </View>
-
           <View style={styles.divider} />
-
-          {dataPlaceDetails?.editorial_summary?.overview && (
+          {dataPlaceDetails?.description && (
             <>
               <Text style={[styles.sectionTitle, { color: textColor }]}>
                 Description
               </Text>
               <Text style={[styles.description, { color: secondaryTextColor }]}>
-                {dataPlaceDetails?.editorial_summary?.overview}
+                {dataPlaceDetails?.description}
 
                 {"\n\n"}
               </Text>
             </>
           )}
-
           {dataPlaceDetails?.opening_hours?.weekday_text?.length > 0 && (
             <View>
               <Text style={[styles.sectionTitle, { color: textColor }]}>
@@ -359,8 +429,8 @@ export default function PlaceDetails() {
           {dataPlaceDetails?.opening_hours?.weekday_text?.length > 0 && (
             <View style={styles.divider} />
           )}
-
-          <Text style={[styles.sectionTitle, { color: textColor }]}>
+          //TODO: descomentar cuando se tenga la logica de comodidades
+          {/* <Text style={[styles.sectionTitle, { color: textColor }]}>
             Amenities
           </Text>
           <View style={styles.amenitiesGrid}>
@@ -374,10 +444,8 @@ export default function PlaceDetails() {
                 </Text>
               </View>
             ))}
-          </View>
-
+          </View> */}
           <View style={styles.divider} />
-
           <Text style={[styles.sectionTitle, { color: textColor }]}>
             Reviews
           </Text>
@@ -391,12 +459,12 @@ export default function PlaceDetails() {
                 <View key={review.time} style={styles.reviewItem}>
                   <View style={styles.reviewHeader}>
                     <Image
-                      source={{ uri: review.profile_photo_url }}
+                      source={{ uri: review.user.picture }}
                       style={styles.reviewerAvatar}
                     />
                     <View style={styles.reviewerInfo}>
                       <Text style={[styles.reviewerName, { color: textColor }]}>
-                        {review.author_name}
+                        {review.user.name}
                       </Text>
                       <View style={styles.reviewMeta}>
                         <View style={styles.miniStarRating}>
@@ -427,11 +495,10 @@ export default function PlaceDetails() {
                   <Text
                     style={[styles.reviewText, { color: secondaryTextColor }]}
                   >
-                    {review.text}
+                    {review.comment}
                   </Text>
                 </View>
               ))}
-
           {dataPlaceDetails?.reviews?.length > 1 && (
             <TouchableOpacity
               style={styles.expandButton}
@@ -502,7 +569,7 @@ export default function PlaceDetails() {
           heightExpanded={500}
         >
           <FormCommentsPlaceDetails
-            placeId={dataPlaceDetails?.place_id}
+            placeId={dataPlaceDetails?._id}
             setModalVisible={setViewCommentsModal}
           />
         </NewModalPlaceActions>
@@ -541,39 +608,55 @@ export default function PlaceDetails() {
             >
               Como Quieres Viajar?
             </Text>
-            <View style={styles.actionButtonsContainer}>
-              <Pressable
-                onPress={handleNavigatePlace}
-                style={[styles.actionButton, { backgroundColor: "#FF385C" }]}
-              >
-                <Ionicons name="navigate" size={24} color="white" />
-                <Text
-                  style={[{ color: "white", fontSize: 16, fontWeight: "bold" }]}
-                >
-                  Navegar
-                </Text>
-              </Pressable>
-              <Pressable
-                onPress={navigateExternalApp}
-                style={[
-                  styles.actionButton,
-                  {
-                    backgroundColor: cardColor,
-                    borderWidth: 1,
-                    borderColor: "#FF385C",
-                  },
-                ]}
-              >
-                <Ionicons name="navigate" size={24} color={textColor} />
-                <Text
+            {!location && (
+              <Text style={{ textAlign: "center", color: "#FF385C" }}>
+                Obteniendo tu ubicación...
+              </Text>
+            )}
+            {!location ? (
+              <ActivityIndicator size="large" color="#FF385C" />
+            ) : (
+              <View style={styles.actionButtonsContainer}>
+                <Pressable
+                  onPress={handleNavigatePlace}
                   style={[
-                    { color: textColor, fontSize: 16, fontWeight: "bold" },
+                    styles.actionButton,
+                    { backgroundColor: location ? "#FF385C" : "#666" },
+                  ]}
+                  disabled={!location}
+                  android_ripple={{ color: "#FF385C" }}
+                >
+                  <Ionicons name="navigate" size={24} color="white" />
+                  <Text
+                    style={[
+                      { color: "white", fontSize: 16, fontWeight: "bold" },
+                    ]}
+                  >
+                    Navegar
+                  </Text>
+                </Pressable>
+                <Pressable
+                  onPress={navigateExternalApp}
+                  style={[
+                    styles.actionButton,
+                    {
+                      backgroundColor: cardColor,
+                      borderWidth: 1,
+                      borderColor: "#FF385C",
+                    },
                   ]}
                 >
-                  App Externa
-                </Text>
-              </Pressable>
-            </View>
+                  <Ionicons name="navigate" size={24} color={textColor} />
+                  <Text
+                    style={[
+                      { color: textColor, fontSize: 16, fontWeight: "bold" },
+                    ]}
+                  >
+                    App Externa
+                  </Text>
+                </Pressable>
+              </View>
+            )}
           </View>
         </NewModalPlaceActions>
       )}
@@ -644,6 +727,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   locationText: {
+    flex: 1,
     fontSize: 14,
     marginLeft: 4,
   },

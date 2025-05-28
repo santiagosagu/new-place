@@ -24,74 +24,98 @@ export function useAuth() {
     return () => unsubscribe();
   }, []);
 
+  //TODO: se hizo una modificacion que no quedo en la build verificar si todo funciona bien
   const checkoutStatusSesionWithToken = async () => {
-    const MAX_ATTEMPTS = 2;
-    let attempts = 0;
+    try {
+      // Verificamos si ya hay un usuario autenticado en Firebase
+      const checkFirebaseAuth = new Promise((resolve) => {
+        const currentUser = auth.currentUser;
 
-    const getToken = async (): Promise<string | null> => {
-      const token = await AsyncStorage.getItem("jwt");
-      return token ? token : null;
-    };
-
-    const getUser = (): Promise<null | any> => {
-      return new Promise((resolve) => {
-        const unsubscribe = auth.onAuthStateChanged((user) => {
-          unsubscribe(); // Importante: desuscribirse para evitar memory leaks
-          resolve(user);
-        });
+        if (currentUser) {
+          setUser(currentUser);
+          resolve(currentUser);
+        } else {
+          const unsubscribe = auth.onAuthStateChanged((user) => {
+            unsubscribe();
+            setUser(user);
+            resolve(user);
+          });
+        }
       });
-    };
 
-    let token: string | null = null;
-    while (!token && attempts < MAX_ATTEMPTS) {
-      console.log("Intentando obtener el token...", attempts + 1);
-      token = await getToken();
+      const user = await checkFirebaseAuth;
+
+      if (!user) {
+        console.log("No hay usuario autenticado en Firebase.");
+        await AsyncStorage.removeItem("jwt");
+        return router.push("/login");
+      }
+
+      // Función para verificar si ya se almacenó el token JWT
+      const verifyToken = async (
+        retries = 3,
+        delay = 1000
+      ): Promise<string | null> => {
+        for (let i = 0; i < retries; i++) {
+          const token = await AsyncStorage.getItem("jwt");
+          if (token) return token;
+
+          if (i < retries - 1) {
+            console.log(`Intento ${i + 1}: Esperando token...`);
+            await new Promise((resolve) => setTimeout(resolve, delay));
+          }
+        }
+        return null;
+      };
+
+      const token = await verifyToken();
+
       if (!token) {
-        attempts++;
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        console.log("No se encontró el token después de los intentos.");
+        await auth.signOut();
+        return router.push("/login");
       }
-    }
 
-    if (!token) {
-      console.log("No se pudo obtener el token después de varios intentos.");
-      await AsyncStorage.removeItem("jwt");
-      await auth.signOut();
-      return router.push("/login");
-    }
+      // Verificamos el token con el backend
+      try {
+        const response = await fetch(
+          "https://back-new-place.onrender.com/api/status-token",
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
-    console.log("Esperando a que Firebase cargue el usuario...");
-    const user = await getUser();
+        if (!response.ok) throw new Error("Token inválido");
 
-    if (!user) {
-      console.log("No hay usuario autenticado en Firebase.");
-      await AsyncStorage.removeItem("jwt");
-      await auth.signOut();
-      return router.push("/login");
-    }
-
-    console.log("Usuario autenticado en Firebase:", user.email, token);
-
-    const response = await fetch(
-      // "http://192.168.1.6:8080/api/status-token",
-      "https://back-new-place-production.up.railway.app/api/status-token",
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+        console.log("Sesión verificada correctamente.");
+        return true;
+      } catch (error) {
+        console.error("Error al verificar el token:", error);
+        await AsyncStorage.removeItem("jwt");
+        await auth.signOut();
+        return router.push("/login");
       }
-    );
-
-    if (!response.ok) {
-      console.log("Token no válido");
+    } catch (error) {
+      console.error("Error en la verificación de sesión:", error);
       await AsyncStorage.removeItem("jwt");
       await auth.signOut();
       return router.push("/login");
     }
-
-    console.log("Token válido. Usuario autenticado.");
   };
 
-  return { user, checkoutStatusSesionWithToken };
+  const logout = async () => {
+    await AsyncStorage.removeItem("jwt");
+    await auth.signOut();
+    router.push("/login");
+  };
+
+  return {
+    user,
+    checkoutStatusSesionWithToken,
+    logout,
+  };
 }

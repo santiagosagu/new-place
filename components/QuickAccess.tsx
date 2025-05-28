@@ -107,7 +107,7 @@ const QuickAccess = ({ theme }: { theme: any }) => {
             href={{
               pathname: "/view-maps-category/[title]",
               params: {
-                title: item.title,
+                title: item.title.toLowerCase(),
                 radius: item.radius,
                 keyword: item.keyword,
                 type: item.type,

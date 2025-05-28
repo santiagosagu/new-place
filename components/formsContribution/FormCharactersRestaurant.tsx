@@ -132,7 +132,7 @@ export default function FormCharactersRestaurant({
   );
 
   return (
-    <View style={styles.content}>
+    <ScrollView style={styles.content}>
       <Text
         style={[
           styles.sectionTitle,
@@ -423,7 +423,7 @@ export default function FormCharactersRestaurant({
           <Text style={styles.submitButtonText}>Enviar Evaluación</Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
@@ -431,6 +431,7 @@ const styles = StyleSheet.create({
   content: {
     maxHeight: "100%",
     paddingBottom: 50,
+    paddingHorizontal: 20,
   },
   section: {
     marginBottom: 20,
@@ -485,6 +486,7 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 10,
     width: "50%",
+    marginBottom: 50,
   },
   submitButtonText: {
     color: "white",

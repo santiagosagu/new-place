@@ -30,6 +30,13 @@ interface Review {
   text: string;
   time: number;
   translated: boolean;
+  user: user;
+  comment: string;
+}
+
+interface user {
+  name: string;
+  picture: string;
 }
 
 interface EditorialSummary {
@@ -38,13 +45,16 @@ interface EditorialSummary {
 }
 
 export interface Place {
+  _id: string;
   editorial_summary?: EditorialSummary;
-  formatted_address: string;
-  formatted_phone_number: string;
+  description: string;
+  format_address?: string;
+  formatted_address?: string;
+  formatted_phone_number?: string;
   geometry: Geometry;
   name: string;
   opening_hours: OpeningHours;
-  photos: string[];
+  media: string[];
   place_id: string;
   rating: number;
   reviews: Review[];

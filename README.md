@@ -39,3 +39,9 @@ eas build:configure
    ```bash
    eas build --profile preview --platform android
    ```
+
+5. Ejecutar el build production
+
+   ```bash
+   eas build --platform android --profile production
+   ```

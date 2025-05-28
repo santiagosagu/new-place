@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -13,6 +13,8 @@ import { useNavigation } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons, MaterialIcons, Feather } from "@expo/vector-icons";
 import { Link } from "expo-router";
+import { useAuth } from "@/hooks/useAuth";
+import { useFocusEffect } from "expo-router";
 
 export default function Itineraries() {
   const colorScheme = useColorScheme();
@@ -20,6 +22,18 @@ export default function Itineraries() {
   const navigation = useNavigation();
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("my"); // 'my' or 'saved'
+
+  const { checkoutStatusSesionWithToken } = useAuth();
+
+  useFocusEffect(
+    useCallback(() => {
+      const checkSession = async () => {
+        await checkoutStatusSesionWithToken();
+      };
+
+      checkSession();
+    }, [])
+  );
 
   // Sample data
   const myItineraries = [
@@ -279,6 +293,38 @@ export default function Itineraries() {
     );
   };
 
+  if (2 > 1) {
+    return (
+      <View
+        style={[
+          styles.container,
+          { backgroundColor, alignItems: "center", justifyContent: "center" },
+        ]}
+      >
+        <Image
+          source={{
+            uri: "https://api.a0.dev/assets/image?text=coming%20soon%20travel%20planner%20people&aspect=1:1&seed=123",
+          }}
+          style={styles.comingSoonImage}
+        />
+        <Text style={[styles.comingSoonTitle, { color: textColor }]}>
+          Coming Soon!
+        </Text>
+        <Text style={[styles.comingSoonText, { color: secondaryTextColor }]}>
+          Estamos trabajando arduamente para brindarte una increíble experiencia
+          de planificación de itinerarios. ¡Vuelve pronto para comenzar a crear
+          y compartir tus aventuras de viaje!
+        </Text>
+        <TouchableOpacity
+          style={styles.returnButton}
+          onPress={() => navigation.goBack()}
+        >
+          <Text style={styles.returnButtonText}>Return Home</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
   return (
     <SafeAreaView style={[styles.container, { backgroundColor }]}>
       <View style={[styles.header, { backgroundColor }]}>
@@ -417,6 +463,36 @@ export default function Itineraries() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  comingSoonImage: {
+    width: 200,
+    height: 200,
+    marginBottom: 24,
+    borderRadius: 16,
+  },
+  comingSoonTitle: {
+    fontSize: 28,
+    fontWeight: "bold",
+    marginBottom: 16,
+    textAlign: "center",
+  },
+  comingSoonText: {
+    fontSize: 16,
+    textAlign: "center",
+    marginHorizontal: 32,
+    marginBottom: 32,
+    lineHeight: 24,
+  },
+  returnButton: {
+    backgroundColor: "#FF385C",
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 24,
+  },
+  returnButtonText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "600",
   },
   header: {
     flexDirection: "row",

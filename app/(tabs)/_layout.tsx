@@ -12,22 +12,11 @@ import { useThemeColor } from "@/hooks/useThemeColor";
 import { IconItinerary } from "@/components/ui/iconsList";
 import { Ionicons } from "@expo/vector-icons";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import { useAuth } from "@/hooks/useAuth";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
   const colorText = useThemeColor({}, "text");
   const backgroundHeader = useThemeColor({}, "backgroundHeader");
-
-  const { checkoutStatusSesionWithToken } = useAuth();
-
-  useFocusEffect(
-    useCallback(() => {
-      checkoutStatusSesionWithToken();
-
-      return () => {};
-    }, [])
-  );
 
   return (
     <>

@@ -24,6 +24,7 @@
     "@rnmapbox/maps": "^10.1.33",
     "@turf/turf": "^7.1.0",
     "expo": "~52.0.20",
+    "expo-av": "~15.0.2",
     "expo-blur": "~14.0.1",
     "expo-clipboard": "~7.0.0",
     "expo-constants": "~17.0.3",
@@ -40,6 +41,7 @@
     "expo-status-bar": "~2.0.0",
     "expo-symbols": "~0.2.0",
     "expo-system-ui": "~4.0.6",
+    "expo-video": "^2.0.6",
     "expo-web-browser": "~14.0.1",
     "firebase": "^11.3.0",
     "i18n-js": "^4.5.1",
@@ -51,7 +53,9 @@
     "react-native-compass-heading": "^2.0.0",
     "react-native-fast-image": "^8.6.3",
     "react-native-gesture-handler": "~2.20.2",
+    "react-native-image-pan-zoom": "^2.1.12",
     "react-native-image-viewing": "^0.2.2",
+    "react-native-image-zoom-viewer": "^3.0.1",
     "react-native-linear-gradient": "^2.8.3",
     "react-native-localize": "^3.3.0",
     "react-native-maps": "1.18.0",
@@ -63,9 +67,11 @@
     "react-native-toast-message": "^2.2.1",
     "react-native-web": "~0.19.13",
     "react-native-webview": "^13.12.5",
+    "react-native-zoom-toolkit": "^4.0.2",
     "rive-react-native": "^8.3.0",
     "tailwindcss": "^3.4.17",
-    "zustand": "^5.0.2"
+    "zustand": "^5.0.2",
+    "expo-video-thumbnails": "~9.0.3"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

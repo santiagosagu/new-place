@@ -32,7 +32,17 @@ const HomeScreen = () => {
   const [refreshing, setRefreshing] = useState(false);
   const insets = useSafeAreaInsets();
 
-  const { user } = useAuth();
+  const { user, logout, checkoutStatusSesionWithToken } = useAuth();
+
+  useFocusEffect(
+    useCallback(() => {
+      const checkSession = async () => {
+        await checkoutStatusSesionWithToken();
+      };
+
+      checkSession();
+    }, [])
+  );
 
   // Colores basados en el tema
   const theme = {
@@ -66,6 +76,16 @@ const HomeScreen = () => {
       </View>
     );
   }
+
+  // if (!user) {
+  //   return (
+  //     <View style={styles.container}>
+  //       <Text>
+  //         No tienes una sesion activa, por favor inicia sesion para continuar
+  //       </Text>
+  //     </View>
+  //   );
+  // }
 
   return (
     <View
@@ -102,8 +122,11 @@ const HomeScreen = () => {
               styles.profileButton,
               { backgroundColor: theme.cardBackground },
             ]}
+            onPress={() => {
+              logout();
+            }}
           >
-            <Ionicons name="person" size={20} color={theme.primary} />
+            <Ionicons name="exit-outline" size={35} color="#FF385C" />
           </TouchableOpacity>
         </View>
       </View>
@@ -160,9 +183,9 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   profileButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 50,
+    height: 50,
+    borderRadius: 50,
     alignItems: "center",
     justifyContent: "center",
     marginLeft: 10,

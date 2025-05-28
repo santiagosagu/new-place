@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   View,
   Text,
@@ -15,9 +15,10 @@ import {
 import { Ionicons, MaterialIcons, FontAwesome5 } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Link, Stack } from "expo-router";
+import { Link, Stack, useFocusEffect } from "expo-router";
 import CategoryCard from "@/components/CategoryCard";
 import data from "@/data.json";
+import { useAuth } from "@/hooks/useAuth";
 
 const { width } = Dimensions.get("window");
 
@@ -26,6 +27,18 @@ const CategoryScreen = () => {
   const isDarkMode = colorScheme === "dark";
   const [currentTheme, setCurrentTheme] = useState(isDarkMode);
   const themeAnim = new Animated.Value(isDarkMode ? 1 : 0);
+
+  const { checkoutStatusSesionWithToken } = useAuth();
+
+  useFocusEffect(
+    useCallback(() => {
+      const checkSession = async () => {
+        await checkoutStatusSesionWithToken();
+      };
+
+      checkSession();
+    }, [])
+  );
 
   // Asegurarse de que el tema siga el modo del sistema
   useEffect(() => {

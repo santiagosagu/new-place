@@ -17,6 +17,7 @@ import {
   Pressable,
   StyleSheet,
   Text,
+  TextInput,
   View,
 } from "react-native";
 import React, { useCallback, useEffect, useRef, useState } from "react";
@@ -42,9 +43,10 @@ import navigateIMage from "../assets/images/gps.png";
 import { NewModalPlaceActions } from "./newModalPlaceActions";
 import { AntDesign, FontAwesome, Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "expo-router";
+import AddNewPlaceForm from "./AddNewPlaceForm";
 
 interface itemMarker {
-  id: string;
+  _id: string;
   name: string;
   cuisine: string;
   lat: number;
@@ -54,7 +56,13 @@ interface itemMarker {
   website: string;
 }
 
-export default function ViewMapMapbox({ data, latitude, longitude }: any) {
+export default function ViewMapMapbox({
+  data,
+  latitude,
+  longitude,
+  title,
+  category,
+}: any) {
   // const isDevelop = process.env.NODE_ENV === "development";
 
   // const accesstoken = !isDevelop
@@ -69,15 +77,21 @@ export default function ViewMapMapbox({ data, latitude, longitude }: any) {
 
   const [modalVisible, setModalVisible] = useState(false);
   const [modalVisibleTraveling, setModalVisibleTraveling] = useState(false);
+  const [modalNewPlace, setModalNewPlace] = useState(false);
   const [heading, setHeading] = useState(0);
   const [seeInCards, setSeeInCards] = useState(false);
   const [mapReady, setMapReady] = useState(false);
+  const [selectedPoint, setSelectedPoint] = useState<{
+    longitude: number;
+    latitude: number;
+  } | null>(null);
 
   const bottomSheetRef = useRef<BottomSheet>(null);
   const cameraRef = useRef<Camera>(null);
   const imagesRef = useRef<Images>(null);
 
   const cardColor = useThemeColor({}, "cardBackground");
+  const secondaryTextColor = useThemeColor({}, "subtext");
   const backgroundTabTop = useThemeColor({}, "background");
   const colorText = useThemeColor({}, "text");
 
@@ -262,6 +276,8 @@ export default function ViewMapMapbox({ data, latitude, longitude }: any) {
       setMapReady(false);
     }
   }, [imagesRef.current]);
+
+  console.log("viewmapa", data);
 
   if (seeInCards) {
     return (
@@ -505,7 +521,32 @@ export default function ViewMapMapbox({ data, latitude, longitude }: any) {
         style={{ flex: 1 }}
         styleURL="mapbox://styles/s4gu/cm5iozsw7003601qpdhq7dkwn"
         logoEnabled={false}
+        onPress={(feature: any) => {
+          const coordinates = feature.geometry.coordinates;
+          setSelectedPoint(null);
+          setModalNewPlace(false);
+          setTimeout(() => {
+            setModalNewPlace(true);
+            setSelectedPoint({
+              longitude: coordinates[0],
+              latitude: coordinates[1],
+            });
+          }, 0);
+          console.log("Coordenadas seleccionadas:", coordinates);
+        }}
       >
+        {selectedPoint && modalNewPlace && (
+          <MarkerView
+            coordinate={[selectedPoint.longitude, selectedPoint.latitude]}
+            allowOverlap={true}
+            allowOverlapWithPuck={true}
+          >
+            <Image
+              source={require("../assets/images/pin-map.png")}
+              style={{ width: 40, height: 40 }}
+            />
+          </MarkerView>
+        )}
         <Camera
           ref={cameraRef}
           zoomLevel={isNavigating ? 19 : 14}
@@ -582,8 +623,8 @@ export default function ViewMapMapbox({ data, latitude, longitude }: any) {
               item.lat &&
               item.lon && (
                 <MarkerView
-                  id={item.id}
-                  key={item.id}
+                  id={item._id}
+                  key={item._id}
                   coordinate={[Number(item.lon), Number(item.lat)]}
                   allowOverlap={true}
                   allowOverlapWithPuck={true}
@@ -726,7 +767,8 @@ export default function ViewMapMapbox({ data, latitude, longitude }: any) {
                   onPress={() => {
                     setModalVisible(false);
                     navigation.navigate<any>("PlaceDetails", {
-                      placeIdProvider: place.placeIdProvider,
+                      // placeIdProvider: place.placeIdProvider,
+                      placeIdProvider: place._id,
                     });
                   }}
                   style={[
@@ -786,6 +828,20 @@ export default function ViewMapMapbox({ data, latitude, longitude }: any) {
         </NewModalPlaceActions>
       )}
 
+      {modalNewPlace && (
+        <NewModalPlaceActions
+          dispatch={setModalNewPlace}
+          heightInitial={550}
+          heightExpanded={550}
+        >
+          <AddNewPlaceForm
+            category={category}
+            selectedPoint={selectedPoint}
+            dispatch={setModalNewPlace}
+          />
+        </NewModalPlaceActions>
+      )}
+
       {isNavigating && (
         <BottomSheet
           ref={bottomSheetRef}
@@ -798,6 +854,9 @@ export default function ViewMapMapbox({ data, latitude, longitude }: any) {
               <Pressable
                 onPress={() => {
                   bottomSheetRef.current?.close();
+                  setIsNavigating(false);
+
+                  setPlace(null);
                 }}
               >
                 <IconClose color="black" />
@@ -900,5 +959,13 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
+  },
+  input: {
+    // backgroundColor: "#F0F0F0",
+    marginTop: 10,
+    borderRadius: 8,
+    padding: 12,
+    // height: 150,
+    textAlignVertical: "top",
   },
 });

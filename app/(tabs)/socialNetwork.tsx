@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   View,
   Text,
@@ -8,18 +8,22 @@ import {
   Image,
   useColorScheme,
   StatusBar,
-  Pressable,
   RefreshControl,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Ionicons, Feather, MaterialIcons } from "@expo/vector-icons";
+import { Ionicons, Feather } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { Link, Stack, useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import ImageViewing from "react-native-image-viewing";
-import { NativeStackNavigationProp } from "react-native-screens/lib/typescript/native-stack/types";
+// import ImageViewing from "react-native-image-viewing";
+import { NewModalPlaceActions } from "@/components/newModalPlaceActions";
+import InteractionsComments from "@/components/InteractionsComments";
+import ViewMedia from "@/components/ViewMedia";
+import * as VideoThumbnails from "expo-video-thumbnails";
+import { useAuth } from "@/hooks/useAuth";
+import { useFocusEffect } from "expo-router";
 
-interface Post {
+export interface Post {
   _id: string;
   user: {
     picture: string;
@@ -27,7 +31,7 @@ interface Post {
   };
   type_post: "place" | "itinerary";
   content?: string;
-  media: { url: string }[];
+  media: { url: string; type: "image" | "video"; thumbnail?: string }[];
   place_details?: {
     formatted_address?: string;
     name?: string;
@@ -39,18 +43,41 @@ interface Post {
   coverImage?: string;
   comments_count: number;
   time: string;
+  likes: {
+    count: number;
+    hasLiked: boolean;
+    users: string[];
+  };
 }
 
 export default function HomeScreen() {
   const colorScheme = useColorScheme();
   const navigation = useNavigation<any>();
-  
+
   const [refreshing, setRefreshing] = useState(false);
   const [theme, setTheme] = useState(colorScheme || "light");
   const [postsApi, setPostsApi] = useState([]);
   const [visible, setVisible] = useState(false);
-  const [postSeletedImages, setPostSeletedImages] = useState<{ uri: string }[]>(
-    []
+  const [postSeleted, setPostSeleted] = useState<Post | [] | null>([]);
+  const [initialMediaIndex, setInitialMediaIndex] = useState(0);
+
+  const backgroundColor = theme === "dark" ? "#121212" : "#F5F5F5";
+  const textColor = theme === "dark" ? "#FFFFFF" : "#000000";
+  const secondaryTextColor = theme === "dark" ? "#BBB" : "#666";
+
+  const [viewCommetsModal, setViewCommetsModal] = useState(false);
+  const [postId, setPostId] = useState<string | null>(null);
+
+  const { checkoutStatusSesionWithToken } = useAuth();
+
+  useFocusEffect(
+    useCallback(() => {
+      const checkSession = async () => {
+        await checkoutStatusSesionWithToken();
+      };
+
+      checkSession();
+    }, [])
   );
 
   useEffect(() => {
@@ -63,34 +90,80 @@ export default function HomeScreen() {
     setTheme(theme === "light" ? "dark" : "light");
   };
 
-  const getPosts = async () => {
-    const token = await AsyncStorage.getItem("jwt");
+  //TODO: descomentar cuando este la funcionalidad
+  // const getPosts = async () => {
+  //   const token = await AsyncStorage.getItem("jwt");
+  //   const user_id = await AsyncStorage.getItem("user_id");
 
-    const response = await fetch(
-      `https://back-new-place-production.up.railway.app/api/post`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+  //   const response = await fetch(
+  //     // `http://192.168.1.7:8080/api/post?user_id=${user_id}`,
+  //     `https://back-new-place-production.up.railway.app/api/post?user_id=${user_id}`,
+  //     {
+  //       method: "GET",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //         Authorization: `Bearer ${token}`,
+  //       },
+  //     }
+  //   );
 
-    const data = await response.json();
+  //   if (!response.ok) {
+  //     console.error("Error fetching posts:", response.statusText);
+  //     return;
+  //   }
 
-    setRefreshing(false);
+  //   const data = await response.json();
 
-    setPostsApi(data);
-  };
-  useEffect(() => {
-    getPosts();
-  }, []);
+  //   setRefreshing(false);
+
+  //   setPostsApi(data);
+  // };
+
+  //TODO: descomentar cuando este la funcionalidad
+  // useEffect(() => {
+  //   getPosts();
+  // }, []);
 
   const onRefresh = () => {
     setRefreshing(true);
-    getPosts();
   };
+
+  //TODO: descomentar cuando este la funcionalidad
+  // useEffect(() => {
+  //   getPosts();
+  // }, [refreshing]);
+
+  if (2 > 1) {
+    return (
+      <View
+        style={[
+          styles.container,
+          { backgroundColor, alignItems: "center", justifyContent: "center" },
+        ]}
+      >
+        <Image
+          source={{
+            uri: "https://api.a0.dev/assets/image?text=coming%20soon%20social%20network%20people&aspect=1:1&seed=123",
+          }}
+          style={styles.comingSoonImage}
+        />
+        <Text style={[styles.comingSoonTitle, { color: textColor }]}>
+          Coming Soon!
+        </Text>
+        <Text style={[styles.comingSoonText, { color: secondaryTextColor }]}>
+          Estamos trabajando arduamente para traerte una increíble experiencia
+          de red social. ¡Vuelve pronto para comenzar a crear y compartir tus
+          aventuras de viaje!
+        </Text>
+        <TouchableOpacity
+          style={styles.returnButton}
+          onPress={() => navigation.goBack()}
+        >
+          <Text style={styles.returnButtonText}>Return Home</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
   return (
     // <ThemeContext.Provider value={{ theme, toggleTheme }}>
@@ -123,7 +196,11 @@ export default function HomeScreen() {
           navigation={navigation}
           posts={postsApi}
           visibleZoomImage={setVisible}
-          setPostSeletedImages={setPostSeletedImages}
+          setPostSeleted={setPostSeleted}
+          setViewCommetsModal={setViewCommetsModal}
+          setRefreshing={setRefreshing}
+          setPostId={setPostId}
+          setInitialMediaIndex={setInitialMediaIndex}
         />
       </ScrollView>
       <TouchableOpacity
@@ -133,8 +210,8 @@ export default function HomeScreen() {
         <Ionicons name="add" size={28} color="#FFFFFF" />
       </TouchableOpacity>
 
-      <ImageViewing
-        images={postSeletedImages}
+      {/* <ImageViewing
+        images={postSeleted}
         imageIndex={0}
         visible={visible}
         onRequestClose={() => setVisible(false)}
@@ -156,7 +233,25 @@ export default function HomeScreen() {
             </TouchableOpacity>
           </View>
         )}
-      />
+      /> */}
+
+      {visible && (
+        <ViewMedia
+          post={postSeleted as Post}
+          dispatch={setVisible}
+          initialIndex={initialMediaIndex}
+        />
+      )}
+
+      {viewCommetsModal && (
+        <NewModalPlaceActions
+          dispatch={setViewCommetsModal}
+          heightInitial={500}
+          heightExpanded={500}
+        >
+          <InteractionsComments postId={postId} />
+        </NewModalPlaceActions>
+      )}
 
       {/* <BottomNavBar theme={theme} navigation={navigation} /> */}
     </SafeAreaView>
@@ -287,17 +382,109 @@ function Feed({
   navigation,
   posts,
   visibleZoomImage,
-  setPostSeletedImages,
+  setPostSeleted,
+  setViewCommetsModal,
+  setRefreshing,
+  setPostId,
+  setInitialMediaIndex,
 }: {
   theme: string;
   navigation: any;
   posts: Post[];
   visibleZoomImage: (visible: boolean) => void;
-  setPostSeletedImages: (images: { uri: string }[]) => void;
+  setPostSeleted: (post: Post | [] | null) => void;
+  setViewCommetsModal: (visible: boolean) => void;
+  setRefreshing: (refreshing: boolean) => void;
+  setPostId: (postId: string) => void;
+  setInitialMediaIndex: (index: number) => void;
 }) {
+  const [postTransformed, setPostTransformed] = useState<Post[]>([]);
+
+  const toggleVote = async (postId: string) => {
+    const token = await AsyncStorage.getItem("jwt");
+    const user_id = await AsyncStorage.getItem("user_id");
+
+    const response = await fetch(
+      // `http://192.168.1.8:8080/api/vote`,
+      `https://back-new-place.onrender.com/api/votes`,
+      {
+        method: "POST",
+        body: JSON.stringify({
+          post_id: postId,
+          user_id: user_id,
+          type_vote: "like",
+        }),
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (response.ok) {
+      const data = await response.json();
+      setRefreshing(true);
+    } else {
+      console.log("Error al votar");
+    }
+  };
+
+  useEffect(() => {
+    const processMedia = async () => {
+      const processed = await Promise.all(
+        posts.map(async (item) => {
+          const transformedMedia = await Promise.all(
+            item.media.map(async (media) => {
+              if (media.type === "video") {
+                try {
+                  const { uri } = await VideoThumbnails.getThumbnailAsync(
+                    media.url,
+                    {
+                      time: 15000,
+                    }
+                  );
+                  return { url: media.url, type: "video", thumbnail: uri };
+                } catch (error) {
+                  console.warn("Error generando thumbnail", error);
+                  return null;
+                }
+              } else {
+                return { url: media.url, type: "image" };
+              }
+            })
+          );
+
+          return {
+            ...item,
+            media: transformedMedia.filter(Boolean),
+          };
+        })
+      );
+
+      setPostTransformed(processed.filter(Boolean) as Post[]);
+    };
+
+    processMedia();
+  }, [posts]);
+
+  if (!posts || posts.length === 0) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <Text
+          style={[
+            { color: theme === "dark" ? "#FFFFFF" : "#000000" },
+            { fontSize: 18 },
+          ]}
+        >
+          No hay publicaciones disponibles.
+        </Text>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.feed}>
-      {posts.map((post) => (
+      {postTransformed?.map((post) => (
         <View
           key={post._id}
           style={[
@@ -367,19 +554,32 @@ function Feed({
                   <TouchableOpacity
                     key={index}
                     onPress={() => {
-                      setPostSeletedImages(
-                        post.media.map((img: any) => {
-                          return { uri: img.url };
-                        })
-                      );
+                      setPostSeleted(post);
                       visibleZoomImage(true);
+                      setInitialMediaIndex(index);
                     }}
                   >
-                    <Image
-                      source={{ uri: image.url }}
-                      style={styles.postImage}
-                      resizeMode="cover"
-                    />
+                    {image.type === "image" ? (
+                      <Image
+                        source={{ uri: image.url }}
+                        style={styles.postImage}
+                        resizeMode="cover"
+                      />
+                    ) : (
+                      <>
+                        <Image
+                          source={{ uri: image.thumbnail }}
+                          style={styles.postImage}
+                        />
+                        <View style={styles.playIconWrapper}>
+                          <Ionicons
+                            name="play-circle"
+                            size={48}
+                            color={"#FF385C"}
+                          />
+                        </View>
+                      </>
+                    )}
                   </TouchableOpacity>
                 ))}
               </ScrollView>
@@ -562,22 +762,36 @@ function Feed({
 
           <View style={styles.postActions}>
             <View style={styles.leftActions}>
-              <TouchableOpacity style={styles.actionButton}>
-                <Ionicons
-                  name="heart-outline"
-                  size={24}
-                  color={theme === "dark" ? "#FFFFFF" : "#000000"}
-                />
+              <TouchableOpacity
+                style={styles.actionButton}
+                onPress={() => toggleVote(post._id)}
+              >
+                {post.likes.hasLiked ? (
+                  <Ionicons name="heart" size={24} color={"#FF385C"} />
+                ) : (
+                  <Ionicons
+                    name="heart-outline"
+                    size={24}
+                    color={theme === "dark" ? "#FFFFFF" : "#000000"}
+                  />
+                )}
+
                 <Text
                   style={[
                     styles.actionCount,
                     { color: theme === "dark" ? "#DDD" : "#666" },
                   ]}
                 >
-                  3
+                  {post.likes.count}
                 </Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.actionButton}>
+              <TouchableOpacity
+                style={styles.actionButton}
+                onPress={() => {
+                  setViewCommetsModal(true);
+                  setPostId(post._id);
+                }}
+              >
                 <Ionicons
                   name="chatbubble-outline"
                   size={22}
@@ -609,6 +823,36 @@ function Feed({
 }
 
 const styles = StyleSheet.create({
+  comingSoonImage: {
+    width: 200,
+    height: 200,
+    marginBottom: 24,
+    borderRadius: 16,
+  },
+  comingSoonTitle: {
+    fontSize: 28,
+    fontWeight: "bold",
+    marginBottom: 16,
+    textAlign: "center",
+  },
+  comingSoonText: {
+    fontSize: 16,
+    textAlign: "center",
+    marginHorizontal: 32,
+    marginBottom: 32,
+    lineHeight: 24,
+  },
+  returnButton: {
+    backgroundColor: "#FF385C",
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 24,
+  },
+  returnButtonText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "600",
+  },
   container: {
     flex: 1,
   },
@@ -879,5 +1123,45 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 12,
     marginTop: 4,
+  },
+  videoThumbnail: {
+    backgroundColor: "#000",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  videoText: {
+    color: "#fff",
+    fontSize: 16,
+  },
+  modalContainer: {
+    flex: 1,
+    backgroundColor: "black",
+    justifyContent: "center",
+  },
+  closeButton: {
+    position: "absolute",
+    top: 40,
+    right: 20,
+    zIndex: 10,
+  },
+  video: {
+    width: "100%",
+    height: 300,
+  },
+  videoWrapper: {
+    position: "relative",
+  },
+
+  playIconWrapper: {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    width: 48,
+    height: 48,
+    backgroundColor: "rgba(255, 255, 255, 0.8)",
+    borderRadius: 24,
+    justifyContent: "center",
+    alignItems: "center",
+    transform: [{ translateX: -24 }, { translateY: -24 }],
   },
 });

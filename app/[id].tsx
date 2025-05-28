@@ -1,13 +1,25 @@
 import { FlatList, StatusBar, StyleSheet, Text, View } from "react-native";
-import { Stack, useLocalSearchParams } from "expo-router";
+import { Stack, useFocusEffect, useLocalSearchParams } from "expo-router";
 import data from "../data.json";
 import CardListCategory from "@/components/cardListCategory";
 import CardListDetailsCategory from "@/components/cardListdetailsCategory";
 import i18n from "@/i18n";
+import { useAuth } from "@/hooks/useAuth";
+import { useCallback } from "react";
 
 export default function DetailsCategory() {
   const { id } = useLocalSearchParams();
   const category = data.DATA.find((item) => item.id === id);
+
+  const { checkoutStatusSesionWithToken } = useAuth();
+
+  useFocusEffect(
+    useCallback(() => {
+      checkoutStatusSesionWithToken();
+
+      return () => {};
+    }, [])
+  );
 
   return (
     <View style={styles.container}>

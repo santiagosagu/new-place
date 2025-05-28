@@ -123,29 +123,48 @@ export const useFetchData = async (
   type: string,
   keyword: string = ""
 ) => {
-  const token = await AsyncStorage.getItem("jwt");
+  try {
+    const token = await AsyncStorage.getItem("jwt");
 
-  console.log("radius", radius);
-  console.log("type", type);
-  console.log("keyword", keyword);
-
-  const response = await fetch(
-    // `http://192.168.1.6:8080/api/places?lat=${latitude}&lng=${longitude}&type=${type}&keyword=${keyword}&radius=${radius}`,
-    `https://back-new-place-production.up.railway.app/api/places?lat=${latitude}&lng=${longitude}&type=${type}&keyword=${keyword}&radius=${radius}`,
-    {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
+    if (!token) {
+      throw new Error("No se encontró el token de autenticación");
     }
-  );
 
-  if (!response.ok) {
-    throw new Error("Error al verificar el token");
+    console.log("radius", radius);
+    console.log("type", type);
+    console.log("keyword", keyword);
+
+    const response = await fetch(
+      `https://back-new-place.onrender.com/api/places?lat=${latitude}&lng=${longitude}&category=${type}`,
+      // `http://192.168.1.7:8080/api/places?lat=${latitude}&lng=${longitude}&category=${type}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        throw new Error("Token de autenticación inválido o expirado");
+      } else if (response.status >= 500) {
+        throw new Error("Error en el servidor, por favor intente más tarde");
+      } else {
+        throw new Error(`Error en la petición: ${response.status}`);
+      }
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error(`Error al obtener lugares: ${error.message}`);
+    } else {
+      throw new Error("Error desconocido al obtener lugares");
+    }
   }
-
-  return response.json();
 };
 
 // export const usePlaceNavigate = () => {
@@ -267,8 +286,6 @@ export const usePlaceNavigate = () => {
   const THRESHOLD_DISTANCE = 5; // Distancia en metros para considerar al usuario "en la ruta"
 
   const navigatePlace = async (from: number[], to: number[]) => {
-    console.log("me ejecute");
-
     const url = `https://api.mapbox.com/directions/v5/mapbox/driving-traffic/${
       from[0]
     }%2C${from[1]}%3B${to[0]}%2C${
@@ -280,6 +297,8 @@ export const usePlaceNavigate = () => {
     try {
       const response = await fetch(url);
       const data = await response.json();
+
+      console.log("data", data);
 
       if (data) {
         setInstructions(data.routes[0].legs[0].steps);
