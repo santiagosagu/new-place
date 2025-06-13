@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "687742350430",
+    "project_id": "newplace-3256f",
+    "storage_bucket": "newplace-3256f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:687742350430:android:a1e719198917c14d11f0cf",
+        "android_client_info": {
+          "package_name": "com.anonymous.newplace"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBLO6cLzRAjerpOunVLjiltQ9IpuqUgNQI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
