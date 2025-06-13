@@ -56,6 +56,7 @@ export default function DetailsCategory() {
             radius={item.radius}
             type={item.type}
             keyword={item.keyword}
+            contributions={item.contributions}
           />
         )}
         keyExtractor={(item) => item.title}

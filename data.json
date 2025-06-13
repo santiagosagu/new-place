@@ -10,49 +10,105 @@
           "keyword": "",
           "radius": "100",
           "type": "restaurant",
-          "color": "#4DA1A9"
+          "color": "#4DA1A9",
+          "contributions": [
+            "wifi",
+            "parking",
+            "delivery",
+            "payment_methods",
+            "accessibility",
+            "atmosphere_and_experience"
+          ]
         },
         {
           "title": "cafeterias",
           "keyword": "coffee shop| cofee| bakeries| panaderia",
           "radius": "3000",
           "type": "coffee_shop",
-          "color": "#DEAA79"
+          "color": "#DEAA79",
+          "contributions": [
+            "wifi",
+            "parking",
+            "delivery",
+            "payment_methods",
+            "accessibility",
+            "atmosphere_and_experience"
+          ]
         },
         {
           "title": "bares",
           "keyword": "",
           "radius": "3000",
           "type": "bar",
-          "color": "#78B7D0"
+          "color": "#78B7D0",
+          "contributions": [
+            "wifi",
+            "parking",
+            "delivery",
+            "payment_methods",
+            "accessibility",
+            "atmosphere_and_experience"
+          ]
         },
         {
           "title": "comidas rapidas",
           "keyword": "fast food",
           "radius": "3000",
           "type": "fast_food",
-          "color": "#F2E5BF"
+          "color": "#F2E5BF",
+          "contributions": [
+            "wifi",
+            "parking",
+            "delivery",
+            "payment_methods",
+            "accessibility",
+            "atmosphere_and_experience"
+          ]
         },
         {
           "title": "Pizza",
           "keyword": "pizza restaurant",
           "radius": "3000",
           "type": "pizza_restaurant",
-          "color": "#F2E5BF"
+          "color": "#F2E5BF",
+          "contributions": [
+            "wifi",
+            "parking",
+            "delivery",
+            "payment_methods",
+            "accessibility",
+            "atmosphere_and_experience"
+          ]
         },
         {
           "title": "Heladerias",
           "keyword": "ice cream",
           "radius": "3000",
           "type": "ice_cream",
-          "color": "#F2E5BF"
+          "color": "#F2E5BF",
+          "contributions": [
+            "wifi",
+            "parking",
+            "delivery",
+            "payment_methods",
+            "accessibility",
+            "atmosphere_and_experience"
+          ]
         },
         {
           "title": "Restaurante Vegetariano",
           "keyword": "vegetarian restaurant",
           "radius": "5000",
           "type": "vegetarian_restaurant",
-          "color": "#F2E5BF"
+          "color": "#F2E5BF",
+          "contributions": [
+            "wifi",
+            "parking",
+            "delivery",
+            "payment_methods",
+            "accessibility",
+            "atmosphere_and_experience"
+          ]
         },
 
         {
@@ -60,7 +116,15 @@
           "keyword": "chinese restaurant",
           "radius": "5000",
           "type": "chinese_restaurant",
-          "color": "#F2E5BF"
+          "color": "#F2E5BF",
+          "contributions": [
+            "wifi",
+            "parking",
+            "delivery",
+            "payment_methods",
+            "accessibility",
+            "atmosphere_and_experience"
+          ]
         }
       ]
     },
@@ -74,29 +138,56 @@
           "keyword": "hotel",
           "radius": "5000",
           "type": "hotel",
-
-          "color": "#F2E5BF"
+          "color": "#F2E5BF",
+          "contributions": [
+            "wifi",
+            "parking",
+            "payment_methods",
+            "accessibility",
+            "atmosphere_and_experience"
+          ]
         },
         {
           "title": "Glamping",
           "keyword": "campground| glamping",
           "radius": "6000",
           "type": "glamping",
-          "color": "#C96868"
+          "color": "#C96868",
+          "contributions": [
+            "wifi",
+            "parking",
+            "payment_methods",
+            "accessibility",
+            "atmosphere_and_experience"
+          ]
         },
         {
           "title": "hotel resort",
           "keyword": "hotel resort",
           "radius": "5000",
           "type": "hotel_resort",
-          "color": "red"
+          "color": "red",
+          "contributions": [
+            "wifi",
+            "parking",
+            "payment_methods",
+            "accessibility",
+            "atmosphere_and_experience"
+          ]
         },
         {
           "title": "Hostal",
           "keyword": "hostel",
           "radius": "5000",
           "type": "hostel",
-          "color": "red"
+          "color": "red",
+          "contributions": [
+            "wifi",
+            "parking",
+            "payment_methods",
+            "accessibility",
+            "atmosphere_and_experience"
+          ]
         }
       ]
     },
@@ -110,35 +201,75 @@
           "keyword": "shopping mall",
           "radius": "3000",
           "type": "shopping_mall",
-          "color": "#79D7BE"
+          "color": "#79D7BE",
+          "contributions": [
+            "wifi",
+            "parking",
+            "delivery",
+            "payment_methods",
+            "accessibility",
+            "atmosphere_and_experience"
+          ]
         },
         {
           "title": "Supermercados",
           "keyword": "supermercados|tiendas",
           "radius": "3000",
           "type": "supermarket",
-          "color": "#F2E5BF"
+          "color": "#F2E5BF",
+          "contributions": [
+            "wifi",
+            "parking",
+            "delivery",
+            "payment_methods",
+            "accessibility",
+            "atmosphere_and_experience"
+          ]
         },
         {
           "title": "Mascotas",
           "keyword": "",
           "radius": "3000",
           "type": "pet_store",
-          "color": "#FFF4EA"
+          "color": "#FFF4EA",
+          "contributions": [
+            "wifi",
+            "parking",
+            "delivery",
+            "payment_methods",
+            "accessibility",
+            "atmosphere_and_experience"
+          ]
         },
         {
           "title": "Articulos deportivos",
           "keyword": "",
           "radius": "3000",
           "type": "sporting_goods_store",
-          "color": "#C96868"
+          "color": "#C96868",
+          "contributions": [
+            "wifi",
+            "parking",
+            "delivery",
+            "payment_methods",
+            "accessibility",
+            "atmosphere_and_experience"
+          ]
         },
         {
           "title": "Joyeria",
           "keyword": "jewelry store",
           "radius": "3000",
           "type": "jewelry_store",
-          "color": "#F2E5BF"
+          "color": "#F2E5BF",
+          "contributions": [
+            "wifi",
+            "parking",
+            "delivery",
+            "payment_methods",
+            "accessibility",
+            "atmosphere_and_experience"
+          ]
         }
       ]
     },
@@ -152,77 +283,99 @@
           "keyword": "park",
           "radius": "3000",
           "type": "park",
-          "color": "#79D7BE"
+          "color": "#79D7BE",
+          "contributions": []
         },
         {
           "title": "parques de atracciones",
           "keyword": "amusement park",
           "radius": "5000",
           "type": "amusement_park",
-          "color": "#F2E5BF"
-        },
-        {
-          "title": "Acuario",
-          "keyword": "aquarium",
-          "radius": "5000",
-          "type": "aquarium",
-          "color": "#7E5CAD"
+          "color": "#F2E5BF",
+          "contributions": [
+            "parking",
+            "payment_methods",
+            "accessibility",
+            "atmosphere_and_experience"
+          ]
         },
         {
           "title": "Jardin botanico",
           "keyword": "botanical garden",
           "radius": "5000",
           "type": "botanical_garden",
-          "color": "#7E5CAD"
+          "color": "#7E5CAD",
+          "contributions": []
         },
         {
           "title": "Cines",
           "keyword": "movie theater|cine",
           "radius": "5000",
           "type": "movie_theater",
-          "color": "#7E5CAD"
+          "color": "#7E5CAD",
+          "contributions": [
+            "wifi",
+            "parking",
+            "payment_methods",
+            "accessibility",
+            "atmosphere_and_experience"
+          ]
         },
         {
           "title": "Bolera",
           "keyword": "bowling alley|bolos",
           "radius": "5000",
           "type": "bowling_alley",
-          "color": "#7E5CAD"
-        },
-        {
-          "title": "Club de comedia",
-          "keyword": "comedy club",
-          "radius": "5000",
-          "type": "comedy_club",
-          "color": "#7E5CAD"
-        },
-        {
-          "title": "Sala de conciertos",
-          "keyword": "concert hall",
-          "radius": "5000",
-          "type": "concert_hall",
-          "color": "#7E5CAD"
+          "color": "#7E5CAD",
+          "contributions": [
+            "wifi",
+            "parking",
+            "payment_methods",
+            "accessibility",
+            "atmosphere_and_experience"
+          ]
         },
         {
           "title": "Salón de baile",
           "keyword": "dance hall|dance",
           "radius": "5000",
           "type": "dance_hall",
-          "color": "#7E5CAD"
+          "color": "#7E5CAD",
+          "contributions": [
+            "wifi",
+            "parking",
+            "payment_methods",
+            "accessibility",
+            "atmosphere_and_experience"
+          ]
         },
         {
           "title": "karaoke",
           "keyword": "karaoke",
           "radius": "4000",
           "type": "karaoke",
-          "color": "#7E5CAD"
+          "color": "#7E5CAD",
+          "contributions": [
+            "wifi",
+            "parking",
+            "payment_methods",
+            "accessibility",
+            "atmosphere_and_experience"
+          ]
         },
         {
           "title": "atracción turística",
           "keyword": "tourist attraction",
           "radius": "5000",
           "type": "tourist_attraction",
-          "color": "#7E5CAD"
+          "color": "#7E5CAD",
+          "contributions": [
+            "wifi",
+            "parking",
+            "payment_methods",
+            "accessibility",
+            "atmosphere_and_experience"
+          ]
         }
       ]
     },
@@ -236,28 +389,56 @@
           "keyword": "",
           "radius": "5000",
           "type": "school",
-          "color": "#79D7BE"
+          "color": "#79D7BE",
+          "contributions": [
+            "wifi",
+            "parking",
+            "payment_methods",
+            "accessibility",
+            "atmosphere_and_experience"
+          ]
         },
         {
           "title": "universidades",
           "keyword": "",
           "radius": "5000",
           "type": "university",
-          "color": "#F2E5BF"
+          "color": "#F2E5BF",
+          "contributions": [
+            "wifi",
+            "parking",
+            "payment_methods",
+            "accessibility",
+            "atmosphere_and_experience"
+          ]
         },
         {
           "title": "preescolar",
           "keyword": "preescolar|guarderias|jardin infantil",
           "radius": "5000",
           "type": "preschool",
-          "color": "#7E5CAD"
+          "color": "#7E5CAD",
+          "contributions": [
+            "wifi",
+            "parking",
+            "payment_methods",
+            "accessibility",
+            "atmosphere_and_experience"
+          ]
         },
         {
           "title": "Bibliotecas",
           "keyword": "bibliotecas",
           "radius": "3000",
           "type": "library",
-          "color": "#F2E5BF"
+          "color": "#F2E5BF",
+          "contributions": [
+            "wifi",
+            "parking",
+            "payment_methods",
+            "accessibility",
+            "atmosphere_and_experience"
+          ]
         }
       ]
     },
@@ -271,56 +452,110 @@
           "keyword": "",
           "radius": "3000",
           "type": "hospital",
-          "color": "#F2E5BF"
+          "color": "#F2E5BF",
+          "contributions": [
+            "wifi",
+            "parking",
+            "payment_methods",
+            "accessibility",
+            "atmosphere_and_experience"
+          ]
         },
         {
           "title": "consultorios medicos",
           "keyword": "",
           "radius": "3000",
           "type": "doctor",
-          "color": "#7E5CAD"
+          "color": "#7E5CAD",
+          "contributions": [
+            "wifi",
+            "parking",
+            "payment_methods",
+            "accessibility",
+            "atmosphere_and_experience"
+          ]
         },
         {
           "title": "Farmacias",
           "keyword": "",
           "radius": "3000",
           "type": "pharmacy",
-          "color": "#79D7BE"
+          "color": "#79D7BE",
+          "contributions": [
+            "wifi",
+            "parking",
+            "payment_methods",
+            "accessibility",
+            "atmosphere_and_experience"
+          ]
         },
         {
           "title": "Dentistas",
           "keyword": "",
           "radius": "3000",
           "type": "dentist",
-          "color": "#79D7BE"
+          "color": "#79D7BE",
+          "contributions": [
+            "wifi",
+            "parking",
+            "payment_methods",
+            "accessibility",
+            "atmosphere_and_experience"
+          ]
         },
         {
           "title": "Veterinarias",
           "keyword": "",
           "radius": "3000",
           "type": "veterinary_care",
-          "color": "#79D7BE"
+          "color": "#79D7BE",
+          "contributions": [
+            "wifi",
+            "parking",
+            "payment_methods",
+            "accessibility",
+            "atmosphere_and_experience"
+          ]
         },
         {
           "title": "GYM",
           "keyword": "",
           "radius": "3000",
           "type": "gym",
-          "color": "#79D7BE"
+          "color": "#79D7BE",
+          "contributions": [
+            "wifi",
+            "parking",
+            "payment_methods",
+            "accessibility",
+            "atmosphere_and_experience"
+          ]
         },
         {
           "title": "Campo de golf",
           "keyword": "golf",
           "radius": "3000",
           "type": "golf_course",
-          "color": "#79D7BE"
+          "color": "#79D7BE",
+          "contributions": [
+            "parking",
+            "payment_methods",
+            "accessibility",
+            "atmosphere_and_experience"
+          ]
         },
         {
           "title": "Campo atlético",
           "keyword": "athletic field",
           "radius": "3000",
           "type": "athletic_field",
-          "color": "#79D7BE"
+          "color": "#79D7BE",
+          "contributions": [
+            "parking",
+            "payment_methods",
+            "accessibility",
+            "atmosphere_and_experience"
+          ]
         }
       ]
     },
@@ -334,7 +569,13 @@
           "keyword": "",
           "radius": "3000",
           "type": "church",
-          "color": "#F2E5BF"
+          "color": "#F2E5BF",
+          "contributions": [
+            "wifi",
+            "parking",
+            "accessibility",
+            "atmosphere_and_experience"
+          ]
         }
       ]
     },
@@ -348,35 +589,49 @@
           "keyword": "",
           "radius": "3000",
           "type": "gas_station",
-          "color": "#7E5CAD"
+          "color": "#7E5CAD",
+          "contributions": [
+            "parking",
+            "payment_methods",
+            "accessibility",
+            "atmosphere_and_experience"
+          ]
         },
         {
           "title": "Bancos Y Cajeros",
           "keyword": "",
           "radius": "3000",
           "type": "bank|atm",
-          "color": "#7E5CAD"
+          "color": "#7E5CAD",
+          "contributions": [
+            "parking",
+            "accessibility",
+            "atmosphere_and_experience"
+          ]
         },
         {
           "title": "Policia",
           "keyword": "",
           "radius": "3000",
           "type": "police",
-          "color": "#7E5CAD"
+          "color": "#7E5CAD",
+          "contributions": []
         },
         {
           "title": "Estacion de bomberos",
           "keyword": "",
           "radius": "5000",
           "type": "fire_station",
-          "color": "#79D7BE"
+          "color": "#79D7BE",
+          "contributions": []
         },
         {
           "title": "Embajada",
           "keyword": "embassy",
           "radius": "5000",
           "type": "embassy",
-          "color": "#79D7BE"
+          "color": "#79D7BE",
+          "contributions": []
         }
       ]
     }

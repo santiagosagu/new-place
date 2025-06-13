@@ -293,6 +293,7 @@ export default function Itineraries() {
     );
   };
 
+  //TODO: coming soon page
   if (2 > 1) {
     return (
       <View

@@ -10,13 +10,16 @@ import {
   View,
 } from "react-native";
 import { AirbnbRating, Rating } from "react-native-ratings";
+import Toast from "react-native-toast-message";
 
 export default function FormCommentsPlaceDetails({
   placeId,
   setModalVisible,
+  setRelounding,
 }: {
   placeId: string;
   setModalVisible: (visible: boolean) => void;
+  setRelounding: (reloading: boolean) => void;
 }) {
   const backgroundColor = useThemeColor({}, "background");
   const cardColor = useThemeColor({}, "cardBackground");
@@ -36,28 +39,59 @@ export default function FormCommentsPlaceDetails({
 
     console.log("user_id", user_id);
 
-    const response = await fetch(
-      // `http://192.168.1.7:8080/api/place-add-comment`,
-      `https://back-new-place.onrender.com/api/place-add-comment`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          place_id: placeId,
-          user_id: user_id,
-          email: "danielsantiagono10@gmail.com",
-          rating: review.rating,
-          comment: review.comment,
-        }),
-      }
-    );
+    try {
+      const response = await fetch(
+        // `http://192.168.1.2:8080/api/place-add-comment`,
+        `https://back-new-place.onrender.com/api/place-add-comment`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            place_id: placeId,
+            user_id: user_id,
+            rating: review.rating,
+            comment: review.comment,
+          }),
+        }
+      );
 
-    if (response.ok) {
-      const data = await response.json();
-      console.log(data);
+      if (response.ok) {
+        const data = await response.json();
+        console.log(data);
+        setRelounding(true);
+        Toast.show({
+          type: "success", // o "success", "info"
+          text1: "Comentario agregado",
+          text2: `${data.message}`,
+          position: "top",
+          visibilityTime: 8000, // duración en milisegundos (6 segundos)
+          text1Style: {
+            fontSize: 18,
+            fontWeight: "bold",
+          },
+          text2Style: {
+            fontSize: 14,
+          },
+        });
+      }
+    } catch (error) {
+      Toast.show({
+        type: "error", // o "success", "info"
+        text1: "Error al navegar",
+        text2: `${(error as Error).message}`,
+        position: "top",
+        visibilityTime: 8000, // duración en milisegundos (6 segundos)
+        text1Style: {
+          fontSize: 18,
+          fontWeight: "bold",
+        },
+        text2Style: {
+          fontSize: 14,
+        },
+      });
     }
   };
 

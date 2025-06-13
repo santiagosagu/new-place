@@ -97,7 +97,7 @@ export default function HomeScreen() {
 
   //   const response = await fetch(
   //     // `http://192.168.1.7:8080/api/post?user_id=${user_id}`,
-  //     `https://back-new-place-production.up.railway.app/api/post?user_id=${user_id}`,
+  //     `https://back-new-place.onrender.com/api/post?user_id=${user_id}`,
   //     {
   //       method: "GET",
   //       headers: {
@@ -133,6 +133,7 @@ export default function HomeScreen() {
   //   getPosts();
   // }, [refreshing]);
 
+  //TODO: comming soon social network people
   if (2 > 1) {
     return (
       <View

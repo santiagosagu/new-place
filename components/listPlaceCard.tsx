@@ -9,7 +9,7 @@ import {
 import { IconStar, IconStarFilled } from "./ui/iconsList";
 import { useLocation } from "@/hooks/location/useLocation";
 import { useThemeColor } from "@/hooks/useThemeColor";
-import { AntDesign } from "@expo/vector-icons";
+import { AntDesign, Ionicons } from "@expo/vector-icons";
 
 const notImage = require("@/assets/images/notImage.png");
 
@@ -65,7 +65,7 @@ export default function ListPlaceCard({
   });
 
   return (
-    <View style={{ marginTop: 10 }}>
+    <View style={{ marginTop: 10, paddingBottom: 80 }}>
       <FlatList
         data={sortedData}
         keyExtractor={(item) => item.placeIdProvider}
@@ -102,7 +102,8 @@ export default function ListPlaceCard({
                   <Text style={[styles.name, { color: colorText }]}>
                     {item.name}
                   </Text>
-                  {item?.openingHours?.open_now ? (
+                  {/* //TODO:falta logica si el lugar esta abierto o cerrado */}
+                  {/* {item?.openingHours?.open_now ? (
                     <View
                       style={{
                         paddingVertical: 8,
@@ -156,10 +157,24 @@ export default function ListPlaceCard({
                         Cerrado
                       </Text>
                     </View>
-                  )}
-                  <Text style={[styles.distance, { color: colorText }]}>
-                    {distance.toFixed(2)} km
-                  </Text>
+                  )} */}
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      width: 100,
+                      gap: 5,
+                      alignItems: "center",
+                    }}
+                  >
+                    <Ionicons
+                      name="location-outline"
+                      size={20}
+                      color="#FF385C"
+                    />
+                    <Text style={[styles.distance, { color: colorText }]}>
+                      {distance.toFixed(2)} km
+                    </Text>
+                  </View>
                   <View style={styles.rating}>
                     {[...Array(5)].map((_, i) => (
                       <AntDesign
@@ -176,10 +191,10 @@ export default function ListPlaceCard({
                         fontSize: 14,
                         fontWeight: "600",
                         color: colorText,
+                        marginLeft: 4,
                       }}
                     >
-                      {" "}
-                      reviews: ({item.userRatingTotal})
+                      reviews: ({item.ratingCount})
                     </Text>
                   </View>
                 </View>

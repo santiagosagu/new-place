@@ -23,6 +23,7 @@ const QuickAccess = ({ theme }: { theme: any }) => {
       radius: data.DATA[0].category[0].radius,
       keyword: data.DATA[0].category[0].keyword,
       type: data.DATA[0].category[0].type,
+      contributions: data.DATA[0].category[0].contributions,
     },
     {
       id: 2,
@@ -32,6 +33,7 @@ const QuickAccess = ({ theme }: { theme: any }) => {
       radius: data.DATA[1].category[0].radius,
       keyword: data.DATA[1].category[0].keyword,
       type: data.DATA[1].category[0].type,
+      contributions: data.DATA[1].category[0].contributions,
     },
     {
       id: 3,
@@ -41,24 +43,27 @@ const QuickAccess = ({ theme }: { theme: any }) => {
       radius: data.DATA[7].category[0].radius,
       keyword: data.DATA[7].category[0].keyword,
       type: data.DATA[7].category[0].type,
+      contributions: data.DATA[7].category[0].contributions,
     },
     {
       id: 4,
       title: "Atracciones",
       icon: "map-marker-alt",
       color: "#4361EE",
-      radius: data.DATA[3].category[10].radius,
-      keyword: data.DATA[3].category[10].keyword,
-      type: data.DATA[3].category[10].type,
+      radius: data.DATA[3].category[7].radius,
+      keyword: data.DATA[3].category[7].keyword,
+      type: data.DATA[3].category[7].type,
+      contributions: data.DATA[3].category[7].contributions,
     },
     {
       id: 5,
-      title: "Tiendas",
+      title: "centros comerciales",
       icon: "shopping-bag",
       color: "#4CC9F0",
       radius: data.DATA[2].category[0].radius,
       keyword: data.DATA[2].category[0].keyword,
       type: data.DATA[2].category[0].type,
+      contributions: data.DATA[2].category[0].contributions,
     },
     {
       id: 6,
@@ -68,6 +73,7 @@ const QuickAccess = ({ theme }: { theme: any }) => {
       radius: data.DATA[5].category[0].radius,
       keyword: data.DATA[5].category[0].keyword,
       type: data.DATA[5].category[0].type,
+      contributions: data.DATA[5].category[0].contributions,
     },
     {
       id: 7,
@@ -77,15 +83,17 @@ const QuickAccess = ({ theme }: { theme: any }) => {
       radius: data.DATA[2].category[2].radius,
       keyword: data.DATA[2].category[2].keyword,
       type: data.DATA[2].category[2].type,
+      contributions: data.DATA[2].category[2].contributions,
     },
     {
       id: 8,
-      title: "Bancos",
+      title: "Bancos y cajeros",
       icon: "university",
       color: "#F8961E",
       radius: data.DATA[7].category[1].radius,
       keyword: data.DATA[7].category[1].keyword,
       type: data.DATA[7].category[1].type,
+      contributions: data.DATA[7].category[1].contributions,
     },
   ];
 
@@ -111,6 +119,7 @@ const QuickAccess = ({ theme }: { theme: any }) => {
                 radius: item.radius,
                 keyword: item.keyword,
                 type: item.type,
+                contributions: item.contributions,
               },
             }}
             asChild

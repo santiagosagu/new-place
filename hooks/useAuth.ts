@@ -3,6 +3,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import { onAuthStateChanged } from "firebase/auth";
 import { useEffect, useState } from "react";
+import Toast from "react-native-toast-message";
 
 interface User {
   uid: string;
@@ -53,7 +54,7 @@ export function useAuth() {
 
       // Función para verificar si ya se almacenó el token JWT
       const verifyToken = async (
-        retries = 3,
+        retries = 5,
         delay = 1000
       ): Promise<string | null> => {
         for (let i = 0; i < retries; i++) {
@@ -79,6 +80,7 @@ export function useAuth() {
       // Verificamos el token con el backend
       try {
         const response = await fetch(
+          // "http://192.168.1.2:8080/api/status-token",
           "https://back-new-place.onrender.com/api/status-token",
           {
             method: "GET",
@@ -95,6 +97,20 @@ export function useAuth() {
         return true;
       } catch (error) {
         console.error("Error al verificar el token:", error);
+        Toast.show({
+          type: "error", // o "success", "info"
+          text1: "Error",
+          text2: `"Error al verificar el token:", ${error}`,
+          position: "top",
+          visibilityTime: 8000, // duración en milisegundos (6 segundos)
+          text1Style: {
+            fontSize: 18,
+            fontWeight: "bold",
+          },
+          text2Style: {
+            fontSize: 14,
+          },
+        });
         await AsyncStorage.removeItem("jwt");
         await auth.signOut();
         return router.push("/login");

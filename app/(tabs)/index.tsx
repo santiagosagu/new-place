@@ -22,6 +22,8 @@ import QuickAccess from "@/components/QuickAccess";
 import FeaturedSection from "@/components/FeaturedSection";
 import RedSocialSection from "@/components/RedSocialSection";
 import { useAuth } from "@/hooks/useAuth";
+import SavedPlaces from "@/components/home/savedPlaces";
+import { useSavePlaceData } from "@/services/home/useSavePlaceData";
 
 const { width } = Dimensions.get("window");
 
@@ -30,9 +32,41 @@ const HomeScreen = () => {
   const [darkMode, setDarkMode] = useState(systemColorScheme === "dark");
 
   const [refreshing, setRefreshing] = useState(false);
+
+  const {
+    data: savePlaceData,
+    loading: loadingSavePlaces,
+    error: errorSavePlaces,
+    setRefreshing: setRefreshingSavePlaces,
+  } = useSavePlaceData();
+
+  useEffect(() => {
+    if (loadingSavePlaces) return;
+    if (errorSavePlaces) {
+      console.log("Error en index:", (errorSavePlaces as Error).message);
+    } else {
+      console.log("index", savePlaceData);
+    }
+  }, [savePlaceData, loadingSavePlaces, errorSavePlaces]);
+
   const insets = useSafeAreaInsets();
 
   const { user, logout, checkoutStatusSesionWithToken } = useAuth();
+
+  useFocusEffect(
+    useCallback(() => {
+      const refresData = async () => {
+        setRefreshing(true);
+        setRefreshingSavePlaces(true);
+        setTimeout(() => {
+          setRefreshing(false);
+          setRefreshingSavePlaces(false);
+        });
+      };
+
+      refresData();
+    }, [])
+  );
 
   useFocusEffect(
     useCallback(() => {
@@ -62,10 +96,14 @@ const HomeScreen = () => {
     setDarkMode(systemColorScheme === "dark");
   }, [systemColorScheme]);
 
-  //   const onRefresh = () => {
-  //     setRefreshing(true);
-  //     fetchWeather();
-  //   };
+  const onRefresh = () => {
+    setRefreshing(true);
+    setRefreshingSavePlaces(true);
+    setTimeout(() => {
+      setRefreshing(false);
+      setRefreshingSavePlaces(false);
+    }, 1000);
+  };
 
   // console.log(user);
 
@@ -137,7 +175,7 @@ const HomeScreen = () => {
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
-            // onRefresh={onRefresh}
+            onRefresh={onRefresh}
             colors={[theme.primary]}
           />
         }
@@ -145,9 +183,18 @@ const HomeScreen = () => {
         <RenderWeatherCard theme={theme} />
         <QuickAccess theme={theme} />
 
-        <FeaturedSection theme={theme} />
+        {/* {!errorSavePlaces && ( */}
+        <SavedPlaces
+          theme={theme}
+          savePlaceData={savePlaceData}
+          loadingPlaces={loadingSavePlaces}
+          errorSavePlaces={errorSavePlaces}
+        />
+        {/* )} */}
 
-        <RedSocialSection theme={theme} />
+        {/* <FeaturedSection theme={theme} /> */}
+
+        {/* <RedSocialSection theme={theme} /> */}
 
         <View style={styles.bottomSpacer} />
       </ScrollView>

@@ -5,6 +5,11 @@ type RouteState = {
   inOnRoute: boolean;
   place: any;
   route: any[];
+  alternateRoutes: any[];
+  dataAditionalTravel: {
+    distance: number;
+    duration: number;
+  } | null;
   traficData: any[];
   matchedData: any;
   instructions: any[];
@@ -15,6 +20,11 @@ type RouteState = {
   setInOnRoute: (inOnRoute: boolean) => void;
   setPlace: (place: any) => void;
   setRoute: (route: any[]) => void;
+  setAlternateRoutes: (alternateRoutes: any[]) => void;
+  setDataAditionalTravel: (dataAditionalTravel: {
+    distance: number;
+    duration: number;
+  }) => void;
   setTraficData: (traficData: any[]) => void;
   setMatchedData: (matchedData: any) => void;
   setInstructions: (instructions: any[]) => void;
@@ -28,6 +38,8 @@ export const usePlaceNavigateContext = create<RouteState>()((set) => ({
   inOnRoute: false,
   place: null,
   route: [],
+  alternateRoutes: [],
+  dataAditionalTravel: null,
   traficData: [],
   matchedData: [],
   instructions: [],
@@ -38,6 +50,8 @@ export const usePlaceNavigateContext = create<RouteState>()((set) => ({
   setInOnRoute: (inOnRoute) => set({ inOnRoute }),
   setMatchedData: (matchedData) => set({ matchedData }),
   setRoute: (route) => set({ route }),
+  setAlternateRoutes: (alternateRoutes) => set({ alternateRoutes }),
+  setDataAditionalTravel: (dataAditionalTravel) => set({ dataAditionalTravel }),
   setTraficData: (traficData) => set({ traficData }),
   setPlace: (place) => set({ place }),
   setInstructions: (instructions) => set({ instructions }),

@@ -1,27 +1,16 @@
-import ViewMap from "@/components/viewMap";
 import ViewMapMapbox from "@/components/viewMapMapbox";
 import { useLocation } from "@/hooks/location/useLocation";
 import { useFetchData } from "@/hooks/maps/usemaps";
-import {
-  Navigator,
-  Stack,
-  useFocusEffect,
-  useLocalSearchParams,
-} from "expo-router";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { Stack, useLocalSearchParams } from "expo-router";
+import { useEffect, useRef, useState } from "react";
 import i18n from "@/i18n";
-import { ActivityIndicator, StyleSheet, Text, View, Image } from "react-native";
-import * as Location from "expo-location";
+import { StyleSheet, Text, View } from "react-native";
 import Rive, { RiveRef } from "rive-react-native";
-import { Pressable } from "react-native-gesture-handler";
 import { usePlaceNavigateContext } from "@/context/placeNavigateContext";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useAuth } from "@/hooks/useAuth";
 
 export default function ViewMapsCategory() {
-  const { title, radius, type, keyword } = useLocalSearchParams();
-
-  console.log(title);
+  const { title, radius, type, keyword, contributions } =
+    useLocalSearchParams();
 
   const { location } = useLocation();
   const [latitude, setLatitude] = useState("");
@@ -52,29 +41,26 @@ export default function ViewMapsCategory() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const token = await AsyncStorage.getItem("jwt");
-      if (token) {
-        if (!dataLoaded && latitude && longitude) {
-          setIsLoading(true);
-          setError(null);
-          try {
-            const data = await useFetchData(
-              latitude,
-              longitude,
-              radius.toString(),
-              type.toString(),
-              keyword.toString()
-            );
-            setResultPlaces(data);
-            setDataLoaded(true);
-          } catch (err) {
-            setError(
-              err instanceof Error ? err.message : "Error al cargar los lugares"
-            );
-            console.error("Error al cargar lugares:", err);
-          } finally {
-            setIsLoading(false);
-          }
+      if (!dataLoaded && latitude && longitude) {
+        setIsLoading(true);
+        setError(null);
+        try {
+          const data = await useFetchData(
+            latitude,
+            longitude,
+            radius.toString(),
+            type.toString(),
+            keyword.toString()
+          );
+          setResultPlaces(data);
+          setDataLoaded(true);
+        } catch (err) {
+          setError(
+            err instanceof Error ? err.message : "Error al cargar los lugares"
+          );
+          console.error("Error al cargar lugares:", err);
+        } finally {
+          setIsLoading(false);
         }
       }
     };
@@ -109,8 +95,6 @@ export default function ViewMapsCategory() {
 
     return () => clearInterval(interval);
   }, []);
-
-  console.log(resultPlaces.places);
 
   return (
     <View style={styles.container}>
@@ -175,13 +159,14 @@ export default function ViewMapsCategory() {
             </View>
           </View>
         </View>
-      ) : location || (!isLoading && location) ? (
+      ) : !isLoading && location ? (
         <ViewMapMapbox
           data={resultPlaces.places || []}
           latitude={latitude}
           longitude={longitude}
           title={title}
           category={type}
+          contributions={contributions}
         />
       ) : (
         <View

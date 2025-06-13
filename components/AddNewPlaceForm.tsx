@@ -17,17 +17,21 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 interface AddNewPlaceFormProps {
   category: string;
+  title: string;
   selectedPoint: {
     longitude: number;
     latitude: number;
   } | null;
   dispatch: React.Dispatch<React.SetStateAction<boolean>>;
+  contributions: string;
 }
 
 export default function AddNewPlaceForm({
   category,
   selectedPoint,
+  title,
   dispatch,
+  contributions,
 }: AddNewPlaceFormProps) {
   const cardColor = useThemeColor({}, "cardBackground");
   const secondaryTextColor = useThemeColor({}, "subtext");
@@ -35,6 +39,11 @@ export default function AddNewPlaceForm({
 
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+
+  console.log(
+    "contributions",
+    typeof contributions === "string" ? contributions.split(",") : contributions
+  );
 
   const [images, setImages] = useState<
     { uri: string; mimeType?: string; fileName?: string }[]
@@ -100,7 +109,6 @@ export default function AddNewPlaceForm({
     }
 
     setIsLoading(true);
-    console.log("entre aqui");
 
     const user_id = await AsyncStorage.getItem("user_id");
 
@@ -112,6 +120,7 @@ export default function AddNewPlaceForm({
       formData.append("longitude", selectedPoint.longitude.toString());
       formData.append("user_id", user_id || "");
       formData.append("category", category);
+      formData.append("contributions", contributions);
 
       images.forEach((image, index) => {
         formData.append("media", {
@@ -122,7 +131,7 @@ export default function AddNewPlaceForm({
       });
 
       const response = await fetch(
-        // "http://192.168.1.7:8080/api/new-place",
+        // "http://192.168.1.2:8080/api/new-place",
         "https://back-new-place.onrender.com/api/new-place",
         {
           method: "POST",
@@ -188,7 +197,7 @@ export default function AddNewPlaceForm({
           ]}
         >
           {" "}
-          {category}
+          {title}
         </Text>
       </Text>
       <Text

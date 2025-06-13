@@ -13,6 +13,7 @@ import {
   ActivityIndicator,
   Pressable,
   Platform,
+  RefreshControl,
 } from "react-native";
 import { useRoute, useNavigation } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -22,6 +23,7 @@ import {
   FontAwesome5,
   MaterialCommunityIcons,
   AntDesign,
+  FontAwesome,
 } from "@expo/vector-icons";
 import { useContext } from "react";
 import { router, Stack } from "expo-router";
@@ -35,6 +37,9 @@ import { useMapMatching, usePlaceNavigate } from "@/hooks/maps/usemaps";
 import { useLocation } from "@/hooks/location/useLocation";
 import FormCharactersRestaurant from "@/components/formsContribution/FormCharactersRestaurant";
 import FormCommentsPlaceDetails from "@/components/FormCommentsPlaceDetails";
+import AmenitiesDisplay from "@/components/detailsPlace/AmenitiesDisplay";
+import ImageViewing from "react-native-image-viewing";
+import Toast from "react-native-toast-message";
 
 const { width } = Dimensions.get("window");
 
@@ -55,11 +60,16 @@ export default function PlaceDetails() {
   const [viewNavigationModal, setViewNavigationModal] = useState(false);
   const [viewCommentsModal, setViewCommentsModal] = useState(false);
   const [viewContributionModal, setViewContributionModal] = useState(false);
+  const [showTransportOptions, setShowTransportOptions] = useState(false);
+  const [modeTraveling, setModeTraveling] = useState("driving-traffic");
+  const [relounding, setRelounding] = useState(false);
+  const [visbleImageViewing, setVisbleImageViewing] = useState(false);
 
   const { location } = useLocation();
   const { setIsNavigating, place, setPlace } = usePlaceNavigateContext();
   const { navigatePlace } = usePlaceNavigate();
-  const { getMapMatchedLocation } = useMapMatching();
+
+  useMapMatching();
 
   const reviews = [
     {
@@ -113,7 +123,7 @@ export default function PlaceDetails() {
       const token = await AsyncStorage.getItem("jwt");
 
       const response = await fetch(
-        // `http://192.168.1.7:8080/api/place-details?place_id=${placeIdProvider}`,
+        // `http://192.168.1.2:8080/api/place-details?place_id=${placeIdProvider}&lang=es`,
         `https://back-new-place.onrender.com/api/place-details?place_id=${placeIdProvider}&lang=es`,
         {
           method: "GET",
@@ -126,7 +136,8 @@ export default function PlaceDetails() {
 
       const data = await response.json();
 
-      console.log(data);
+      console.log("data", data);
+      setRelounding(false);
       setDataPlaceDetails({
         ...data,
         reviews: data.comments,
@@ -134,7 +145,7 @@ export default function PlaceDetails() {
     };
 
     getDetailsPlace();
-  }, [placeIdProvider]);
+  }, [placeIdProvider, relounding]);
 
   //TODO: comentar y/o eliminar cuando se tenga la api
   // const dataPlaceDetails = {
@@ -228,20 +239,83 @@ export default function PlaceDetails() {
     });
   };
 
-  const handleNavigatePlace = async () => {
+  const handleNavigatePlace = async (
+    mode: "walking" | "driving-traffic" | "cycling"
+  ) => {
+    setModeTraveling(mode);
     if (location) {
       console.log(location);
       await navigatePlace(
         [location.coords.longitude, location.coords.latitude],
         // [-75.606303, 6.203676]
-        [place.lon, place.lat]
+        [place.lon, place.lat],
+        mode
       );
-      await getMapMatchedLocation();
       await setViewNavigationModal(false);
       await setIsNavigating(true);
       router.push("/NavigateDriver");
     } else {
       console.log("No se pudo obtener la ubicación actual");
+    }
+  };
+
+  const handleSavePlace = async () => {
+    const token = await AsyncStorage.getItem("jwt");
+
+    try {
+      const response = await fetch(
+        // "http://192.168.1.2:8080/api/saved-place-for-user",
+        "https://back-new-place.onrender.com/api/saved-place-for-user",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            place_id: placeIdProvider,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      console.log(data);
+      setRelounding(true);
+      Toast.show({
+        type: "success",
+        text1: `${data.message}`,
+        text2: "You can see it in your profile",
+        visibilityTime: 8000,
+        autoHide: true,
+        topOffset: 30,
+        bottomOffset: 40,
+        text1Style: {
+          fontSize: 18,
+          fontWeight: "bold",
+        },
+        text2Style: {
+          fontSize: 14,
+        },
+      });
+    } catch (error) {
+      console.log(error);
+      Toast.show({
+        type: "error",
+        text1: "Error al guardar el lugar",
+        text2: `${(error as Error).message}`,
+        visibilityTime: 8000,
+        autoHide: true,
+        topOffset: 30,
+        bottomOffset: 40,
+        text1Style: {
+          fontSize: 18,
+          fontWeight: "bold",
+        },
+        text2Style: {
+          fontSize: 14,
+        },
+      });
     }
   };
 
@@ -274,12 +348,13 @@ export default function PlaceDetails() {
         </Text>
         <TouchableOpacity
           style={styles.bookmarkButton}
-          onPress={() => setBookmarked(!bookmarked)}
+          // onPress={() => setBookmarked(!bookmarked)}
+          onPress={handleSavePlace}
         >
           <Ionicons
-            name={bookmarked ? "bookmark" : "bookmark-outline"}
+            name={dataPlaceDetails.savedPlace ? "bookmark" : "bookmark-outline"}
             size={24}
-            color={bookmarked ? "#FF385C" : textColor}
+            color={dataPlaceDetails.savedPlace ? "#FF385C" : textColor}
           />
         </TouchableOpacity>
       </View>
@@ -287,6 +362,13 @@ export default function PlaceDetails() {
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={relounding}
+            onRefresh={() => setRelounding(true)}
+            tintColor={textColor}
+          />
+        }
       >
         <View style={styles.imageGalleryContainer}>
           <ScrollView
@@ -301,12 +383,30 @@ export default function PlaceDetails() {
           >
             {dataPlaceDetails?.media?.length > 0 ? (
               dataPlaceDetails?.media?.map((image, index) => (
-                <Image
-                  key={index}
-                  source={{ uri: image }}
-                  style={styles.galleryImage}
-                  resizeMode="cover"
-                />
+                <>
+                  {visbleImageViewing ? (
+                    <ImageViewing
+                      key={index}
+                      imageIndex={0}
+                      images={dataPlaceDetails?.media?.map((url) => ({
+                        uri: url,
+                      }))}
+                      visible={visbleImageViewing}
+                      onRequestClose={() => setVisbleImageViewing(false)}
+                    />
+                  ) : (
+                    <TouchableOpacity
+                      key={index}
+                      onPress={() => setVisbleImageViewing(true)}
+                    >
+                      <Image
+                        source={{ uri: image }}
+                        style={styles.galleryImage}
+                        resizeMode="cover"
+                      />
+                    </TouchableOpacity>
+                  )}
+                </>
               ))
             ) : (
               <Image
@@ -379,7 +479,7 @@ export default function PlaceDetails() {
               </Text>
             </View>
             <Text style={[styles.reviewCount, { color: secondaryTextColor }]}>
-              ({dataPlaceDetails.user_ratings_total} reviews)
+              ({dataPlaceDetails.ratingCount} reviews)
             </Text>
           </View>
           <View style={styles.divider} />
@@ -429,11 +529,13 @@ export default function PlaceDetails() {
           {dataPlaceDetails?.opening_hours?.weekday_text?.length > 0 && (
             <View style={styles.divider} />
           )}
-          //TODO: descomentar cuando se tenga la logica de comodidades
-          {/* <Text style={[styles.sectionTitle, { color: textColor }]}>
-            Amenities
-          </Text>
-          <View style={styles.amenitiesGrid}>
+          {/* //TODO: descomentar cuando se tenga la logica de comodidades */}
+          {dataPlaceDetails.amenities && (
+            <>
+              <Text style={[styles.sectionTitle, { color: textColor }]}>
+                Comodidades
+              </Text>
+              {/* <View style={styles.amenitiesGrid}>
             {dataPlaceDetails.types?.map((amenity, index) => (
               <View key={index} style={styles.amenityItem}>
                 <AntDesign name="enviroment" size={24} color="#FF385C" />
@@ -445,6 +547,9 @@ export default function PlaceDetails() {
               </View>
             ))}
           </View> */}
+              <AmenitiesDisplay amenities={dataPlaceDetails.amenities as any} />
+            </>
+          )}
           <View style={styles.divider} />
           <Text style={[styles.sectionTitle, { color: textColor }]}>
             Reviews
@@ -537,11 +642,15 @@ export default function PlaceDetails() {
         </TouchableOpacity>
 
         <TouchableOpacity
+          disabled={dataPlaceDetails.contributions?.length === 0}
           style={[
             styles.directionsButton,
             {
               backgroundColor: cardColor,
-              borderColor: "#FF385C",
+              borderColor:
+                dataPlaceDetails.contributions?.length === 0
+                  ? "#CCCCCC"
+                  : "#FF385C",
               borderWidth: 1,
             },
           ]}
@@ -571,6 +680,7 @@ export default function PlaceDetails() {
           <FormCommentsPlaceDetails
             placeId={dataPlaceDetails?._id}
             setModalVisible={setViewCommentsModal}
+            setRelounding={setRelounding}
           />
         </NewModalPlaceActions>
       )}
@@ -582,8 +692,11 @@ export default function PlaceDetails() {
           heightExpanded={800}
         >
           <FormCharactersRestaurant
-            placeId={dataPlaceDetails?.place_id}
+            placeId={dataPlaceDetails?._id}
+            contributions={dataPlaceDetails?.contributions || []}
             setModalVisible={setViewContributionModal}
+            setRelounding={setRelounding}
+            userDataContributions={dataPlaceDetails.userDataContributions}
           />
         </NewModalPlaceActions>
       )}
@@ -617,44 +730,85 @@ export default function PlaceDetails() {
               <ActivityIndicator size="large" color="#FF385C" />
             ) : (
               <View style={styles.actionButtonsContainer}>
-                <Pressable
-                  onPress={handleNavigatePlace}
-                  style={[
-                    styles.actionButton,
-                    { backgroundColor: location ? "#FF385C" : "#666" },
-                  ]}
-                  disabled={!location}
-                  android_ripple={{ color: "#FF385C" }}
-                >
-                  <Ionicons name="navigate" size={24} color="white" />
-                  <Text
-                    style={[
-                      { color: "white", fontSize: 16, fontWeight: "bold" },
-                    ]}
-                  >
-                    Navegar
-                  </Text>
-                </Pressable>
-                <Pressable
-                  onPress={navigateExternalApp}
-                  style={[
-                    styles.actionButton,
-                    {
-                      backgroundColor: cardColor,
-                      borderWidth: 1,
-                      borderColor: "#FF385C",
-                    },
-                  ]}
-                >
-                  <Ionicons name="navigate" size={24} color={textColor} />
-                  <Text
-                    style={[
-                      { color: textColor, fontSize: 16, fontWeight: "bold" },
-                    ]}
-                  >
-                    App Externa
-                  </Text>
-                </Pressable>
+                {showTransportOptions ? (
+                  <>
+                    <Pressable
+                      onPress={() => handleNavigatePlace("walking")}
+                      style={[
+                        styles.actionButton,
+                        { backgroundColor: "#4CAF50" },
+                      ]}
+                    >
+                      <Ionicons name="walk" size={24} color="white" />
+                      <Text style={styles.buttonText}>Caminar</Text>
+                    </Pressable>
+                    <Pressable
+                      onPress={() => handleNavigatePlace("driving-traffic")}
+                      style={[
+                        styles.actionButton,
+                        { backgroundColor: "#2196F3" },
+                      ]}
+                    >
+                      <Ionicons name="car" size={24} color="white" />
+                      <Text style={styles.buttonText}>Carro</Text>
+                    </Pressable>
+                    <Pressable
+                      onPress={() => handleNavigatePlace("cycling")}
+                      style={[
+                        styles.actionButton,
+                        { backgroundColor: "#FF9800" },
+                      ]}
+                    >
+                      <Ionicons name="bicycle" size={24} color="white" />
+                      <Text style={styles.buttonText}>Bicicleta</Text>
+                    </Pressable>
+                  </>
+                ) : (
+                  <>
+                    <Pressable
+                      disabled
+                      onPress={() => setShowTransportOptions(true)}
+                      style={[
+                        styles.actionButton,
+                        { backgroundColor: "#CCCCCC" },
+                      ]}
+                    >
+                      <Ionicons name="navigate" size={24} color="white" />
+                      <Text
+                        style={[
+                          { color: "white", fontSize: 16, fontWeight: "bold" },
+                        ]}
+                      >
+                        Navegar
+                      </Text>
+                    </Pressable>
+
+                    <Pressable
+                      onPress={navigateExternalApp}
+                      style={[
+                        styles.actionButton,
+                        {
+                          backgroundColor: cardColor,
+                          borderWidth: 1,
+                          borderColor: "#FF385C",
+                        },
+                      ]}
+                    >
+                      <Ionicons name="navigate" size={24} color={textColor} />
+                      <Text
+                        style={[
+                          {
+                            color: textColor,
+                            fontSize: 16,
+                            fontWeight: "bold",
+                          },
+                        ]}
+                      >
+                        {"App Externa"}
+                      </Text>
+                    </Pressable>
+                  </>
+                )}
               </View>
             )}
           </View>
@@ -697,6 +851,8 @@ const styles = StyleSheet.create({
   galleryImage: {
     width,
     height: 300,
+    resizeMode: "cover",
+    position: "absolute",
   },
   pagination: {
     flexDirection: "row",
@@ -873,5 +1029,10 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
+  },
+  buttonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });

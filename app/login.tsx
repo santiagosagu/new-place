@@ -9,6 +9,7 @@ import {
   Image,
   Animated,
   Dimensions,
+  ActivityIndicator,
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRef } from "react";
@@ -22,6 +23,7 @@ import { auth } from "@/firebaseConfig";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useAuth } from "@/hooks/useAuth";
 import { router, Stack, useFocusEffect } from "expo-router";
+import Rive, { RiveRef } from "rive-react-native";
 
 export default function Login() {
   const colorScheme = useColorScheme();
@@ -42,7 +44,9 @@ export default function Login() {
     confirmPassword: "",
     general: "",
   });
+  const [loader, setLoader] = useState(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
+  const riveRefLoading = useRef<RiveRef>(null);
 
   const validateForm = () => {
     let isValid = true;
@@ -134,9 +138,9 @@ export default function Login() {
       }));
     } catch (error) {
       let errorMessage = "Error al enviar el email de recuperación";
-      if (error.code === "auth/user-not-found") {
+      if ((error as { code: string }).code === "auth/user-not-found") {
         errorMessage = "No existe una cuenta con este email";
-      } else if (error.code === "auth/invalid-email") {
+      } else if ((error as { code: string }).code === "auth/invalid-email") {
         errorMessage = "El email no es válido";
       }
       setErrors((prev) => ({ ...prev, email: errorMessage }));
@@ -146,13 +150,13 @@ export default function Login() {
   };
 
   const handleAuth = async () => {
+    setLoader(true);
     try {
       if (!validateForm()) {
         return;
       }
 
       setErrors((prev) => ({ ...prev, general: "" }));
-      setLoading(true);
 
       const userCredential = isLogin
         ? await signInWithEmailAndPassword(auth, email, password)
@@ -162,6 +166,7 @@ export default function Login() {
       console.log("idToken", idToken);
 
       const response = await fetch(
+        // `http://192.168.1.2:8080/api/${isLogin ? "login" : "create-user"}`,
         `https://back-new-place.onrender.com/api/${
           isLogin ? "login" : "create-user"
         }`,
@@ -180,13 +185,15 @@ export default function Login() {
         console.log("Token status:", data.token);
         await AsyncStorage.setItem("jwt", data.token);
         await AsyncStorage.setItem("user_id", data.user_id);
+        // setLoader(true);
       }
     } catch (error) {
       console.error("Error de autenticación", error);
       let errorMessage = "Error al procesar la solicitud";
+      setLoader(false);
 
       // Manejar errores específicos de Firebase
-      switch (error.code) {
+      switch ((error as { code: string }).code) {
         case "auth/email-already-in-use":
           errorMessage = "Este email ya está registrado";
           break;
@@ -218,14 +225,62 @@ export default function Login() {
     }
   };
 
-  useFocusEffect(
-    useCallback(() => {
-      if (user) {
-        return router.push("/");
+  // useEffect(() => {
+  //   const checkTokenAndRedirect = async () => {
+  //     const jwt = await AsyncStorage.getItem("jwt");
+  //     if (user && jwt) {
+  //       router.push("/");
+  //     }
+  //   };
+
+  //   checkTokenAndRedirect();
+  // }, [user]);
+
+  useEffect(() => {
+    let interval = setInterval(async () => {
+      const token = await AsyncStorage.getItem("jwt");
+      console.log("estoy validando el token");
+      if (token) {
+        setLoader(false);
+        console.log("token encontrado");
+        clearInterval(interval);
+        router.push("/");
       }
-      return () => {};
-    }, [user])
-  );
+    }, 500); // revisa cada 500ms
+
+    return () => clearInterval(interval);
+  }, []);
+
+  if (loader) {
+    return (
+      <View
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+          backgroundColor: "#1E1E1E",
+        }}
+      >
+        <Stack.Screen
+          options={{
+            title: "",
+            headerShown: false,
+          }}
+        />
+        <Rive
+          autoplay
+          ref={riveRefLoading}
+          url="https://public.rive.app/community/runtime-files/3331-6993-loading-earth.riv"
+          artboardName="Loading Final"
+          stateMachineName="State Machine 1"
+          style={{ width: 300, height: 300, borderRadius: 20 }}
+        />
+        <Text style={{ color: "white", fontSize: 20, textAlign: "center" }}>
+          Loading...
+        </Text>
+      </View>
+    );
+  }
 
   return (
     <LinearGradient

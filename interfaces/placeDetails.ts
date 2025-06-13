@@ -57,11 +57,16 @@ export interface Place {
   media: string[];
   place_id: string;
   rating: number;
+  ratingCount: number;
   reviews: Review[];
   types: string[];
+  contributions: string[] | null;
   url: string;
   user_ratings_total: number;
   website: string;
+  amenities: any[];
+  userDataContributions: any[] | null;
+  savedPlace: boolean;
 }
 
 export interface GooglePlaceResponse {

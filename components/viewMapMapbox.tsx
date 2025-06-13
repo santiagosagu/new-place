@@ -11,6 +11,7 @@ import Mapbox, {
 } from "@rnmapbox/maps";
 import { IconClose, IconNavigation } from "./ui/iconsList";
 import {
+  Alert,
   Image,
   Linking,
   Platform,
@@ -18,6 +19,7 @@ import {
   StyleSheet,
   Text,
   TextInput,
+  Animated,
   View,
 } from "react-native";
 import React, { useCallback, useEffect, useRef, useState } from "react";
@@ -44,6 +46,13 @@ import { NewModalPlaceActions } from "./newModalPlaceActions";
 import { AntDesign, FontAwesome, Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "expo-router";
 import AddNewPlaceForm from "./AddNewPlaceForm";
+import RouteLine from "./mapsItems/routeLine";
+import * as turf from "@turf/turf";
+import Toast from "react-native-toast-message";
+import { SnapbackZoom, ResumableZoom } from "react-native-zoom-toolkit";
+import { Easing } from "react-native";
+import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { RootStackParamList } from "@/hooks/navigation/types";
 
 interface itemMarker {
   _id: string;
@@ -62,6 +71,7 @@ export default function ViewMapMapbox({
   longitude,
   title,
   category,
+  contributions,
 }: any) {
   // const isDevelop = process.env.NODE_ENV === "development";
 
@@ -85,34 +95,41 @@ export default function ViewMapMapbox({
     longitude: number;
     latitude: number;
   } | null>(null);
+  const [showTransportOptions, setShowTransportOptions] = useState(false);
+  const [modeTraveling, setModeTraveling] = useState<any>("driving-traffic");
 
   const bottomSheetRef = useRef<BottomSheet>(null);
   const cameraRef = useRef<Camera>(null);
   const imagesRef = useRef<Images>(null);
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const translateY = useRef(new Animated.Value(20)).current; // comienza un poco abajo
 
   const cardColor = useThemeColor({}, "cardBackground");
   const secondaryTextColor = useThemeColor({}, "subtext");
   const backgroundTabTop = useThemeColor({}, "background");
   const colorText = useThemeColor({}, "text");
 
-  const navigation = useNavigation();
+  type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
+  const navigation = useNavigation<NavigationProp>();
 
   const { location } = useLocation();
   const { navigatePlace, checkingRoute, cancelNavigation } = usePlaceNavigate();
   const { getHeadingFromRoute, findClosestPointIndex } = useHeadingFromRoute();
-  const { getMapMatchedLocation } = useMapMatching();
+  // const { getMapMatchedLocation } = useMapMatching();
 
   const {
+    place,
     route,
+    alternateRoutes,
+    dataAditionalTravel,
     instructions,
     instructionStep,
     isNavigating,
-    setPlace,
-    place,
     currentInstruction,
     inOnRoute,
     matchedData,
     traficData,
+    setPlace,
     setIsNavigating,
   } = usePlaceNavigateContext();
 
@@ -139,27 +156,44 @@ export default function ViewMapMapbox({
   };
 
   useKeepAwake();
+  useMapMatching();
 
-  const handleNavigatePlace = async () => {
-    setModalVisible(false);
-    setIsNavigating(true);
+  const handleNavigatePlace = async (
+    mode: "walking" | "driving-traffic" | "cycling"
+  ) => {
+    setModeTraveling(mode);
+    setSeeInCards(false);
 
     if (location) {
-      navigatePlace(
-        [location.coords.longitude, location.coords.latitude],
-        // [-75.606303, 6.203676],
-        [place.lon, place.lat]
-      );
-      getMapMatchedLocation();
-    } else {
-      navigatePlace([longitude, latitude], [place.lon, place.lat]);
-      getMapMatchedLocation();
+      setModalVisible(false);
+      try {
+        await navigatePlace(
+          [location.coords.longitude, location.coords.latitude],
+          [place.lon, place.lat],
+          mode
+        );
+        setIsNavigating(true);
+      } catch (error) {
+        Toast.show({
+          type: "error", // o "success", "info"
+          text1: "Error al navegar",
+          text2: `${(error as Error).message}`,
+          position: "top",
+          visibilityTime: 8000, // duración en milisegundos (6 segundos)
+          text1Style: {
+            fontSize: 18,
+            fontWeight: "bold",
+          },
+          text2Style: {
+            fontSize: 14,
+          },
+        });
+      }
     }
   };
 
   const handleSheetChanges = useCallback((index: number) => {
     if (index === -1) {
-      cancelNavigation();
       setMapReady(false);
       if (cameraRef.current) {
         if (location) {
@@ -182,6 +216,38 @@ export default function ViewMapMapbox({
     }
   }, []);
 
+  // useEffect(() => {
+  //   if (location && isNavigating) {
+  //     console.log("hola");
+  //     useMapMatching();
+  //   }
+  // }, [isNavigating, location]);
+  useEffect(() => {
+    if (isNavigating) {
+      const timeout = setTimeout(() => {
+        Animated.parallel([
+          Animated.timing(fadeAnim, {
+            toValue: 1,
+            duration: 500,
+            easing: Easing.out(Easing.ease),
+            useNativeDriver: true,
+          }),
+          Animated.timing(translateY, {
+            toValue: 0,
+            duration: 500,
+            easing: Easing.out(Easing.ease),
+            useNativeDriver: true,
+          }),
+        ]).start();
+      }, 400); // puedes ajustar este delay
+
+      return () => clearTimeout(timeout);
+    } else {
+      fadeAnim.setValue(0);
+      translateY.setValue(20);
+    }
+  }, [isNavigating]);
+
   useEffect(() => {
     if (route.length > 0 && instructions.length > 0) {
       checkingRoute();
@@ -192,9 +258,11 @@ export default function ViewMapMapbox({
     if (cameraRef.current && isNavigating) {
       if (location) {
         cameraRef.current.setCamera({
-          centerCoordinate: [matchedData.lon, matchedData.lat],
+          centerCoordinate: matchedData.lat
+            ? [matchedData.lon, matchedData.lat]
+            : [location.coords.longitude, location.coords.latitude],
           animationDuration: 1000,
-          zoomLevel: 19,
+          zoomLevel: 18,
         });
       } else {
         cameraRef.current.setCamera({
@@ -210,9 +278,11 @@ export default function ViewMapMapbox({
     if (cameraRef.current && isNavigating) {
       if (location) {
         cameraRef.current.setCamera({
-          centerCoordinate: [matchedData.lon, matchedData.lat],
+          centerCoordinate: matchedData.lat
+            ? [matchedData.lon, matchedData.lat]
+            : [location.coords.longitude, location.coords.latitude],
           animationDuration: 1000,
-          zoomLevel: 19,
+          zoomLevel: 18,
         });
       } else {
         cameraRef.current.setCamera({
@@ -240,7 +310,8 @@ export default function ViewMapMapbox({
       navigatePlace(
         [location.coords.longitude, location.coords.latitude],
         // [-75.606303, 6.203676],
-        [place.lon, place.lat]
+        [place.lon, place.lat],
+        modeTraveling
       );
     }
   }, [inOnRoute, location, isNavigating]);
@@ -277,7 +348,22 @@ export default function ViewMapMapbox({
     }
   }, [imagesRef.current]);
 
-  console.log("viewmapa", data);
+  useEffect(() => {
+    if (modalVisible === false) {
+      setShowTransportOptions(false);
+    }
+  }, [modalVisible]);
+
+  function isUserNearRoute(
+    userCoords: [number, number],
+    routeCoords: [number, number][],
+    maxDistanceMeters = 50
+  ): boolean {
+    const point = turf.point(userCoords);
+    const line = turf.lineString(routeCoords);
+    const distance = turf.pointToLineDistance(point, line, { units: "meters" });
+    return distance <= maxDistanceMeters;
+  }
 
   if (seeInCards) {
     return (
@@ -378,67 +464,119 @@ export default function ViewMapMapbox({
                   style={styles.image}
                 />
                 <View style={styles.actionButtonsContainer}>
-                  <Pressable
-                    onPress={() => {
-                      setModalVisible(false);
-                      navigation.navigate<any>("PlaceDetails", {
-                        placeIdProvider: place.placeIdProvider,
-                      });
-                    }}
-                    style={[
-                      styles.actionButton,
-                      {
-                        backgroundColor: cardColor,
-                        borderWidth: 1,
-                        borderColor: "#FF385C",
-                      },
-                    ]}
-                  >
-                    <FontAwesome name="home" size={24} color={colorText} />
-                    <Text
-                      style={[
-                        { color: colorText, fontSize: 16, fontWeight: "bold" },
-                      ]}
-                    >
-                      Detalles
-                    </Text>
-                  </Pressable>
-                  <Pressable
-                    onPress={handleNavigatePlace}
-                    style={[
-                      styles.actionButton,
-                      { backgroundColor: "#FF385C" },
-                    ]}
-                  >
-                    <Ionicons name="navigate" size={24} color="white" />
-                    <Text
-                      style={[
-                        { color: "white", fontSize: 16, fontWeight: "bold" },
-                      ]}
-                    >
-                      Navegar
-                    </Text>
-                  </Pressable>
-                  <Pressable
-                    onPress={navigateExternalApp}
-                    style={[
-                      styles.actionButton,
-                      {
-                        backgroundColor: cardColor,
-                        borderWidth: 1,
-                        borderColor: "#FF385C",
-                      },
-                    ]}
-                  >
-                    <Ionicons name="navigate" size={24} color={colorText} />
-                    <Text
-                      style={[
-                        { color: colorText, fontSize: 16, fontWeight: "bold" },
-                      ]}
-                    >
-                      App Externa
-                    </Text>
-                  </Pressable>
+                  {showTransportOptions ? (
+                    <>
+                      <Pressable
+                        onPress={() => handleNavigatePlace("walking")}
+                        style={[
+                          styles.actionButton,
+                          { backgroundColor: "#4CAF50" },
+                        ]}
+                      >
+                        <Ionicons name="walk" size={24} color="white" />
+                        <Text style={styles.buttonText}>Caminar</Text>
+                      </Pressable>
+                      <Pressable
+                        onPress={() => handleNavigatePlace("driving-traffic")}
+                        style={[
+                          styles.actionButton,
+                          { backgroundColor: "#2196F3" },
+                        ]}
+                      >
+                        <Ionicons name="car" size={24} color="white" />
+                        <Text style={styles.buttonText}>Carro</Text>
+                      </Pressable>
+                      <Pressable
+                        onPress={() => handleNavigatePlace("cycling")}
+                        style={[
+                          styles.actionButton,
+                          { backgroundColor: "#FF9800" },
+                        ]}
+                      >
+                        <Ionicons name="bicycle" size={24} color="white" />
+                        <Text style={styles.buttonText}>Bicicleta</Text>
+                      </Pressable>
+                    </>
+                  ) : (
+                    <>
+                      <Pressable
+                        onPress={() => {
+                          setModalVisible(false);
+                          navigation.navigate<any>("PlaceDetails", {
+                            placeIdProvider: place._id,
+                          });
+                        }}
+                        style={[
+                          styles.actionButton,
+                          {
+                            backgroundColor: cardColor,
+                            borderWidth: 1,
+                            borderColor: "#FF385C",
+                          },
+                        ]}
+                      >
+                        <FontAwesome name="home" size={24} color={colorText} />
+                        <Text
+                          style={[
+                            {
+                              color: colorText,
+                              fontSize: 16,
+                              fontWeight: "bold",
+                            },
+                          ]}
+                        >
+                          Detalles
+                        </Text>
+                      </Pressable>
+
+                      <Pressable
+                        disabled
+                        onPress={() => setShowTransportOptions(true)}
+                        style={[
+                          styles.actionButton,
+                          { backgroundColor: "#CCCCCC" },
+                        ]}
+                      >
+                        <Ionicons name="navigate" size={24} color="white" />
+                        <Text
+                          style={[
+                            {
+                              color: "white",
+                              fontSize: 16,
+                              fontWeight: "bold",
+                            },
+                          ]}
+                        >
+                          Navegar
+                        </Text>
+                      </Pressable>
+
+                      <Pressable
+                        onPress={navigateExternalApp}
+                        style={[
+                          styles.actionButton,
+                          {
+                            backgroundColor: cardColor,
+                            borderWidth: 1,
+                            borderColor: "#FF385C",
+                          },
+                        ]}
+                      >
+                        <Ionicons name="navigate" size={24} color={colorText} />
+                        <Text
+                          style={[
+                            {
+                              color: colorText,
+                              fontSize: 16,
+                              fontWeight: "bold",
+                            },
+                          ]}
+                        >
+                          App Externa
+                        </Text>
+                      </Pressable>
+                    </>
+                  )}
                 </View>
               </View>
             </View>
@@ -458,6 +596,7 @@ export default function ViewMapMapbox({
         navigatePlace={handleNavigatePlace}
         setSeeInCards={setSeeInCards}
       /> */}
+
       <TravelingWithExternalApp
         modalVisibleTraveling={modalVisibleTraveling}
         setModalVisibleTraveling={setModalVisibleTraveling}
@@ -522,6 +661,9 @@ export default function ViewMapMapbox({
         styleURL="mapbox://styles/s4gu/cm5iozsw7003601qpdhq7dkwn"
         logoEnabled={false}
         onPress={(feature: any) => {
+          if (isNavigating) {
+            return;
+          }
           const coordinates = feature.geometry.coordinates;
           setSelectedPoint(null);
           setModalNewPlace(false);
@@ -549,19 +691,21 @@ export default function ViewMapMapbox({
         )}
         <Camera
           ref={cameraRef}
-          zoomLevel={isNavigating ? 19 : 14}
+          zoomLevel={isNavigating ? 18 : 14}
           animationDuration={1000}
           heading={heading}
           followHeading={5}
           // heading={getHeadingFromRoute(route)}
           pitch={isNavigating ? 50 : 50}
           centerCoordinate={
-            location && isNavigating && matchedData
+            location && isNavigating && matchedData.lat
               ? [matchedData.lon, matchedData.lat]
               : [longitude, latitude]
           }
           // centerCoordinate={[2.2932, 48.86069]}
           animationMode="flyTo"
+          maxZoomLevel={20}
+          minZoomLevel={isNavigating ? 16 : 10}
         />
 
         <Images
@@ -578,27 +722,15 @@ export default function ViewMapMapbox({
               coordinate={
                 matchedData.lon
                   ? [matchedData.lon, matchedData.lat]
-                  : [location!.coords.longitude, location!.coords.latitude]
+                  : [location?.coords.longitude, location?.coords.latitude]
               }
-              heading={location!.coords.heading || 0}
+              heading={location?.coords.heading ?? 0}
             />
           </>
         )}
 
         {/* {mapReady && ( */}
-        <LocationPuck
-          pulsing={{
-            isEnabled: true,
-            color: "#000",
-            radius: "accuracy",
-          }}
-          visible
-          puckBearingEnabled
-          scale={["interpolate", ["linear"], ["zoom"], 14, 0.2, 20, 0.3]}
-          puckBearing="course"
-          topImage={mapReady ? "puck-image" : ""}
-          // bearingImage={mapReady && isNavigating ? "puck-image-2" : ""}
-        />
+
         {/* )} */}
         {/* {!isNavigating && (
           <LocationPuck
@@ -672,39 +804,120 @@ export default function ViewMapMapbox({
             >
               <LineLayer
                 id="lineIntructionLayer"
+                layerIndex={10}
                 style={{
                   lineColor: "rgba(154, 230, 166, 0.9)",
                   // lineColor: "green",
                   lineCap: "round",
                   lineJoin: "round",
-                  lineWidth: 15,
+                  lineWidth: [
+                    "interpolate",
+                    ["linear"],
+                    ["zoom"],
+                    10,
+                    2,
+                    14,
+                    5,
+                    19,
+                    20,
+                    20,
+                    12,
+                  ],
                 }}
               />
             </ShapeSource>
 
-            <ShapeSource
-              id="routeSource"
-              lineMetrics
-              shape={{
-                properties: {},
-                type: "Feature",
-                geometry: {
-                  type: "LineString",
-                  coordinates: route,
-                },
+            {location && Object.keys(matchedData).length > 0 && (
+              <>
+                {alternateRoutes
+                  .filter((route) =>
+                    isUserNearRoute([matchedData.lon, matchedData.lat], route)
+                  )
+                  .map((alternateRoute, index) => {
+                    const shape = {
+                      type: "Feature" as const,
+                      geometry: {
+                        type: "LineString" as const,
+                        coordinates: alternateRoute,
+                      },
+                      properties: {},
+                    };
+
+                    return (
+                      <ShapeSource
+                        key={`routeShape${index}`}
+                        id={`routeShape${index}`}
+                        lineMetrics
+                        shape={shape}
+                      >
+                        {/* Borde (más grueso y opaco) */}
+                        <LineLayer
+                          id={`routeBorder${index}`}
+                          layerIndex={10}
+                          style={{
+                            lineColor: "rgba(0,0,0, 1)", // fuerte
+                            lineCap: "round",
+                            lineJoin: "round",
+                            lineWidth: [
+                              "interpolate",
+                              ["linear"],
+                              ["zoom"],
+                              10,
+                              4, // más grueso que el interior
+                              14,
+                              8,
+                              20,
+                              20,
+                            ],
+                          }}
+                        />
+
+                        {/* Interior (más delgado y translúcido) */}
+                        <LineLayer
+                          id={`routeInterior${index}`}
+                          layerIndex={11}
+                          style={{
+                            lineColor: "rgba(5, 200, 247, 0.8)", // semitransparente
+                            lineCap: "round",
+                            lineJoin: "round",
+                            lineWidth: [
+                              "interpolate",
+                              ["linear"],
+                              ["zoom"],
+                              10,
+                              2, // más delgado
+                              14,
+                              5,
+                              20,
+                              12,
+                            ],
+                          }}
+                        />
+                      </ShapeSource>
+                    );
+                  })}
+              </>
+            )}
+
+            <RouteLine
+              route={route}
+              userLocation={{
+                latitude: matchedData.lat
+                  ? matchedData.lat
+                  : location?.coords.latitude,
+                longitude: matchedData.lon
+                  ? matchedData.lon
+                  : location?.coords.longitude,
               }}
-            >
-              <LineLayer
-                id="exampleLineLayer"
-                style={{
-                  lineColor: "rgba(0, 0, 0, 0.5)",
-                  // lineColor: "yellow",
-                  lineCap: "round",
-                  lineJoin: "round",
-                  lineWidth: 5,
-                }}
-              />
-            </ShapeSource>
+              // userLocation={
+              //   !location
+              //     ? null
+              //     : {
+              //         latitude: location?.coords.latitude,
+              //         longitude: location?.coords.longitude,
+              //       }
+              // }
+            />
           </>
         )}
         {traficData.length > 0 && (
@@ -731,6 +944,19 @@ export default function ViewMapMapbox({
             />
           </ShapeSource>
         )}
+        <LocationPuck
+          pulsing={{
+            isEnabled: true,
+            color: "#000",
+            radius: "accuracy",
+          }}
+          visible
+          puckBearingEnabled
+          scale={["interpolate", ["linear"], ["zoom"], 14, 0.2, 20, 0.3]}
+          puckBearing="course"
+          topImage={mapReady ? "puck-image" : ""}
+          // bearingImage={mapReady && isNavigating ? "puck-image-2" : ""}
+        />
       </MapView>
       {modalVisible && (
         <NewModalPlaceActions
@@ -763,65 +989,115 @@ export default function ViewMapMapbox({
                 style={styles.image}
               />
               <View style={styles.actionButtonsContainer}>
-                <Pressable
-                  onPress={() => {
-                    setModalVisible(false);
-                    navigation.navigate<any>("PlaceDetails", {
-                      // placeIdProvider: place.placeIdProvider,
-                      placeIdProvider: place._id,
-                    });
-                  }}
-                  style={[
-                    styles.actionButton,
-                    {
-                      backgroundColor: cardColor,
-                      borderWidth: 1,
-                      borderColor: "#FF385C",
-                    },
-                  ]}
-                >
-                  <FontAwesome name="home" size={24} color={colorText} />
-                  <Text
-                    style={[
-                      { color: colorText, fontSize: 16, fontWeight: "bold" },
-                    ]}
-                  >
-                    Detalles
-                  </Text>
-                </Pressable>
-                <Pressable
-                  onPress={handleNavigatePlace}
-                  style={[styles.actionButton, { backgroundColor: "#FF385C" }]}
-                >
-                  <Ionicons name="navigate" size={24} color="white" />
-                  <Text
-                    style={[
-                      { color: "white", fontSize: 16, fontWeight: "bold" },
-                    ]}
-                  >
-                    Navegar
-                  </Text>
-                </Pressable>
-                <Pressable
-                  onPress={navigateExternalApp}
-                  style={[
-                    styles.actionButton,
-                    {
-                      backgroundColor: cardColor,
-                      borderWidth: 1,
-                      borderColor: "#FF385C",
-                    },
-                  ]}
-                >
-                  <Ionicons name="navigate" size={24} color={colorText} />
-                  <Text
-                    style={[
-                      { color: colorText, fontSize: 16, fontWeight: "bold" },
-                    ]}
-                  >
-                    App Externa
-                  </Text>
-                </Pressable>
+                {showTransportOptions ? (
+                  <>
+                    <Pressable
+                      onPress={() => handleNavigatePlace("walking")}
+                      style={[
+                        styles.actionButton,
+                        { backgroundColor: "#4CAF50" },
+                      ]}
+                    >
+                      <Ionicons name="walk" size={24} color="white" />
+                      <Text style={styles.buttonText}>Caminar</Text>
+                    </Pressable>
+                    <Pressable
+                      onPress={() => handleNavigatePlace("driving-traffic")}
+                      style={[
+                        styles.actionButton,
+                        { backgroundColor: "#2196F3" },
+                      ]}
+                    >
+                      <Ionicons name="car" size={24} color="white" />
+                      <Text style={styles.buttonText}>Carro</Text>
+                    </Pressable>
+                    <Pressable
+                      onPress={() => handleNavigatePlace("cycling")}
+                      style={[
+                        styles.actionButton,
+                        { backgroundColor: "#FF9800" },
+                      ]}
+                    >
+                      <Ionicons name="bicycle" size={24} color="white" />
+                      <Text style={styles.buttonText}>Bicicleta</Text>
+                    </Pressable>
+                  </>
+                ) : (
+                  <>
+                    <Pressable
+                      onPress={() => {
+                        setModalVisible(false);
+                        navigation.navigate<any>("PlaceDetails", {
+                          placeIdProvider: place._id,
+                        });
+                      }}
+                      style={[
+                        styles.actionButton,
+                        {
+                          backgroundColor: cardColor,
+                          borderWidth: 1,
+                          borderColor: "#FF385C",
+                        },
+                      ]}
+                    >
+                      <FontAwesome name="home" size={24} color={colorText} />
+                      <Text
+                        style={[
+                          {
+                            color: colorText,
+                            fontSize: 16,
+                            fontWeight: "bold",
+                          },
+                        ]}
+                      >
+                        Detalles
+                      </Text>
+                    </Pressable>
+
+                    <Pressable
+                      disabled
+                      onPress={() => setShowTransportOptions(true)}
+                      style={[
+                        styles.actionButton,
+                        { backgroundColor: "#CCCCCC" },
+                      ]}
+                    >
+                      <Ionicons name="navigate" size={24} color="white" />
+                      <Text
+                        style={[
+                          { color: "white", fontSize: 16, fontWeight: "bold" },
+                        ]}
+                      >
+                        Navegar
+                      </Text>
+                    </Pressable>
+
+                    <Pressable
+                      onPress={navigateExternalApp}
+                      style={[
+                        styles.actionButton,
+                        {
+                          backgroundColor: cardColor,
+                          borderWidth: 1,
+                          borderColor: "#FF385C",
+                        },
+                      ]}
+                    >
+                      <Ionicons name="navigate" size={24} color={colorText} />
+                      <Text
+                        style={[
+                          {
+                            color: colorText,
+                            fontSize: 16,
+                            fontWeight: "bold",
+                          },
+                        ]}
+                      >
+                        App Externa
+                      </Text>
+                    </Pressable>
+                  </>
+                )}
               </View>
             </View>
           </View>
@@ -838,6 +1114,8 @@ export default function ViewMapMapbox({
             category={category}
             selectedPoint={selectedPoint}
             dispatch={setModalNewPlace}
+            title={title}
+            contributions={contributions}
           />
         </NewModalPlaceActions>
       )}
@@ -846,40 +1124,122 @@ export default function ViewMapMapbox({
         <BottomSheet
           ref={bottomSheetRef}
           onChange={handleSheetChanges}
-          snapPoints={[215, 500]}
+          snapPoints={[250, 500]}
         >
-          <BottomSheetView style={styles.contentContainer}>
-            <View style={styles.containerInstruction}>
-              <Text style={styles.instructionText}>{instructionStep}</Text>
-              <Pressable
-                onPress={() => {
-                  bottomSheetRef.current?.close();
-                  setIsNavigating(false);
-
-                  setPlace(null);
-                }}
-              >
-                <IconClose color="black" />
-              </Pressable>
-            </View>
-            <Pressable onPress={centerCamera}>
-              <View style={styles.containerButtonNavigation}>
-                <View style={styles.buttonNavigation}>
-                  <IconNavigation />
-                </View>
+          <Animated.View
+            style={{
+              transform: [{ translateY }],
+              opacity: fadeAnim,
+              flex: 1,
+            }}
+          >
+            <BottomSheetView style={styles.contentContainer}>
+              <View style={styles.containerInstruction}>
+                <Text style={styles.instructionText}>{instructionStep}</Text>
+                <Pressable
+                  onPress={() => {
+                    bottomSheetRef.current?.close();
+                    cancelNavigation();
+                  }}
+                >
+                  <IconClose color="black" />
+                </Pressable>
               </View>
-              <Text
-                style={{
-                  fontSize: 20,
-                  fontWeight: "bold",
-                  marginTop: 0,
-                  textAlign: "center",
-                }}
-              >
-                Centrar
-              </Text>
-            </Pressable>
-          </BottomSheetView>
+
+              <Pressable onPress={centerCamera}>
+                <View style={styles.containerButtonNavigation}>
+                  <View style={styles.buttonNavigation}>
+                    <IconNavigation />
+                  </View>
+                </View>
+                <Text
+                  style={{
+                    fontSize: 20,
+                    fontWeight: "bold",
+                    marginTop: 0,
+                    textAlign: "center",
+                  }}
+                >
+                  Centrar
+                </Text>
+              </Pressable>
+
+              {/* Distancia y duración mejor presentados */}
+              {dataAditionalTravel && (
+                <Animated.View
+                  style={{
+                    opacity: fadeAnim,
+                    marginTop: 20,
+                    paddingHorizontal: 24,
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  }}
+                >
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      backgroundColor: "rgba(255, 255, 255, 0.8)",
+                      borderRadius: 999,
+                      borderWidth: 1,
+                      borderColor: "#FF385C",
+                      paddingVertical: 6,
+                      paddingHorizontal: 12,
+                      marginRight: 10,
+                      shadowColor: "#000",
+                      shadowOffset: { width: 0, height: 2 },
+                      shadowOpacity: 0.2,
+                      shadowRadius: 3,
+                      elevation: 3,
+                    }}
+                  >
+                    <FontAwesome name="map-marker" size={18} color="#FF385C" />
+                    <Text
+                      style={{
+                        fontSize: 16,
+                        fontWeight: "600",
+                        color: "#000",
+                        marginLeft: 8,
+                      }}
+                    >
+                      {(dataAditionalTravel.distance / 1000).toFixed(2)} km
+                    </Text>
+                  </View>
+
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      backgroundColor: "rgba(255, 255, 255, 0.8)",
+                      borderRadius: 999,
+                      borderWidth: 1,
+                      borderColor: "#FF385C",
+                      paddingVertical: 6,
+                      paddingHorizontal: 12,
+                      shadowColor: "#000",
+                      shadowOffset: { width: 0, height: 2 },
+                      shadowOpacity: 0.2,
+                      shadowRadius: 3,
+                      elevation: 3,
+                    }}
+                  >
+                    <FontAwesome name="clock-o" size={18} color="#FF385C" />
+                    <Text
+                      style={{
+                        fontSize: 16,
+                        fontWeight: "600",
+                        color: "#000",
+                        marginLeft: 8,
+                      }}
+                    >
+                      {Math.round(dataAditionalTravel.duration / 60)} min
+                    </Text>
+                  </View>
+                </Animated.View>
+              )}
+            </BottomSheetView>
+          </Animated.View>
         </BottomSheet>
       )}
     </>
@@ -967,5 +1327,10 @@ const styles = StyleSheet.create({
     padding: 12,
     // height: 150,
     textAlignVertical: "top",
+  },
+  buttonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });

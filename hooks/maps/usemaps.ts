@@ -136,7 +136,7 @@ export const useFetchData = async (
 
     const response = await fetch(
       `https://back-new-place.onrender.com/api/places?lat=${latitude}&lng=${longitude}&category=${type}`,
-      // `http://192.168.1.7:8080/api/places?lat=${latitude}&lng=${longitude}&category=${type}`,
+      // `http://192.168.1.2:8080/api/places?lat=${latitude}&lng=${longitude}&category=${type}`,
       {
         method: "GET",
         headers: {
@@ -272,6 +272,8 @@ export const usePlaceNavigate = () => {
     route,
     instructions,
     setRoute,
+    setAlternateRoutes,
+    setDataAditionalTravel,
     setInstructions,
     setInstructionStep,
     setCurrentInstruction,
@@ -285,28 +287,60 @@ export const usePlaceNavigate = () => {
 
   const THRESHOLD_DISTANCE = 5; // Distancia en metros para considerar al usuario "en la ruta"
 
-  const navigatePlace = async (from: number[], to: number[]) => {
-    const url = `https://api.mapbox.com/directions/v5/mapbox/driving-traffic/${
+  const navigatePlace = async (
+    from: number[],
+    to: number[],
+    profile: "walking" | "driving-traffic" | "cycling" = "driving-traffic"
+  ) => {
+    // const url = `http://192.168.1.2:8080/api/navigate-place?from=[${from[0]},${
+    //   from[1]
+    // }]&to=[${to[0]},${
+    //   to[1]
+    // }]&lang=${RNLocalize.getLocales()[0].languageCode.toUpperCase()}&routing_profile=${profile}`;
+
+    const url = `https://back-new-place.onrender.com/api/navigate-place?from=[${
       from[0]
-    }%2C${from[1]}%3B${to[0]}%2C${
+    },${from[1]}]&to=[${to[0]},${
       to[1]
-    }?alternatives=true&annotations=distance%2Cduration&geometries=geojson&notifications=all&banner_instructions=true&voice_instructions=true&language=${
-      RNLocalize.getLocales()[0].languageCode
-    }&overview=full&steps=true&access_token=pk.eyJ1IjoiczRndSIsImEiOiJjbDhwZHE2NDIxa2k4M3B0b3FsaXZydm02In0.plTbzb5jQBHgNvkiWE4h9w`;
+    }]&lang=${RNLocalize.getLocales()[0].languageCode.toUpperCase()}&routing_profile=${profile}`;
+
+    console.log("profile", profile);
+    const token = await AsyncStorage.getItem("jwt");
+    const tokenNavigation = await AsyncStorage.getItem("tokenNavigation");
+
+    console.log("tokenNavigation", tokenNavigation);
 
     try {
-      const response = await fetch(url);
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+          "X-Navigation-Token": `${tokenNavigation}`,
+        },
+      });
       const data = await response.json();
 
-      console.log("data", data);
-
-      if (data) {
-        setInstructions(data.routes[0].legs[0].steps);
-        setRoute(data.routes[0].geometry.coordinates);
-        getTraficData(from[0], from[1]);
+      if (!response.ok) {
+        console.error("Error en la respuesta:", response.status);
+        throw new Error(data.message || `Error ${response.status}`);
       }
+
+      if (!data || !data.routes || data.routes.length === 0) {
+        throw new Error("Respuesta sin rutas válidas");
+      }
+
+      await AsyncStorage.setItem("tokenNavigation", data.tokenNavigation);
+      setInstructions(data.routes[0].instructions);
+      setRoute(data.routes[0].route);
+      setAlternateRoutes(data.routes.map((route: any) => route.route));
+      setDataAditionalTravel({
+        distance: data.routes[0].distance,
+        duration: data.routes[0].duration,
+      });
     } catch (error) {
-      console.error("Error fetching data:", error);
+      console.error("Error en navigatePlace:", error);
+      throw error; // Propaga el error para que lo capture `handleNavigatePlace`
     }
   };
 
@@ -332,24 +366,12 @@ export const usePlaceNavigate = () => {
         location.coords.latitude,
       ]);
 
-      // Simular la ubicación del usuario
-      // setTimeout(() => {
-      // const userLocation = turf.point([-75.609289, 6.205643]); // fuera de la casa
-      // const userLocation = turf.point([-75.606303, 6.203676]); // mas adelante para probar
-      // }, 5000); // Simular un cambio de ubicación después de 5 segundos
-
-      // Crear una línea completa a partir de los puntos de la ruta
       const routeLine = turf.lineString(route);
-
-      // Obtener el punto más cercano en la línea
       const nearestPoint = turf.nearestPointOnLine(routeLine, userLocation);
 
-      // Calcular la distancia entre la ubicación del usuario y la ruta
       const distanceToRoute =
         turf.distance(userLocation, nearestPoint, { units: "kilometers" }) *
-        1000; // Convertir a metros
-
-      // Definir un umbral para estar en la ruta (ejemplo: 100 metros)
+        1000;
 
       const speed = location.coords.speed;
       let routeThreshold = 50;
@@ -366,15 +388,12 @@ export const usePlaceNavigate = () => {
 
       if (distanceToRoute > routeThreshold) {
         console.log("fuera de la ruta");
-
-        // Usuario fuera de la ruta
         setInOnRoute(false);
         return;
       }
 
       console.log("dentro de la ruta");
 
-      // Usuario dentro de la ruta, calcular el paso más cercano
       let minDistance = Infinity;
       let closestStep = 0;
       const userInstruction = turf.point(nearestPoint.geometry.coordinates);
@@ -382,7 +401,6 @@ export const usePlaceNavigate = () => {
       instructions.forEach((step: any, index: number) => {
         const stepLocation = turf.point(step.geometry.coordinates[0]);
         const distance = turf.distance(userInstruction, stepLocation);
-
         if (distance < minDistance) {
           minDistance = distance;
           closestStep = index;
@@ -390,18 +408,35 @@ export const usePlaceNavigate = () => {
       });
 
       const closestInstruction = instructions[closestStep];
-      const instructionText = closestInstruction
-        ? closestInstruction.maneuver.instruction
-        : "No hay una instrucción disponible en este momento";
-
-      const currentInstruction = closestInstruction
+      const currentInstructionCoords = closestInstruction
         ? closestInstruction.geometry.coordinates
         : [];
 
+      const stepStartPoint = turf.point(currentInstructionCoords[0]);
+      const distanceToStep =
+        turf.distance(userInstruction, stepStartPoint, {
+          units: "kilometers",
+        }) * 1000;
+
+      let dynamicAnnouncement = closestInstruction?.maneuver.instruction;
+
+      if (
+        closestInstruction?.voiceInstructions &&
+        closestInstruction.voiceInstructions.length > 0
+      ) {
+        const voiceInstruction = closestInstruction.voiceInstructions
+          .slice()
+          .find((vi: any) => distanceToStep <= vi.distanceAlongGeometry);
+
+        if (voiceInstruction) {
+          dynamicAnnouncement = voiceInstruction.announcement;
+        }
+      }
+
       setInOnRoute(true);
       setCurrentStep(closestStep);
-      setCurrentInstruction(currentInstruction);
-      setInstructionStep(instructionText);
+      setCurrentInstruction(currentInstructionCoords);
+      setInstructionStep(dynamicAnnouncement);
     }
   };
 
@@ -409,6 +444,18 @@ export const usePlaceNavigate = () => {
     setIsNavigating(false);
     setPlace(null);
     setRoute([]);
+    setInstructions([]);
+    setCurrentInstruction([]);
+    setInstructionStep("No disponible");
+    setCurrentStep(0);
+    setInOnRoute(false);
+    setAlternateRoutes([]);
+    setDataAditionalTravel({
+      distance: 0,
+      duration: 0,
+    });
+    setTraficData([]);
+    AsyncStorage.removeItem("tokenNavigation");
   };
 
   return { navigatePlace, checkingRoute, cancelNavigation, getTraficData };
@@ -465,81 +512,164 @@ export const useHeadingFromRoute = () => {
   return { getHeadingFromRoute, findClosestPointIndex };
 };
 
+// export const useMapMatching = () => {
+//   const { location } = useLocation();
+//   const { setMatchedData, route } = usePlaceNavigateContext(); // `route` ya contiene las coordenadas de la ruta
+
+//   console.log("estoy aqui", location);
+//   console.log("route", route);
+
+//   // Función para calcular la distancia entre dos puntos usando el método de Haversine
+//   const haversine = (
+//     lat1: number,
+//     lon1: number,
+//     lat2: number,
+//     lon2: number
+//   ) => {
+//     const R = 6371000; // Radio de la Tierra en metros
+//     const φ1 = (lat1 * Math.PI) / 180;
+//     const φ2 = (lat2 * Math.PI) / 180;
+//     const Δφ = ((lat2 - lat1) * Math.PI) / 180;
+//     const Δλ = ((lon2 - lon1) * Math.PI) / 180;
+
+//     const a =
+//       Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+//       Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+//     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+//     return R * c; // Distancia en metros
+//   };
+
+//   // Función para encontrar el punto más cercano en la ruta
+//   const findClosestPointOnRoute = (
+//     userLocation: { lat: number; lon: number },
+//     route: number[][]
+//   ) => {
+//     let minDistance = Infinity;
+//     let closestPoint = { lat: userLocation.lat, lon: userLocation.lon };
+
+//     route.forEach((point) => {
+//       const [routeLon, routeLat] = point; // Suponiendo que la ruta es un array de [lon, lat]
+//       const distance = haversine(
+//         userLocation.lat,
+//         userLocation.lon,
+//         routeLat,
+//         routeLon
+//       );
+
+//       if (distance < minDistance) {
+//         minDistance = distance;
+//         closestPoint = { lat: routeLat, lon: routeLon };
+//       }
+//     });
+
+//     return closestPoint;
+//   };
+
+//   // Obtener la ubicación más cercana a la ruta
+//   const getMapMatchedLocation = async () => {
+//     try {
+//       if (!location) return; // Si no hay ubicación, no hacer nada
+
+//       // Llamamos a la función para encontrar el punto más cercano en la ruta
+//       const matchedLocation = findClosestPointOnRoute(
+//         { lat: location.coords.latitude, lon: location.coords.longitude },
+//         route // La ruta con las coordenadas de la carretera
+//       );
+
+//       // Actualizamos el estado con el punto más cercano
+//       setMatchedData(matchedLocation);
+//     } catch (error) {
+//       console.error("Error al obtener el map matching:", error);
+//     }
+//   };
+
+//   // Ejecutar la función cuando cambie la ubicación
+//   useEffect(() => {
+//     if (location) {
+//       getMapMatchedLocation();
+//     }
+//   }, [location, route]); // Ejecutar cada vez que la ubicación cambie
+
+//   return { getMapMatchedLocation };
+// };
+
 export const useMapMatching = () => {
   const { location } = useLocation();
-  const { setMatchedData, route } = usePlaceNavigateContext(); // `route` ya contiene las coordenadas de la ruta
+  const { setMatchedData, route } = usePlaceNavigateContext();
 
-  // Función para calcular la distancia entre dos puntos usando el método de Haversine
-  const haversine = (
-    lat1: number,
-    lon1: number,
-    lat2: number,
-    lon2: number
-  ) => {
-    const R = 6371000; // Radio de la Tierra en metros
-    const φ1 = (lat1 * Math.PI) / 180;
-    const φ2 = (lat2 * Math.PI) / 180;
-    const Δφ = ((lat2 - lat1) * Math.PI) / 180;
-    const Δλ = ((lon2 - lon1) * Math.PI) / 180;
+  useEffect(() => {
+    // Validar que todo esté listo antes de proceder
+    if (
+      !location ||
+      !location.coords ||
+      typeof location.coords.latitude !== "number" ||
+      typeof location.coords.longitude !== "number" ||
+      !Array.isArray(route) ||
+      route.length < 2
+    ) {
+      return;
+    }
 
-    const a =
-      Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
-      Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    // Convertir el array de coordenadas de la ruta a una línea de turf
+    const turfLine = turf.lineString(route);
 
-    return R * c; // Distancia en metros
-  };
+    // Punto actual del usuario
+    const userPoint = turf.point([
+      location.coords.longitude,
+      location.coords.latitude,
+    ]);
 
-  // Función para encontrar el punto más cercano en la ruta
-  const findClosestPointOnRoute = (
-    userLocation: { lat: number; lon: number },
-    route: number[][]
-  ) => {
-    let minDistance = Infinity;
-    let closestPoint = { lat: userLocation.lat, lon: userLocation.lon };
-
-    route.forEach((point) => {
-      const [routeLon, routeLat] = point; // Suponiendo que la ruta es un array de [lon, lat]
-      const distance = haversine(
-        userLocation.lat,
-        userLocation.lon,
-        routeLat,
-        routeLon
-      );
-
-      if (distance < minDistance) {
-        minDistance = distance;
-        closestPoint = { lat: routeLat, lon: routeLon };
-      }
+    // Punto más cercano sobre la línea
+    const snapped = turf.nearestPointOnLine(turfLine, userPoint, {
+      units: "meters",
     });
 
-    return closestPoint;
-  };
+    const distance = snapped.properties?.dist ?? 0;
 
-  // Obtener la ubicación más cercana a la ruta
-  const getMapMatchedLocation = async () => {
-    try {
-      if (!location) return; // Si no hay ubicación, no hacer nada
-
-      // Llamamos a la función para encontrar el punto más cercano en la ruta
-      const matchedLocation = findClosestPointOnRoute(
-        { lat: location.coords.latitude, lon: location.coords.longitude },
-        route // La ruta con las coordenadas de la carretera
-      );
-
-      // Actualizamos el estado con el punto más cercano
-      setMatchedData(matchedLocation);
-    } catch (error) {
-      console.error("Error al obtener el map matching:", error);
+    // Si está demasiado lejos de la ruta, no forzar
+    if (distance > 50) {
+      console.log("distance", distance);
+      return;
     }
-  };
 
-  // Ejecutar la función cuando cambie la ubicación
-  useEffect(() => {
-    if (location) {
-      getMapMatchedLocation();
-    }
-  }, [location, route]); // Ejecutar cada vez que la ubicación cambie
+    // Actualizamos con la posición ajustada (match con la ruta)
+    const matched = {
+      lat: snapped.geometry.coordinates[1],
+      lon: snapped.geometry.coordinates[0],
+    };
 
-  return { getMapMatchedLocation };
+    console.log("estoy aqui", location);
+    console.log("route", route);
+
+    setMatchedData(matched);
+  }, [location, route]);
+
+  return {};
 };
+
+export function calcularProgreso(
+  userCoord: [number, number],
+  rutaCoords: [number, number][]
+): number {
+  const line = turf.lineString(rutaCoords);
+  const userPoint = turf.point(userCoord);
+
+  // Punto más cercano del usuario sobre la línea
+  const nearestPoint = turf.nearestPointOnLine(line, userPoint, {
+    units: "kilometers",
+  });
+
+  // Distancia desde el inicio de la línea hasta ese punto
+  const distanciaRecorrida = nearestPoint.properties.location;
+
+  // Longitud total de la línea
+  const longitudTotal = turf.length(line, { units: "kilometers" });
+
+  // Progreso como valor entre 0 y 1
+  const progreso = distanciaRecorrida / longitudTotal;
+
+  console.log(progreso); // Esto mostrará el progreso en términos de distancia recorrida sobre la longitud tota
+
+  return Math.min(Math.max(progreso, 0), 1); // Limita entre 0 y 1
+}

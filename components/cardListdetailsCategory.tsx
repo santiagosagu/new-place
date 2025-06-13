@@ -9,6 +9,7 @@ interface IProps {
   radius?: string;
   type?: string;
   keyword?: string;
+  contributions: string | string[];
 }
 
 export default function CardListDetailsCategory({
@@ -17,6 +18,7 @@ export default function CardListDetailsCategory({
   radius,
   type,
   keyword,
+  contributions,
 }: IProps) {
   return (
     <Link
@@ -27,6 +29,7 @@ export default function CardListDetailsCategory({
           radius,
           type,
           keyword,
+          contributions,
         },
       }}
       asChild
